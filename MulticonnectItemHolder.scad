@@ -1,13 +1,13 @@
 //Size of the item to hold
-itemHeight = 100; //50
-itemWidth = 35.5;
-itemDepth = 10; 
+itemHeight = 102.4; //50
+itemWidth = 32.8;
+itemDepth = 10.5; 
 //Customization
 bottomCapture = 7;
 sideCapture = 3;
 wallThickness = 2;
 //The percent of the item you would like the box to hold (e.g., .66 means the holder will reach 2/3 up the part)
-heightRatio = .66; //[0.1:0.5:1.0]
+heightRatio = .66; //[0.1:0.05:1.0]
 //Standard
 backThickness = 6.5;
 //Calculated
