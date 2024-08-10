@@ -1,3 +1,11 @@
+This OpenSCAD project is a parametric approach to creating various item holders that are compatible with the MultiConnect standard by @davidd at Printables. 
+
+Get the MultiConnect connectors here: https://www.printables.com/model/716558-multiconnect-generic-connector-for-your-board
+
+Example in OpenSCAD
+![image](https://github.com/user-attachments/assets/1fb201eb-66d4-4f9b-b52b-4cf9fbe7a652)
+
+License
 Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
 
 This work is licensed under a
