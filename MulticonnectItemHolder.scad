@@ -1,28 +1,33 @@
-//Size of the item to hold
-itemHeight = 102.4; //50
-itemWidth = 32.8;
-itemDepth = 10.5; 
-//Customization
+//Height (in mm) of the item you wish to hold
+itemHeight = 100.0; //.1
+//Width (in mm) of the item you wish to hold
+itemWidth = 40.0; //.1
+//Depth (i.e., distance from back) (in mm) of the item you wish to hold
+itemDepth = 10.0; //.1
+//Height of bottom lip (in mm) that captures the bottom front of the item
 bottomCapture = 7;
+//Distance inward from the sides (in mm) that captures the sides of the item
 sideCapture = 3;
-wallThickness = 2;
-//The percent of the item you would like the box to hold (e.g., .66 means the holder will reach 2/3 up the part)
-heightRatio = .66; //[0.1:0.05:1.0]
-//Standard
-backThickness = 6.5;
+//Thickness of the walls surrounding the item (default 2mm)
+wallThickness = 2; //.1
+//The percent of the item you would like the box to hold (e.g., .60 means the holder will hold 60% up the part and 40% will stick out the top)
+heightRatio = .60; //[0.1:0.05:1.0]
+//Thickness of the back of the item (default in 6.5mm). Changes are untested. 
+backThickness = 6.5; //.1
+
+
+//Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
+distanceBetweenSlots = 25;
+//Scale of slots in the back (1.015 scale is default per MultiConnect specs)
+slotTolerance = 1.015; //[1.0:0.005:1.025]
+
 //Calculated
 productHeight = itemHeight*heightRatio+wallThickness;
 productDepth = itemDepth + backThickness + wallThickness;
 productWidth = itemWidth + wallThickness*2;
 productCenterX = itemWidth/2;
-slotCount = floor(itemWidth/25);
+slotCount = floor(itemWidth/distanceBetweenSlots);
 echo(str("Slot Count: ",slotCount));
-
-//Slot Dimensions
-distanceBetweenSlots = 25;
-slotTolerance = 0.15;
-
-//other helpful variables
 
 //itemRender
 %color("blue") cube([itemWidth, itemDepth, itemHeight]);
@@ -30,9 +35,10 @@ slotTolerance = 0.15;
 //Basket minus slots
 difference() {
     basket();
-    //Loop through slots and center
+    //Loop through slots and center on the item
+    //Thoughts behind x positioning calculation: increment by 
     for (slotNum = [0:1:slotCount-1]) {
-        translate(v = [slotNum*25+distanceBetweenSlots/2+(itemWidth/25-slotCount)*25/2,-2.575,itemHeight*heightRatio-13]) {
+        translate(v = [distanceBetweenSlots/2+(itemWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.575,itemHeight*heightRatio-13]) {
             slotTool();
         }
     }
@@ -78,7 +84,7 @@ module basket() {
 //Create Slot Tool
 module slotTool() {
     //translate(v = [0,-0.075,0]) //removed for redundancy
-    scale(v = 1.015) //scale for 0.15mm tolerance per Multiconnect design specs
+    scale(v = slotTolerance) //scale for 0.15mm tolerance per Multiconnect design specs
     difference() {
         union() {
             //round top
