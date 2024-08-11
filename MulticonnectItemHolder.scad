@@ -1,3 +1,4 @@
+/* [Item Size] */
 //Height (in mm) of the item you wish to hold
 itemHeight = 100.0; //.1
 //Width (in mm) of the item you wish to hold
@@ -5,6 +6,8 @@ itemWidth = 40.0; //.1
 //Depth (i.e., distance from back) (in mm) of the item you wish to hold
 itemDepth = 10.0; //.1
 //Height of bottom lip (in mm) that captures the bottom front of the item
+
+/* [Additional Customization] */
 bottomCapture = 7;
 //Distance inward from the sides (in mm) that captures the sides of the item
 sideCapture = 3;
@@ -12,12 +15,12 @@ sideCapture = 3;
 wallThickness = 2; //.1
 //The percent of the item you would like the box to hold (e.g., .60 means the holder will hold 60% up the part and 40% will stick out the top)
 heightRatio = .60; //[0.1:0.05:1.0]
-//Thickness of the back of the item (default in 6.5mm). Changes are untested. 
-backThickness = 6.5; //.1
-
-
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
 distanceBetweenSlots = 25;
+
+/* [Untested Modifications] */
+//Thickness of the back of the item (default in 6.5mm). Changes are untested. 
+backThickness = 6.5; //.1
 //Scale of slots in the back (1.015 scale is default per MultiConnect specs)
 slotTolerance = 1.015; //[1.0:0.005:1.025]
 
