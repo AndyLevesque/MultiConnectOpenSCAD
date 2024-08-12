@@ -3,13 +3,12 @@
 binType = "Bin"; //[Bin,Item Holder,Shelf]
 
 /* [Internal Dimensions] */
-//Height (in mm) of the item you wish to hold
+//Height (in mm) from the top of the back to the base of the internal floor
 internalDepth = 100.0; //.1
-//Width (in mm) of the item you wish to hold
+//Width (in mm) of the internal dimension or item you wish to hold
 internalWidth = 40.0; //.1
-//Depth (i.e., distance from back) (in mm) of the item you wish to hold
+//Length (i.e., distance from back) (in mm) of the internal dimension or item you wish to hold
 internalLength = 10.0; //.1
-//Height of bottom lip (in mm) that captures the bottom front of the item
 
 /* [Item Holder Customizations] */
 //Distance upward from the bottom (in mm) that captures the bottom front of the item
