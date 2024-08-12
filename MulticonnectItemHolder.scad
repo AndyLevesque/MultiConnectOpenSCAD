@@ -48,7 +48,7 @@ slotCount = floor(internalWidth/distanceBetweenSlots);
 echo(str("Slot Count: ",slotCount));
 
 //itemRender
-if(binType == "Item Holder" ) %color("blue") cube([internalWidth, internalDepth, internalHeight]);
+if(binType == "Item Holder" ) %color("blue") translate(v = [-internalWidth/2,0,0]) cube([internalWidth, internalDepth, internalHeight]);
 
 //move to center
 translate(v = [-productWidth/2+wallThickness,0,0]) 
