@@ -28,6 +28,8 @@ wallThickness = 2; //.1
 baseThickness = 3; //.1
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
 distanceBetweenSlots = 25;
+//QuickRelease removes the small indent in the top of the slots that lock the part into place
+slotQuickRelease = false;
 
 /* [Hidden] */
 //Thickness of the back of the item (default in 6.5mm). Changes are untested. 
@@ -46,6 +48,8 @@ echo(str("Slot Count: ",slotCount));
 //itemRender
 if(binType == "Item Holder" ) %color("blue") cube([internalWidth, internalLength, internalDepth]);
 
+//move to center
+translate(v = [-productWidth/2+wallThickness,0,0]) 
 //Basket minus slots
 difference() {
     basket();
@@ -122,9 +126,10 @@ module slotTool() {
                     }
         }
         //dimple
-        rotate(a = [90,0,0,]) 
-            rotate_extrude($fn=50) 
-                polygon(points = [[0,0],[0,1.5],[1.5,0]]);
+        if (slotQuickRelease == false)
+            rotate(a = [90,0,0,]) 
+                rotate_extrude($fn=50) 
+                    polygon(points = [[0,0],[0,1.5],[1.5,0]]);
 }
   
 }
