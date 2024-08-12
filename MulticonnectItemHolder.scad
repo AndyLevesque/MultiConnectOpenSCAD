@@ -18,6 +18,10 @@ bottomCapture = 7;
 sideCapture = 3;
 //Thickness of the walls surrounding the item (default 2mm)
 
+/* [Shelf] */
+//Distance upward from the bottom (in mm) that captures the bottom front of the item
+rimHeight = 7;
+
 /* [Additional Customization] */
 //Thickness of bin walls (in mm)
 wallThickness = 2; //.1
@@ -69,18 +73,22 @@ module basket() {
 
         //left wall
         translate([-wallThickness,0,0]){
-        cube([wallThickness, internalLength + wallThickness, internalDepth]);
+            if (binType == "Shelf") cube([wallThickness, internalLength + wallThickness, rimHeight]);
+            else cube([wallThickness, internalLength + wallThickness, internalDepth]);
         }
 
         //right wall
         translate([internalWidth,0,0]){
-        cube([wallThickness, internalLength + wallThickness, internalDepth]);
+            if (binType == "Shelf") cube([wallThickness, internalLength + wallThickness, rimHeight]);
+            else cube([wallThickness, internalLength + wallThickness, internalDepth]);
+
         }
 
         difference() {
         //frontCapture
             translate([0,internalLength,0]){ 
-                cube([internalWidth,wallThickness,internalDepth]);
+                if (binType == "Shelf") cube([internalWidth,wallThickness,rimHeight]);
+                else cube([internalWidth,wallThickness,internalDepth]);
 
             }
 
