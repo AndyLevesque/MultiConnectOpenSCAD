@@ -33,8 +33,8 @@ backThickness = 6.5; //.1
 slotTolerance = 1.015; //[1.0:0.005:1.025]
 
 //Calculated
-productHeight = internalDepth*wallThickness;
-productDepth = internalLength + backThickness + wallThickness;
+productDepth = internalDepth*baseThickness;
+productLength = internalLength + backThickness + wallThickness;
 productWidth = internalWidth + wallThickness*2;
 productCenterX = internalWidth/2;
 slotCount = floor(internalWidth/distanceBetweenSlots);
@@ -59,12 +59,12 @@ difference() {
 module basket() {
     union() {
         //back
-        translate([-wallThickness,-backThickness,-wallThickness]){
-                cube([internalWidth + (wallThickness*2), backThickness, (    internalDepth)+wallThickness]);}
+        translate([-wallThickness,-backThickness,-baseThickness]){
+                cube([internalWidth + (wallThickness*2), backThickness, (internalDepth)+baseThickness]);}
 
         //bottom
-        translate([-wallThickness,0,-wallThickness]){
-            cube([internalWidth + wallThickness*2, internalLength + wallThickness,wallThickness]);
+        translate([-wallThickness,0,-baseThickness]){
+            cube([internalWidth + wallThickness*2, internalLength + wallThickness,baseThickness]);
         }
 
         //left wall
