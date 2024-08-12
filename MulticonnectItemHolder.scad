@@ -1,39 +1,47 @@
-/* [Item Size] */
+/* [Bin Type] */
+//Item Type - Bin (or "bin") with all sides equal height vs Item Holder with an open front. Shelf not yet used.
+binType = "Bin"; //[Bin,Item Holder,Shelf]
+
+/* [Internal Dimensions] */
 //Height (in mm) of the item you wish to hold
-itemHeight = 100.0; //.1
+internalDepth = 100.0; //.1
 //Width (in mm) of the item you wish to hold
-itemWidth = 40.0; //.1
+internalWidth = 40.0; //.1
 //Depth (i.e., distance from back) (in mm) of the item you wish to hold
-itemDepth = 10.0; //.1
+internalLength = 10.0; //.1
 //Height of bottom lip (in mm) that captures the bottom front of the item
 
-/* [Additional Customization] */
+/* [Item Holder Customizations] */
+//Distance upward from the bottom (in mm) that captures the bottom front of the item
 bottomCapture = 7;
 //Distance inward from the sides (in mm) that captures the sides of the item
 sideCapture = 3;
 //Thickness of the walls surrounding the item (default 2mm)
+
+/* [Additional Customization] */
+//Thickness of bin walls (in mm)
 wallThickness = 2; //.1
-//The percent of the item you would like the box to hold (e.g., .60 means the holder will hold 60% up the part and 40% will stick out the top)
-heightRatio = .60; //[0.1:0.05:1.0]
+//Thickness of bin  (in mm)
+baseThickness = 3; //.1 not yet used
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
 distanceBetweenSlots = 25;
 
-/* [Untested Modifications] */
+/* [Hidden] */
 //Thickness of the back of the item (default in 6.5mm). Changes are untested. 
 backThickness = 6.5; //.1
 //Scale of slots in the back (1.015 scale is default per MultiConnect specs)
 slotTolerance = 1.015; //[1.0:0.005:1.025]
 
 //Calculated
-productHeight = itemHeight*heightRatio+wallThickness;
-productDepth = itemDepth + backThickness + wallThickness;
-productWidth = itemWidth + wallThickness*2;
-productCenterX = itemWidth/2;
-slotCount = floor(itemWidth/distanceBetweenSlots);
+productHeight = internalDepth*wallThickness;
+productDepth = internalLength + backThickness + wallThickness;
+productWidth = internalWidth + wallThickness*2;
+productCenterX = internalWidth/2;
+slotCount = floor(internalWidth/distanceBetweenSlots);
 echo(str("Slot Count: ",slotCount));
 
 //itemRender
-%color("blue") cube([itemWidth, itemDepth, itemHeight]);
+if(binType == "Item Holder" ) %color("blue") cube([internalWidth, internalLength, internalDepth]);
 
 //Basket minus slots
 difference() {
@@ -41,7 +49,7 @@ difference() {
     //Loop through slots and center on the item
     //Thoughts behind x positioning calculation: increment by 
     for (slotNum = [0:1:slotCount-1]) {
-        translate(v = [distanceBetweenSlots/2+(itemWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.575,itemHeight*heightRatio-13]) {
+        translate(v = [distanceBetweenSlots/2+(internalWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.575,internalDepth-13]) {
             slotTool();
         }
     }
@@ -52,33 +60,35 @@ module basket() {
     union() {
         //back
         translate([-wallThickness,-backThickness,-wallThickness]){
-                cube([itemWidth + (wallThickness*2), backThickness, (    itemHeight*heightRatio)+wallThickness]);}
+                cube([internalWidth + (wallThickness*2), backThickness, (    internalDepth)+wallThickness]);}
 
         //bottom
         translate([-wallThickness,0,-wallThickness]){
-            cube([itemWidth + wallThickness*2, itemDepth + wallThickness,wallThickness]);
+            cube([internalWidth + wallThickness*2, internalLength + wallThickness,wallThickness]);
         }
 
         //left wall
         translate([-wallThickness,0,0]){
-        cube([wallThickness, itemDepth + wallThickness, itemHeight*heightRatio]);
+        cube([wallThickness, internalLength + wallThickness, internalDepth]);
         }
 
         //right wall
-        translate([itemWidth,0,0]){
-        cube([wallThickness, itemDepth + wallThickness, itemHeight*heightRatio]);
+        translate([internalWidth,0,0]){
+        cube([wallThickness, internalLength + wallThickness, internalDepth]);
         }
 
         difference() {
         //frontCapture
-            translate([0,itemDepth,0]){ 
-                cube([itemWidth,wallThickness,itemHeight*heightRatio]);
+            translate([0,internalLength,0]){ 
+                cube([internalWidth,wallThickness,internalDepth]);
+
             }
 
-        //frontCaptureDeleteTool
-            translate([sideCapture,itemDepth-1,bottomCapture]){ 
-                color("red") cube([itemWidth-sideCapture*2,wallThickness+2,itemHeight*heightRatio-bottomCapture+1]);
-            }
+        //frontCaptureDeleteTool for item holders
+            if (binType == "Item Holder")
+                translate([sideCapture,internalLength-1,bottomCapture]){ 
+                    color("red") cube([internalWidth-sideCapture*2,wallThickness+2,internalDepth-bottomCapture+1]);
+                }
         }
     }
 }
@@ -97,7 +107,7 @@ module slotTool() {
             //long slot
             translate(v = [0,0,0]) 
                 rotate(a = [180,0,0]) 
-                linear_extrude(height = itemHeight*heightRatio+1) 
+                linear_extrude(height = internalDepth+1) 
                     union(){
                         polygon(points = [[0,0],[10,0],[10,1],[7.5,3.5],[7.5,4],[0,4]]);
                         mirror([1,0,0])
