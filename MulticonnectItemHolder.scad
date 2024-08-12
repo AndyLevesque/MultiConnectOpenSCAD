@@ -22,7 +22,7 @@ sideCapture = 3;
 //Thickness of bin walls (in mm)
 wallThickness = 2; //.1
 //Thickness of bin  (in mm)
-baseThickness = 3; //.1 not yet used
+baseThickness = 3; //.1
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
 distanceBetweenSlots = 25;
 
