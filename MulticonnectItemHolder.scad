@@ -20,6 +20,7 @@ sideCapture = 3;
 /* [Shelf] */
 //Distance upward from the bottom (in mm) that captures the bottom front of the item
 rimHeight = 7;
+brace_style = "45deg"; //[45deg,half_distance]
 
 /* [Additional Customization] */
 //Thickness of bin walls (in mm)
@@ -42,6 +43,7 @@ productDepth = internalDepth*baseThickness;
 productLength = internalLength + backThickness + wallThickness;
 productWidth = internalWidth + wallThickness*2;
 productCenterX = internalWidth/2;
+//slot count calculates how many slots can fit on the back. Based on internal width for buffer.
 slotCount = floor(internalWidth/distanceBetweenSlots);
 echo(str("Slot Count: ",slotCount));
 
@@ -50,17 +52,17 @@ if(binType == "Item Holder" ) %color("blue") cube([internalWidth, internalLength
 
 //move to center
 translate(v = [-productWidth/2+wallThickness,0,0]) 
-//Basket minus slots
-difference() {
-    basket();
-    //Loop through slots and center on the item
-    //Thoughts behind x positioning calculation: increment by 
-    for (slotNum = [0:1:slotCount-1]) {
-        translate(v = [distanceBetweenSlots/2+(internalWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.575,internalDepth-13]) {
-            slotTool();
+    //Basket minus slots
+    difference() {
+        basket();
+        //Loop through slots and center on the item
+        //Note: I kept doing math until it looked right. It's possible this can be simplified.
+        for (slotNum = [0:1:slotCount-1]) {
+            translate(v = [distanceBetweenSlots/2+(internalWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.575,internalDepth-13]) {
+                slotTool();
+            }
         }
     }
-}
 
 //Create Basket
 module basket() {
@@ -101,7 +103,28 @@ module basket() {
                     color("red") cube([internalWidth-sideCapture*2,wallThickness+2,internalDepth-bottomCapture+1]);
                 }
         }
+
+        //shelf brackets
+        //ToDo: Need to fix scenario where rimheight is very high and brackets go over the top of the holder
+        bracketDistance = min(internalDepth/2,internalLength/2);
+        echo(str("Bracket Distance: ",bracketDistance));
+        if (binType == "Shelf"){
+            //right shelf bracket
+            if (brace_style == "half_distance") {
+                translate(v = [0,0,internalDepth/2+rimHeight])
+                    shelfBracket(bracketHeight = internalDepth/2, bracketDepth = internalLength/2);
+                translate(v = [internalWidth+wallThickness,0,internalDepth/2+rimHeight])
+                    shelfBracket(bracketHeight = internalDepth/2, bracketDepth = internalLength/2);
+            }
+            else {
+                translate(v = [0,0,bracketDistance+rimHeight])
+                    shelfBracket(bracketHeight = bracketDistance, bracketDepth = bracketDistance);
+                translate(v = [internalWidth+wallThickness,0,bracketDistance+rimHeight])
+                    shelfBracket(bracketHeight = bracketDistance, bracketDepth = bracketDistance);
+            }
+        }
     }
+            
 }
 
 
@@ -130,6 +153,11 @@ module slotTool() {
             rotate(a = [90,0,0,]) 
                 rotate_extrude($fn=50) 
                     polygon(points = [[0,0],[0,1.5],[1.5,0]]);
+    }
 }
-  
+
+module shelfBracket(bracketHeight, bracketDepth){
+        rotate(a = [-90,0,90]) 
+            linear_extrude(height = wallThickness) 
+                polygon([[0,0],[0,bracketHeight],[bracketDepth,bracketHeight]]);
 }
