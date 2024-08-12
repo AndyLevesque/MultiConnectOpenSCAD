@@ -4,11 +4,11 @@ binType = "Bin"; //[Bin,Item Holder,Shelf]
 
 /* [Internal Dimensions] */
 //Height (in mm) from the top of the back to the base of the internal floor
-internalDepth = 100.0; //.1
+internalHeight = 50.0; //.1
 //Width (in mm) of the internal dimension or item you wish to hold
-internalWidth = 40.0; //.1
+internalWidth = 50.0; //.1
 //Length (i.e., distance from back) (in mm) of the internal dimension or item you wish to hold
-internalLength = 10.0; //.1
+internalDepth = 40.0; //.1
 
 /* [Item Holder Customizations] */
 //Distance upward from the bottom (in mm) that captures the bottom front of the item
@@ -17,7 +17,7 @@ bottomCapture = 7;
 sideCapture = 3;
 //Thickness of the walls surrounding the item (default 2mm)
 
-/* [Shelf] */
+/* [Shelf Customizations] */
 //Distance upward from the bottom (in mm) that captures the bottom front of the item
 rimHeight = 7;
 brace_style = "45deg"; //[45deg,half_distance]
@@ -39,8 +39,8 @@ backThickness = 6.5; //.1
 slotTolerance = 1.015; //[1.0:0.005:1.025]
 
 //Calculated
-productDepth = internalDepth*baseThickness;
-productLength = internalLength + backThickness + wallThickness;
+productHeight = internalHeight*baseThickness;
+productDepth = internalDepth + backThickness + wallThickness;
 productWidth = internalWidth + wallThickness*2;
 productCenterX = internalWidth/2;
 //slot count calculates how many slots can fit on the back. Based on internal width for buffer.
@@ -48,7 +48,7 @@ slotCount = floor(internalWidth/distanceBetweenSlots);
 echo(str("Slot Count: ",slotCount));
 
 //itemRender
-if(binType == "Item Holder" ) %color("blue") cube([internalWidth, internalLength, internalDepth]);
+if(binType == "Item Holder" ) %color("blue") cube([internalWidth, internalDepth, internalHeight]);
 
 //move to center
 translate(v = [-productWidth/2+wallThickness,0,0]) 
@@ -58,10 +58,12 @@ translate(v = [-productWidth/2+wallThickness,0,0])
         //Loop through slots and center on the item
         //Note: I kept doing math until it looked right. It's possible this can be simplified.
         for (slotNum = [0:1:slotCount-1]) {
-            translate(v = [distanceBetweenSlots/2+(internalWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.575,internalDepth-13]) {
+            translate(v = [distanceBetweenSlots/2+(internalWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.575,internalHeight-13]) {
                 slotTool();
             }
         }
+                    //delete tool for anything above the product (i.e., bracket fix)
+            color("red") translate(v = [-wallThickness-1 ,-1,internalHeight]) cube([productWidth+2,productDepth+2,productHeight]); 
     }
 
 //Create Basket
@@ -69,52 +71,52 @@ module basket() {
     union() {
         //back
         translate([-wallThickness,-backThickness,-baseThickness]){
-                cube([internalWidth + (wallThickness*2), backThickness, (internalDepth)+baseThickness]);}
+                cube([internalWidth + (wallThickness*2), backThickness, (internalHeight)+baseThickness]);}
 
         //bottom
         translate([-wallThickness,0,-baseThickness]){
-            cube([internalWidth + wallThickness*2, internalLength + wallThickness,baseThickness]);
+            cube([internalWidth + wallThickness*2, internalDepth + wallThickness,baseThickness]);
         }
 
         //left wall
         translate([-wallThickness,0,0]){
-            if (binType == "Shelf") cube([wallThickness, internalLength + wallThickness, rimHeight]);
-            else cube([wallThickness, internalLength + wallThickness, internalDepth]);
+            if (binType == "Shelf") cube([wallThickness, internalDepth + wallThickness, rimHeight]);
+            else cube([wallThickness, internalDepth + wallThickness, internalHeight]);
         }
 
         //right wall
         translate([internalWidth,0,0]){
-            if (binType == "Shelf") cube([wallThickness, internalLength + wallThickness, rimHeight]);
-            else cube([wallThickness, internalLength + wallThickness, internalDepth]);
+            if (binType == "Shelf") cube([wallThickness, internalDepth + wallThickness, rimHeight]);
+            else cube([wallThickness, internalDepth + wallThickness, internalHeight]);
 
         }
 
         difference() {
         //frontCapture
-            translate([0,internalLength,0]){ 
+            translate([0,internalDepth,0]){ 
                 if (binType == "Shelf") cube([internalWidth,wallThickness,rimHeight]);
-                else cube([internalWidth,wallThickness,internalDepth]);
+                else cube([internalWidth,wallThickness,internalHeight]);
 
             }
 
         //frontCaptureDeleteTool for item holders
             if (binType == "Item Holder")
-                translate([sideCapture,internalLength-1,bottomCapture]){ 
-                    color("red") cube([internalWidth-sideCapture*2,wallThickness+2,internalDepth-bottomCapture+1]);
+                translate([sideCapture,internalDepth-1,bottomCapture]){ 
+                    color("red") cube([internalWidth-sideCapture*2,wallThickness+2,internalHeight-bottomCapture+1]);
                 }
         }
 
         //shelf brackets
         //ToDo: Need to fix scenario where rimheight is very high and brackets go over the top of the holder
-        bracketDistance = min(internalDepth/2,internalLength/2);
+        bracketDistance = min(internalHeight/2,internalDepth/2);
         echo(str("Bracket Distance: ",bracketDistance));
         if (binType == "Shelf"){
-            //right shelf bracket
+            //right shelf bracket           
             if (brace_style == "half_distance") {
-                translate(v = [0,0,internalDepth/2+rimHeight])
-                    shelfBracket(bracketHeight = internalDepth/2, bracketDepth = internalLength/2);
-                translate(v = [internalWidth+wallThickness,0,internalDepth/2+rimHeight])
-                    shelfBracket(bracketHeight = internalDepth/2, bracketDepth = internalLength/2);
+                translate(v = [0,0,internalHeight/2+rimHeight])
+                    shelfBracket(bracketHeight = internalHeight/2, bracketDepth = internalDepth/2);
+                translate(v = [internalWidth+wallThickness,0,internalHeight/2+rimHeight])
+                    shelfBracket(bracketHeight = internalHeight/2, bracketDepth = internalDepth/2);
             }
             else {
                 translate(v = [0,0,bracketDistance+rimHeight])
@@ -141,7 +143,7 @@ module slotTool() {
             //long slot
             translate(v = [0,0,0]) 
                 rotate(a = [180,0,0]) 
-                linear_extrude(height = internalDepth+1) 
+                linear_extrude(height = internalHeight+1) 
                     union(){
                         polygon(points = [[0,0],[10,0],[10,1],[7.5,3.5],[7.5,4],[0,4]]);
                         mirror([1,0,0])
