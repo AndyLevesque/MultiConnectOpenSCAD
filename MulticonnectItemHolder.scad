@@ -1,5 +1,5 @@
 /* [Bin Type] */
-//Item Type - Bin (or "bin") with all sides equal height vs Item Holder with an open front. Shelf not yet used.
+//Item Type - Bin (or cup) with all sides equal height. Item Holders offer an open front. Shelves offer flat surfaces with a lop and braces.
 binType = "Bin"; //[Bin,Item Holder,Shelf]
 
 /* [Internal Dimensions] */
