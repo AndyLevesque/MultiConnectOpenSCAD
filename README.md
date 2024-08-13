@@ -1,5 +1,7 @@
 This OpenSCAD project is a parametric approach to creating various item holders that are compatible with the MultiConnect standard by @davidd at Printables. 
 
+Web version is available here: https://makerworld.com/en/models/582260
+
 Get the MultiConnect connectors here: https://www.printables.com/model/716558-multiconnect-generic-connector-for-your-board
 
 Example in OpenSCAD
