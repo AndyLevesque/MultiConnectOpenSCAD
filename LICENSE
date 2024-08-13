@@ -1,4 +1,4 @@
-Attribution 4.0 International
+Attribution-NonCommercial 4.0 International
 
 =======================================================================
 
@@ -33,7 +33,7 @@ exhaustive, and do not form part of our licenses.
      material not subject to the license. This includes other CC-
      licensed material, or material used under an exception or
      limitation to copyright. More considerations for licensors:
-	wiki.creativecommons.org/Considerations_for_licensors
+    wiki.creativecommons.org/Considerations_for_licensors
 
      Considerations for the public: By using one of our public
      licenses, a licensor grants the public permission to use the
@@ -48,22 +48,24 @@ exhaustive, and do not form part of our licenses.
      rights in the material. A licensor may make special requests,
      such as asking that all changes be marked or described.
      Although not required by our licenses, you are encouraged to
-     respect those requests where reasonable. More_considerations
+     respect those requests where reasonable. More considerations
      for the public:
-	wiki.creativecommons.org/Considerations_for_licensees
+    wiki.creativecommons.org/Considerations_for_licensees
 
 =======================================================================
 
-Creative Commons Attribution 4.0 International Public License
+Creative Commons Attribution-NonCommercial 4.0 International Public
+License
 
 By exercising the Licensed Rights (defined below), You accept and agree
 to be bound by the terms and conditions of this Creative Commons
-Attribution 4.0 International Public License ("Public License"). To the
-extent this Public License may be interpreted as a contract, You are
-granted the Licensed Rights in consideration of Your acceptance of
-these terms and conditions, and the Licensor grants You such rights in
-consideration of benefits the Licensor receives from making the
-Licensed Material available under these terms and conditions.
+Attribution-NonCommercial 4.0 International Public License ("Public
+License"). To the extent this Public License may be interpreted as a
+contract, You are granted the Licensed Rights in consideration of Your
+acceptance of these terms and conditions, and the Licensor grants You
+such rights in consideration of benefits the Licensor receives from
+making the Licensed Material available under these terms and
+conditions.
 
 
 Section 1 -- Definitions.
@@ -89,7 +91,6 @@ Section 1 -- Definitions.
      categorized. For purposes of this Public License, the rights
      specified in Section 2(b)(1)-(2) are not Copyright and Similar
      Rights.
-
   d. Effective Technological Measures means those measures that, in the
      absence of proper authority, may not be circumvented under laws
      fulfilling obligations under Article 11 of the WIPO Copyright
@@ -112,7 +113,15 @@ Section 1 -- Definitions.
   h. Licensor means the individual(s) or entity(ies) granting rights
      under this Public License.
 
-  i. Share means to provide material to the public by any means or
+  i. NonCommercial means not primarily intended for or directed towards
+     commercial advantage or monetary compensation. For purposes of
+     this Public License, the exchange of the Licensed Material for
+     other material subject to Copyright and Similar Rights by digital
+     file-sharing or similar means is NonCommercial provided there is
+     no payment of monetary compensation in connection with the
+     exchange.
+
+  j. Share means to provide material to the public by any means or
      process that requires permission under the Licensed Rights, such
      as reproduction, public display, public performance, distribution,
      dissemination, communication, or importation, and to make material
@@ -120,13 +129,13 @@ Section 1 -- Definitions.
      public may access the material from a place and at a time
      individually chosen by them.
 
-  j. Sui Generis Database Rights means rights other than copyright
+  k. Sui Generis Database Rights means rights other than copyright
      resulting from Directive 96/9/EC of the European Parliament and of
      the Council of 11 March 1996 on the legal protection of databases,
      as amended and/or succeeded, as well as other essentially
      equivalent rights anywhere in the world.
 
-  k. You means the individual or entity exercising the Licensed Rights
+  l. You means the individual or entity exercising the Licensed Rights
      under this Public License. Your has a corresponding meaning.
 
 
@@ -140,9 +149,10 @@ Section 2 -- Scope.
           exercise the Licensed Rights in the Licensed Material to:
 
             a. reproduce and Share the Licensed Material, in whole or
-               in part; and
+               in part, for NonCommercial purposes only; and
 
-            b. produce, reproduce, and Share Adapted Material.
+            b. produce, reproduce, and Share Adapted Material for
+               NonCommercial purposes only.
 
        2. Exceptions and Limitations. For the avoidance of doubt, where
           Exceptions and Limitations apply to Your use, this Public
@@ -204,7 +214,9 @@ Section 2 -- Scope.
           Rights, whether directly or through a collecting society
           under any voluntary or waivable statutory or compulsory
           licensing scheme. In all other cases the Licensor expressly
-          reserves any right to collect such royalties.
+          reserves any right to collect such royalties, including when
+          the Licensed Material is used other than for NonCommercial
+          purposes.
 
 
 Section 3 -- License Conditions.
@@ -266,7 +278,8 @@ apply to Your use of the Licensed Material:
 
   a. for the avoidance of doubt, Section 2(a)(1) grants You the right
      to extract, reuse, reproduce, and Share all or a substantial
-     portion of the contents of the database;
+     portion of the contents of the database for NonCommercial purposes
+     only;
 
   b. if You include all or a substantial portion of the database
      contents in a database in which You have Sui Generis Database
@@ -372,13 +385,12 @@ Section 8 -- Interpretation.
      that apply to the Licensor or You, including from the legal
      processes of any jurisdiction or authority.
 
-
 =======================================================================
 
 Creative Commons is not a party to its public
 licenses. Notwithstanding, Creative Commons may elect to apply one of
 its public licenses to material it publishes and in those instances
-will be considered the “Licensor.” The text of the Creative Commons
+will be considered the â€œLicensor.â€ The text of the Creative Commons
 public licenses is dedicated to the public domain under the CC0 Public
 Domain Dedication. Except for the limited purpose of indicating that
 material is shared under a Creative Commons public license or as
