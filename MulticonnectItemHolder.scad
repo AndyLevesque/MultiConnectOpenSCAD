@@ -1,3 +1,8 @@
+/*Created by Andy Levesque
+Credit to @David D on Printables and Jonathan at Keep Making for Multiconnect and Multiboard, respectively
+Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attribution
+*/
+
 /* [Bin Type] */
 //Item Type - Bin (or cup) with all sides equal height. Item Holders offer an open front. Shelves offer flat surfaces with a lop and braces.
 binType = "Bin"; //[Bin,Item Holder,Shelf]
@@ -19,7 +24,7 @@ sideCapture = 3;
 
 /* [Shelf Customizations] */
 //Distance upward from the bottom (in mm) that captures the bottom front of the item
-rimHeight = 7;
+rimHeight = 3;
 brace_style = "45deg"; //[45deg,half_distance]
 
 /* [Additional Customization] */
