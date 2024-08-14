@@ -11,7 +11,14 @@ internalHeight = 50.0; //.1
 //Width (in mm) of the internal dimension or item you wish to hold
 internalWidth = 50.0; //.1
 //Length (i.e., distance from back) (in mm) of the internal dimension or item you wish to hold
-internalDepth = 40.0; //.1
+internalDepth = 15.0; //.1
+
+/* [Item Holder Customizations] */
+//Distance upward from the bottom (in mm) that captures the bottom front of the item
+bottomCapture = 7;
+//Distance inward from the sides (in mm) that captures the sides of the item
+sideCapture = 3;
+//Thickness of the walls surrounding the item (default 2mm)
 
 /* [Additional Customization] */
 //Thickness of bin walls (in mm)
@@ -28,7 +35,7 @@ slotQuickRelease = false;
 dimpleScale = 1; //[0.5:.05:1.5]
 
 /* [Hidden] */
-binType = "Bin";
+binType = "Item Holder"; 
 //Thickness of the back of the item (default in 6.5mm). Changes are untested. 
 backThickness = 6.5; //.1
 //Scale of slots in the back (1.015 scale is default per MultiConnect specs)
@@ -80,6 +87,13 @@ module basket() {
         //frontCapture
             translate([0,internalDepth,0])
                 cube([internalWidth,wallThickness,internalHeight]);
+
+
+        //frontCaptureDeleteTool for item holders
+            if (binType == "Item Holder")
+                translate([sideCapture,internalDepth-1,bottomCapture]){ 
+                    color("red") cube([internalWidth-sideCapture*2,wallThickness+2,internalHeight-bottomCapture+1]);
+                }
         }
     }
             
