@@ -104,21 +104,6 @@ module shelf() {
             
 }
 
-module back(backWidth, backHeight)
-{
-
-    difference() {
-        translate(v = [0,-backThickness,0]) cube(size = [backWidth,backThickness,backHeight]);
-        //Loop through slots and center on the item
-        //Note: I kept doing math until it looked right. It's possible this can be simplified.
-        for (slotNum = [0:1:slotCount-1]) {
-            translate(v = [distanceBetweenSlots/2+(backWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.575,backHeight-13]) {
-                color(c = "red")  slotTool(backHeight);
-            }
-        }
-    }
-}
-
 //Create Slot Tool
 module slotTool() {
     //translate(v = [0,-0.075,0]) //removed for redundancy
