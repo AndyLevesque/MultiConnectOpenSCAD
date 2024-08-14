@@ -3,7 +3,7 @@ Credit to @David D on Printables and Jonathan at Keep Making for Multiconnect an
 Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attribution
 */
 
-/* [Bin Type] */
+/* [Type] */
 //Item Type - Bin (or cup) with all sides equal height. Item Holders offer an open front. Shelves offer flat surfaces with a lop and braces.
 binType = "Bin"; //[Bin,Item Holder,Shelf]
 
@@ -36,6 +36,8 @@ baseThickness = 3; //.1
 distanceBetweenSlots = 25;
 //QuickRelease removes the small indent in the top of the slots that lock the part into place
 slotQuickRelease = false;
+//Dimple scale tweaks the size of the dimple in the slot for printers that need a larger dimple to print correctly
+dimpleScale = 1; //[0.5:.05:1.5]
 
 /* [Hidden] */
 //Thickness of the back of the item (default in 6.5mm). Changes are untested. 
@@ -154,6 +156,7 @@ module slotTool() {
         }
         //dimple
         if (slotQuickRelease == false)
+            scale(v = dimpleScale) 
             rotate(a = [90,0,0,]) 
                 rotate_extrude($fn=50) 
                     polygon(points = [[0,0],[0,1.5],[1.5,0]]);
