@@ -31,8 +31,7 @@ slotCount = floor(max(distanceBetweenSlots,hookWidth)/distanceBetweenSlots);
 echo(str("Slot Count: ",slotCount));
 backWidth = max(distanceBetweenSlots,hookWidth);
 
-
-//back with slots
+//Hook
 union(){
     //back
     translate(v = [-backWidth/2,0,0]) 
@@ -45,6 +44,7 @@ union(){
         cube(size = [hookWidth,hookLipThickness,hookLipHeight+hookBottomThickness]);
 }
 
+//Slotted back
 module back(backWidth, backHeight)
 {
 
