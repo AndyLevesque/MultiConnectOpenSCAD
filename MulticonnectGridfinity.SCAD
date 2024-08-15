@@ -5,6 +5,9 @@ Credit to
     Zach at gridfinity.xyz for the Gridfinity standard
     Katie (and her community) at Hands on Katie on Youtube for advice
 Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attribution
+TODO: 
+    - Add ability to tweak rim height
+    - Ability to trim grid height (some versions lop off a tiny bit off the top)
 */
 
 /*[Parameters]*/
@@ -36,24 +39,26 @@ slotCount = floor(totalWidth/distanceBetweenSlots);
 echo(str("Slot Count: ",slotCount));
 
 //begin build
-translate(v = [rimThickness,0,0]) 
-    gridfinity_grid(xCount = unitsWide, yCount = unitsDeep);
-translate(v = [0,0,-baseThickness]) 
-    back(backWidth = totalWidth, backHeight = backHeight);
-//shelf
-difference(){
-        translate(v = [0,0,-baseThickness]) 
-            cube([totalWidth,totalDepth-backThickness,4.65+baseThickness]);
-        translate(v = [rimThickness,0,0]) 
-            cube([totalWidth-rimThickness*2,totalDepth-backThickness-rimThickness,6]);
+translate(v = [-totalWidth/2,-totalDepth/2]) 
+union(){
+    translate(v = [rimThickness,0,0]) 
+        gridfinity_grid(xCount = unitsWide, yCount = unitsDeep);
+    translate(v = [0,0,-baseThickness]) 
+        back(backWidth = totalWidth, backHeight = backHeight);
+    //shelf
+    difference(){
+            translate(v = [0,0,-baseThickness]) 
+                cube([totalWidth,totalDepth-backThickness,4.65+baseThickness]);
+            translate(v = [rimThickness,0,0]) 
+                cube([totalWidth-rimThickness*2,totalDepth-backThickness-rimThickness,6]);
+    }
+    //bracket
+    exposedBackHeight = backHeight-baseThickness-4.65;
+    translate(v = [rimThickness,0,backHeight-baseThickness])
+        shelfBracket(bracketHeight = exposedBackHeight, bracketDepth = exposedBackHeight,rimThickness = rimThickness);
+    translate(v = [totalWidth,0,backHeight-baseThickness])
+        shelfBracket(bracketHeight = exposedBackHeight, bracketDepth = exposedBackHeight,rimThickness = rimThickness);
 }
-//bracket
-exposedBackHeight = backHeight-baseThickness-4.65;
-translate(v = [rimThickness,0,backHeight-baseThickness])
-    shelfBracket(bracketHeight = exposedBackHeight, bracketDepth = exposedBackHeight,rimThickness = rimThickness);
-translate(v = [totalWidth,0,backHeight-baseThickness])
-    shelfBracket(bracketHeight = exposedBackHeight, bracketDepth = exposedBackHeight,rimThickness = rimThickness);
-
 
 module gridfinity_grid(xCount, yCount) {
   //Gridfinity Grid
