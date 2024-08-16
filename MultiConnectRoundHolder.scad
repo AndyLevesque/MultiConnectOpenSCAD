@@ -13,9 +13,9 @@ baseThickness = 3;
 //Additional thickness of the area between the item holding and the backer.
 shelfSupportHeight = 3;
 //Additional height (in mm) of the rim protruding upward to hold the item
-rimHeight = 10;
+rimHeight = 25;
 //Additional Backer Height (in mm) in case you prefer additional support for something heavy
-additionalBackerHeight = 0;
+additionalBackerHeight = 20;
 
 /* [Slot Customization] */
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
@@ -27,7 +27,7 @@ dimpleScale = 1; //[0.5:.05:1.5]
 
 /*[Hidden]*/
 totalWidth = itemDiameter + rimThickness*2;
-totalHeight = max(baseThickness+shelfSupportHeight,25);
+totalHeight = max(baseThickness+shelfSupportHeight+0.25*itemDiameter,25);
 
 //Thickness of the back of the item (default in 6.5mm). Changes are untested. 
 backThickness = 6.5; //.1
@@ -38,30 +38,38 @@ slotCount = floor(max(distanceBetweenSlots,totalWidth)/distanceBetweenSlots);
 echo(str("Slot Count: ",slotCount));
 backWidth = max(distanceBetweenSlots,totalWidth);
 
-
 //start build
-back(backWidth = backWidth, backHeight = totalHeight+additionalBackerHeight, backThickness = backThickness);
-
-difference() {
-    //itemwalls
-    union() {
-        hull(){
-            translate(v = [totalWidth/2,itemDiameter/2,0]) 
-                //outer circle
-                linear_extrude(height = shelfSupportHeight+baseThickness) 
-                        circle(r = itemDiameter/2+rimThickness, $fn=50);
-                //wide back for hull operation
-                linear_extrude(height = shelfSupportHeight+baseThickness) 
-                        square(size = [totalWidth,1]);
-            }
-        //thin holding wall
-        translate(v = [totalWidth/2,itemDiameter/2,shelfSupportHeight+baseThickness]) 
-            linear_extrude(height = rimHeight) 
-                circle(r = itemDiameter/2+rimThickness, $fn=50);
+union() {
+    back(backWidth = backWidth, backHeight = totalHeight+additionalBackerHeight, backThickness = backThickness);
+    //item holder
+    difference() {
+        //itemwalls
+        union() {
+            hull(){
+                translate(v = [totalWidth/2,itemDiameter/2,0]) 
+                    //outer circle
+                    linear_extrude(height = shelfSupportHeight+baseThickness) 
+                            circle(r = itemDiameter/2+rimThickness, $fn=50);
+                    //wide back for hull operation
+                    linear_extrude(height = shelfSupportHeight+baseThickness) 
+                            square(size = [totalWidth,1]);
+                }
+            //thin holding wall
+            translate(v = [totalWidth/2,itemDiameter/2,shelfSupportHeight+baseThickness]) 
+                linear_extrude(height = rimHeight) 
+                    circle(r = itemDiameter/2+rimThickness, $fn=50);
+        }
+        //itemDiameter (i.e., delete tool)
+        color(c = "red") translate(v = [totalWidth/2,itemDiameter/2,baseThickness]) linear_extrude(height = shelfSupportHeight+rimHeight+1) circle(r = itemDiameter/2, $fn=50);
     }
-    //itemDiameter (i.e., delete tool)
-    color(c = "red") translate(v = [totalWidth/2,itemDiameter/2,baseThickness]) linear_extrude(height = shelfSupportHeight+rimHeight+1) circle(r = itemDiameter/2, , $fn=50);
+    //brackets
+    bracketSize = min(totalHeight-baseThickness-shelfSupportHeight, itemDiameter/2);
+    translate(v = [rimThickness,0,bracketSize+baseThickness+shelfSupportHeight]) shelfBracket(bracketHeight = bracketSize, bracketDepth = bracketSize, rimThickness = rimThickness);
+    translate(v = [rimThickness*2+itemDiameter,0,bracketSize+baseThickness+shelfSupportHeight]) shelfBracket(bracketHeight = bracketSize, bracketDepth = bracketSize, rimThickness = rimThickness);
 }
+
+
+//BEGIN MODULES
 //Slotted back
 module back(backWidth, backHeight, backThickness)
 {
@@ -104,4 +112,10 @@ module slotTool(productHeight) {
                 rotate_extrude($fn=50) 
                     polygon(points = [[0,0],[0,1.5],[1.5,0]]);
     }
+}
+
+module shelfBracket(bracketHeight, bracketDepth, rimThickness){
+        rotate(a = [-90,0,90]) 
+            linear_extrude(height = rimThickness) 
+                polygon([[0,0],[0,bracketHeight],[bracketDepth,bracketHeight]]);
 }
