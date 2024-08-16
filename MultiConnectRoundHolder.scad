@@ -5,7 +5,7 @@ Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attributi
 
 /*[Parameters]*/
 //diameter (in mm) of the item you wish to insert (this becomes the internal diameter)
-itemDiameter = 60;
+itemDiameter = 50;
 //thickness (in mm) of the wall surrounding the item
 rimThickness = 1;
 //Thickness (in mm) of the base underneath the item you are holding
@@ -13,9 +13,9 @@ baseThickness = 3;
 //Additional thickness of the area between the item holding and the backer.
 shelfSupportHeight = 3;
 //Additional height (in mm) of the rim protruding upward to hold the item
-rimHeight = 25;
+rimHeight = 10;
 //Additional Backer Height (in mm) in case you prefer additional support for something heavy
-additionalBackerHeight = 20;
+additionalBackerHeight = 0;
 
 /* [Slot Customization] */
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
