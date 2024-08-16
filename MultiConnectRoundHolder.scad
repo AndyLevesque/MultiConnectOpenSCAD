@@ -4,10 +4,18 @@ Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attributi
 */
 
 /*[Parameters]*/
-itemDiameter = 25;
+//diameter (in mm) of the item you wish to insert (this becomes the internal diameter)
+itemDiameter = 60;
+//thickness (in mm) of the wall surrounding the item
 rimThickness = 1;
-rimHeight = 7;
-baseThickness = 1.5;
+//Thickness (in mm) of the base underneath the item you are holding
+baseThickness = 3;
+//Additional thickness of the area between the item holding and the backer.
+shelfSupportHeight = 3;
+//Additional height (in mm) of the rim protruding upward to hold the item
+rimHeight = 10;
+//Additional Backer Height (in mm) in case you prefer additional support for something heavy
+additionalBackerHeight = 0;
 
 /* [Slot Customization] */
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
@@ -18,8 +26,8 @@ slotQuickRelease = false;
 dimpleScale = 1; //[0.5:.05:1.5]
 
 /*[Hidden]*/
-totalWidth = itemDiameter + rimHeight*2;
-totalHeight = max(baseThickness+rimHeight,25);
+totalWidth = itemDiameter + rimThickness*2;
+totalHeight = max(baseThickness+shelfSupportHeight,25);
 
 //Thickness of the back of the item (default in 6.5mm). Changes are untested. 
 backThickness = 6.5; //.1
@@ -32,19 +40,27 @@ backWidth = max(distanceBetweenSlots,totalWidth);
 
 
 //start build
-back(backWidth = backWidth, backHeight = totalHeight, backThickness = backThickness);
+back(backWidth = backWidth, backHeight = totalHeight+additionalBackerHeight, backThickness = backThickness);
 
 difference() {
     //itemwalls
-    hull(){
-    translate(v = [totalWidth/2,itemDiameter/2,0]) 
-        linear_extrude(height = rimHeight+baseThickness) 
-                circle(r = itemDiameter/2+rimThickness);
-        linear_extrude(height = rimHeight+baseThickness) 
-                square(size = [totalWidth,1]);
+    union() {
+        hull(){
+            translate(v = [totalWidth/2,itemDiameter/2,0]) 
+                //outer circle
+                linear_extrude(height = shelfSupportHeight+baseThickness) 
+                        circle(r = itemDiameter/2+rimThickness, $fn=50);
+                //wide back for hull operation
+                linear_extrude(height = shelfSupportHeight+baseThickness) 
+                        square(size = [totalWidth,1]);
+            }
+        //thin holding wall
+        translate(v = [totalWidth/2,itemDiameter/2,shelfSupportHeight+baseThickness]) 
+            linear_extrude(height = rimHeight) 
+                circle(r = itemDiameter/2+rimThickness, $fn=50);
     }
     //itemDiameter (i.e., delete tool)
-    color(c = "red") translate(v = [totalWidth/2,itemDiameter/2,+baseThickness]) linear_extrude(height = rimHeight+1) circle(r = itemDiameter/2);
+    color(c = "red") translate(v = [totalWidth/2,itemDiameter/2,baseThickness]) linear_extrude(height = shelfSupportHeight+rimHeight+1) circle(r = itemDiameter/2, , $fn=50);
 }
 //Slotted back
 module back(backWidth, backHeight, backThickness)
