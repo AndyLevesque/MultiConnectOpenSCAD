@@ -12,6 +12,7 @@ internalWidth = 50.0; //.1
 internalDepth = 15.0; //.1
 
 /* [Front Cutout Customizations] */
+//cut out the front
 frontCutout = true; 
 //Distance upward from the bottom (in mm) that captures the bottom front of the item
 frontVerticalCapture = 7;
@@ -20,13 +21,18 @@ frontLateralCapture = 3;
 //Thickness of the walls surrounding the item (default 2mm)
 
 /*[Bottom Cutout Customizations]*/
-bottomCutout = true;
+//Cut out the bottom 
+bottomCutout = false;
+//Distance inward from the front (in mm) that captures the bottom of the item
 bottomFrontCapture = 3;
+//Distance inward from the back (in mm) that captures the bottom of the item
 bottomBackCapture = 3;
+//Distance inward from the sides (in mm) that captures the bottom of the item
 bottomSideCapture = 3;
 
 /*[Cord Cutout Customizations]*/
-cordCutout = true;
+//cut out a slot on the bottom and through the front for a cord to connect to the device
+cordCutout = false;
 //diameter/width of cord cutout
 cordCutoutDiameter = 10;
 //move the cord cutout left (positive) or right (negative) (in mm)
@@ -35,7 +41,7 @@ cordCutoutLateralOffset = 0;
 cordCutoutDepthOffset = 0;
 
 /* [Right Cutout Customizations] */
-rightCutout = true; 
+rightCutout = false; 
 //Distance upward from the bottom (in mm) that captures the bottom front of the item
 rightVerticalCapture = 7;
 //Distance inward from the sides (in mm) that captures the sides of the item
@@ -43,7 +49,7 @@ rightLateralCapture = 3;
 //Thickness of the walls surrounding the item (default 2mm)
 
 /* [Left Cutout Customizations] */
-leftCutout = true; 
+leftCutout = false; 
 //Distance upward from the bottom (in mm) that captures the bottom front of the item
 leftVerticalCapture = 7;
 //Distance inward from the sides (in mm) that captures the sides of the item
@@ -112,7 +118,7 @@ module basket() {
             if (frontCutout == true)
                 translate([frontLateralCapture,internalDepth-1,frontVerticalCapture])
                     color("red") cube([internalWidth-frontLateralCapture*2,wallThickness+2,internalHeight-frontVerticalCapture+1]);
-            #if (bottomCutout == true)
+            if (bottomCutout == true)
                 translate(v = [bottomSideCapture,bottomBackCapture,-baseThickness-1]) 
                     color("orange") cube([internalWidth-bottomSideCapture*2,internalDepth-bottomFrontCapture-bottomBackCapture,baseThickness+2]);
                     //frontCaptureDeleteTool for item holders
