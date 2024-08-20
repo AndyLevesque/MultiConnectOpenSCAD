@@ -12,11 +12,19 @@ internalWidth = 50.0; //.1
 internalDepth = 15.0; //.1
 
 /* [Front Cutout Customizations] */
-frontCutout = true; 
+frontCutout = false; 
 //Distance upward from the bottom (in mm) that captures the bottom front of the item
-bottomCapture = 7;
+frontVerticalCapture = 7;
 //Distance inward from the sides (in mm) that captures the sides of the item
-sideCapture = 3;
+frontLateralCapture = 3;
+//Thickness of the walls surrounding the item (default 2mm)
+
+/* [Right Cutout Customizations] */
+rightCutout = true; 
+//Distance upward from the bottom (in mm) that captures the bottom front of the item
+rightVerticalCapture = 7;
+//Distance inward from the sides (in mm) that captures the sides of the item
+rightLateralCapture = 3;
 //Thickness of the walls surrounding the item (default 2mm)
 
 /* [Additional Customization] */
@@ -49,40 +57,44 @@ slotCount = floor(totalWidth/distanceBetweenSlots);
 echo(str("Slot Count: ",slotCount));
 
 //move to center
-//translate(v = [-totalWidth/2+wallThickness,0,0]) 
-    translate(v = [-internalWidth/2,0,0]) basket();
-    translate([-totalWidth/2,0,-baseThickness])
-        back(backWidth = totalWidth, backHeight = totalHeight, backThickness = 6.5);
+translate(v = [-internalWidth/2,0,0]) 
+    basket();
+    //slotted back
+translate([-totalWidth/2,0,-baseThickness])
+    back(backWidth = totalWidth, backHeight = totalHeight, backThickness = 6.5);
 
 //Create Basket
 module basket() {
-    union() {
-        //bottom
-        translate([-wallThickness,0,-baseThickness])
-            cube([internalWidth + wallThickness*2, internalDepth + wallThickness,baseThickness]);
+    difference() {
+        union() {
+            //bottom
+            translate([-wallThickness,0,-baseThickness])
+                cube([internalWidth + wallThickness*2, internalDepth + wallThickness,baseThickness]);
 
-        //left wall
-        translate([-wallThickness,0,0])
-            cube([wallThickness, internalDepth + wallThickness, internalHeight]);
+            //left wall
+            translate([-wallThickness,0,0])
+                cube([wallThickness, internalDepth + wallThickness, internalHeight]);
 
-        //right wall
-        translate([internalWidth,0,0])
-            cube([wallThickness, internalDepth + wallThickness, internalHeight]);
+            //right wall
+            translate([internalWidth,0,0])
+                cube([wallThickness, internalDepth + wallThickness, internalHeight]);
 
-        difference() {
-        //frontCapture
-            translate([0,internalDepth,0])
-                cube([internalWidth,wallThickness,internalHeight]);
-
+            //front wall
+                translate([0,internalDepth,0])
+                    cube([internalWidth,wallThickness,internalHeight]);
+        }
 
         //frontCaptureDeleteTool for item holders
             if (frontCutout == true)
-                translate([sideCapture,internalDepth-1,bottomCapture]){ 
-                    color("red") cube([internalWidth-sideCapture*2,wallThickness+2,internalHeight-bottomCapture+1]);
+                translate([frontLateralCapture,internalDepth-1,frontVerticalCapture]){ 
+                    color("red") cube([internalWidth-frontLateralCapture*2,wallThickness+2,internalHeight-frontVerticalCapture+1]);
                 }
-        }
+                    //frontCaptureDeleteTool for item holders
+            if (rightCutout == true)
+                translate([-wallThickness-1,rightLateralCapture,rightVerticalCapture]){ 
+                    color("green") cube([internalWidth/2-rightLateralCapture*2,internalDepth-rightLateralCapture*2,internalHeight-rightVerticalCapture+1]);
+                }
     }
-            
 }
 
 
