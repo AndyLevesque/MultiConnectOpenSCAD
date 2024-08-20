@@ -21,7 +21,7 @@ slotQuickRelease = false;
 //Dimple scale tweaks the size of the dimple in the slot for printers that need a larger dimple to print correctly
 dimpleScale = 1; //[0.5:.05:1.5]
 //Scale of slots in the back (1.015 scale is default per MultiConnect specs)
-slotTolerance = 1.015; //[1.0:0.005:1.025]
+slotTolerance = 1.02; //[1.0:0.005:1.075]
 
 /*[Hidden]*/
 //Thickness of the back of the item (default in 6.5mm). Changes are untested. 
