@@ -3,29 +3,29 @@ Credit to @David D on Printables and Jonathan at Keep Making for Multiconnect an
 Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attribution
 */
 
-/* [Internal Dimensions] */
-//Height (in mm) from the top of the back to the base of the internal floor
-internalHeight = 50.0; //.1
-//Width (in mm) of the internal dimension or item you wish to hold
-internalWidth = 50.0; //.1
-//Length (i.e., distance from back) (in mm) of the internal dimension or item you wish to hold
-internalDepth = 15.0; //.1
+/*[Parameters]*/
+//diameter (in mm) of the item you wish to insert (this becomes the internal diameter)
+itemDiameter = 25;
+//thickness (in mm) of the wall surrounding the item
+rimThickness = 1;
+//Thickness (in mm) of the base underneath the item you are holding
+baseThickness = 3;
+//Additional thickness of the area between the item holding and the backer.
+shelfSupportHeight = 0;
+//Angle for items
+itemAngle = 15; //[0:1:60]
+//Additional height (in mm) of the rim protruding upward to hold the item
+rimHeight = 10;
+//Additional Backer Height (in mm) in case you prefer additional support for something heavy
+additionalBackerHeight = 0;
+//number of items you wish to hold width-wise (along the back)
+itemsWide = 3;
+//number of items you wish to hold depth-wise (away from back)
+itemsDeep = 3;
+//item row offset
+tierOffestZ = itemDiameter/2;
 
-/* [Front Cutout Customizations] */
-frontCutout = true; 
-//Distance upward from the bottom (in mm) that captures the bottom front of the item
-bottomCapture = 7;
-//Distance inward from the sides (in mm) that captures the sides of the item
-sideCapture = 3;
-//Thickness of the walls surrounding the item (default 2mm)
-
-/* [Additional Customization] */
-//Thickness of bin walls (in mm)
-wallThickness = 2; //.1
-//Thickness of bin  (in mm)
-baseThickness = 3; //.1
-
-/*[Slot Customization]*/
+/* [Slot Customization] */
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
 distanceBetweenSlots = 25;
 //QuickRelease removes the small indent in the top of the slots that lock the part into place
@@ -33,63 +33,46 @@ slotQuickRelease = false;
 //Dimple scale tweaks the size of the dimple in the slot for printers that need a larger dimple to print correctly
 dimpleScale = 1; //[0.5:.05:1.5]
 
-/* [Hidden] */
+/*[Hidden]*/
+//fit items plus 
+totalWidth = itemDiameter*itemsWide + rimThickness*itemsWide + rimThickness;
+totalHeight = max(baseThickness+itemsDeep*tierOffestZ,25);
+rowDepth = itemDiameter+rimThickness*2;
+//inputs the row depth and desired angle to calculate the height of the back
+rowBackHeight = rowDepth * tan(itemAngle);
+
 //Thickness of the back of the item (default in 6.5mm). Changes are untested. 
 backThickness = 6.5; //.1
 //Scale of slots in the back (1.015 scale is default per MultiConnect specs)
 slotTolerance = 1.015; //[1.0:0.005:1.025]
-
-//Calculated
-totalHeight = internalHeight+baseThickness;
-totalDepth = internalDepth + backThickness + wallThickness;
-totalWidth = max(internalWidth + wallThickness*2,25);
-totalCenterX = internalWidth/2;
 //slot count calculates how many slots can fit on the back. Based on internal width for buffer.
-slotCount = floor(totalWidth/distanceBetweenSlots);
+slotCount = floor(max(distanceBetweenSlots,totalWidth)/distanceBetweenSlots);
 echo(str("Slot Count: ",slotCount));
+backWidth = max(distanceBetweenSlots,totalWidth);
 
-//move to center
-//translate(v = [-totalWidth/2+wallThickness,0,0]) 
-    translate(v = [-internalWidth/2,0,0]) basket();
-    translate([-totalWidth/2,0,-baseThickness])
-        back(backWidth = totalWidth, backHeight = totalHeight, backThickness = 6.5);
-
-//Create Basket
-module basket() {
-    union() {
-        //bottom
-        translate([-wallThickness,0,-baseThickness])
-            cube([internalWidth + wallThickness*2, internalDepth + wallThickness,baseThickness]);
-
-        //left wall
-        translate([-wallThickness,0,0])
-            cube([wallThickness, internalDepth + wallThickness, internalHeight]);
-
-        //right wall
-        translate([internalWidth,0,0])
-            cube([wallThickness, internalDepth + wallThickness, internalHeight]);
-
-        difference() {
-        //frontCapture
-            translate([0,internalDepth,0])
-                cube([internalWidth,wallThickness,internalHeight]);
-
-
-        //frontCaptureDeleteTool for item holders
-            if (frontCutout == true)
-                translate([sideCapture,internalDepth-1,bottomCapture]){ 
-                    color("red") cube([internalWidth-sideCapture*2,wallThickness+2,internalHeight-bottomCapture+1]);
-                }
+//start build
+    back(backWidth = backWidth, backHeight = totalHeight+additionalBackerHeight, backThickness = backThickness);
+    //number of items wide plus room between each
+    //create shelf once per row
+    for(itemY = [0:1:itemsDeep-1]){
+            echo(str("Shelf: ", itemY));
+            translate(v = [totalWidth,0,0]) rotate([180,-90,180])  linear_extrude(height = totalWidth) polygon(points = [[0,0],[rowBackHeight+(itemsDeep-itemY)*tierOffestZ,0],[(itemsDeep-itemY)*tierOffestZ,rowDepth],[0,rowDepth]]);
+            translate(v = [0,itemY*rowDepth,0]) 
+                cube(size = [totalWidth, rowDepth,(itemsDeep-itemY)*tierOffestZ]);
+    }
+    //create cylinder delete tools
+    for(itemY = [0:1:itemsDeep-1]){
+        rotate(a = [-itemAngle,0,0]) cube(size = [totalWidth, rowDepth,(itemsDeep-itemY)*tierOffestZ]);
+        for (itemX = [0:1:itemsWide-1]){
+            color(c = "red") rotate([-itemAngle,0,0]) translate(v = [itemDiameter/2+rimThickness + (itemX*itemDiameter+rimThickness*itemX),itemDiameter/2+rowDepth*itemY+rimThickness,baseThickness+(itemsDeep-itemY-1)*tierOffestZ]) cylinder(h = rimHeight*2, r = itemDiameter/2);
         }
     }
-            
-}
-
 
 //BEGIN MODULES
 //Slotted back
 module back(backWidth, backHeight, backThickness)
 {
+
     difference() {
         translate(v = [0,-backThickness,0]) cube(size = [backWidth,backThickness,backHeight]);
         //Loop through slots and center on the item
@@ -102,7 +85,7 @@ module back(backWidth, backHeight, backThickness)
     }
 }
 //Create Slot Tool
-module slotTool(totalHeight) {
+module slotTool(productHeight) {
     //translate(v = [0,-0.075,0]) //removed for redundancy
     scale(v = slotTolerance) //scale for 0.15mm tolerance per Multiconnect design specs
     difference() {
@@ -114,7 +97,7 @@ module slotTool(totalHeight) {
             //long slot
             translate(v = [0,0,0]) 
                 rotate(a = [180,0,0]) 
-                linear_extrude(height = totalHeight+1) 
+                linear_extrude(height = productHeight+1) 
                     union(){
                         polygon(points = [[0,0],[10,0],[10,1],[7.5,3.5],[7.5,4],[0,4]]);
                         mirror([1,0,0])
