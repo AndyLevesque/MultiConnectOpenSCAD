@@ -27,6 +27,14 @@ rightVerticalCapture = 7;
 rightLateralCapture = 3;
 //Thickness of the walls surrounding the item (default 2mm)
 
+/* [Left Cutout Customizations] */
+leftCutout = true; 
+//Distance upward from the bottom (in mm) that captures the bottom front of the item
+leftVerticalCapture = 7;
+//Distance inward from the sides (in mm) that captures the sides of the item
+leftLateralCapture = 3;
+//Thickness of the walls surrounding the item (default 2mm)
+
 /* [Additional Customization] */
 //Thickness of bin walls (in mm)
 wallThickness = 2; //.1
@@ -65,7 +73,7 @@ translate([-totalWidth/2,0,-baseThickness])
 
 //Create Basket
 module basket() {
-    difference() {
+    //difference() {
         union() {
             //bottom
             translate([-wallThickness,0,-baseThickness])
@@ -92,9 +100,13 @@ module basket() {
                     //frontCaptureDeleteTool for item holders
             if (rightCutout == true)
                 translate([-wallThickness-1,rightLateralCapture,rightVerticalCapture]){ 
-                    color("green") cube([internalWidth/2-rightLateralCapture*2,internalDepth-rightLateralCapture*2,internalHeight-rightVerticalCapture+1]);
+                    color("green") cube([wallThickness+2,internalDepth-rightLateralCapture*2,internalHeight-rightVerticalCapture+1]);
                 }
-    }
+            if (leftCutout == true)
+                translate([internalWidth-1,leftLateralCapture,leftVerticalCapture]){ 
+                    color("blue") cube([wallThickness+2,internalDepth-leftLateralCapture*2,internalHeight-leftVerticalCapture+1]);
+                }
+    //}
 }
 
 
