@@ -32,6 +32,8 @@ distanceBetweenSlots = 25;
 slotQuickRelease = false;
 //Dimple scale tweaks the size of the dimple in the slot for printers that need a larger dimple to print correctly
 dimpleScale = 1; //[0.5:.05:1.5]
+//Scale of slots in the back (1.015 scale is default per MultiConnect specs)
+slotTolerance = 1.015; //[1.0:0.005:1.025]
 
 /*[Hidden]*/
 //fit items plus 
@@ -43,8 +45,6 @@ rowBackHeight = rowDepth * tan(itemAngle);
 
 //Thickness of the back of the item (default in 6.5mm). Changes are untested. 
 backThickness = 6.5; //.1
-//Scale of slots in the back (1.015 scale is default per MultiConnect specs)
-slotTolerance = 1.015; //[1.0:0.005:1.025]
 //slot count calculates how many slots can fit on the back. Based on internal width for buffer.
 slotCount = floor(max(distanceBetweenSlots,totalWidth)/distanceBetweenSlots);
 echo(str("Slot Count: ",slotCount));
