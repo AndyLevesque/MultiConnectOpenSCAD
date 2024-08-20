@@ -12,12 +12,27 @@ internalWidth = 50.0; //.1
 internalDepth = 15.0; //.1
 
 /* [Front Cutout Customizations] */
-frontCutout = false; 
+frontCutout = true; 
 //Distance upward from the bottom (in mm) that captures the bottom front of the item
 frontVerticalCapture = 7;
 //Distance inward from the sides (in mm) that captures the sides of the item
 frontLateralCapture = 3;
 //Thickness of the walls surrounding the item (default 2mm)
+
+/*[Bottom Cutout Customizations]*/
+bottomCutout = true;
+bottomFrontCapture = 3;
+bottomBackCapture = 3;
+bottomSideCapture = 3;
+
+/*[Cord Cutout Customizations]*/
+cordCutout = true;
+//diameter/width of cord cutout
+cordCutoutDiameter = 10;
+//move the cord cutout left (positive) or right (negative) (in mm)
+cordCutoutLateralOffset = 0;
+//move the cord cutout forward (positive) and back (negative) (in mm)
+cordCutoutDepthOffset = 0;
 
 /* [Right Cutout Customizations] */
 rightCutout = true; 
@@ -74,7 +89,7 @@ translate([-totalWidth/2,0,-baseThickness])
 
 //Create Basket
 module basket() {
-    //difference() {
+    difference() {
         union() {
             //bottom
             translate([-wallThickness,0,-baseThickness])
@@ -95,19 +110,28 @@ module basket() {
 
         //frontCaptureDeleteTool for item holders
             if (frontCutout == true)
-                translate([frontLateralCapture,internalDepth-1,frontVerticalCapture]){ 
+                translate([frontLateralCapture,internalDepth-1,frontVerticalCapture])
                     color("red") cube([internalWidth-frontLateralCapture*2,wallThickness+2,internalHeight-frontVerticalCapture+1]);
-                }
+            #if (bottomCutout == true)
+                translate(v = [bottomSideCapture,bottomBackCapture,-baseThickness-1]) 
+                    color("orange") cube([internalWidth-bottomSideCapture*2,internalDepth-bottomFrontCapture-bottomBackCapture,baseThickness+2]);
                     //frontCaptureDeleteTool for item holders
             if (rightCutout == true)
-                translate([-wallThickness-1,rightLateralCapture,rightVerticalCapture]){ 
+                translate([-wallThickness-1,rightLateralCapture,rightVerticalCapture])
                     color("green") cube([wallThickness+2,internalDepth-rightLateralCapture*2,internalHeight-rightVerticalCapture+1]);
-                }
             if (leftCutout == true)
-                translate([internalWidth-1,leftLateralCapture,leftVerticalCapture]){ 
+                translate([internalWidth-1,leftLateralCapture,leftVerticalCapture])
                     color("blue") cube([wallThickness+2,internalDepth-leftLateralCapture*2,internalHeight-leftVerticalCapture+1]);
+            if (cordCutout == true) {
+                translate(v = [internalWidth/2+cordCutoutLateralOffset,internalDepth/2+cordCutoutDepthOffset,-baseThickness-1]) {
+                    union(){
+                        color("purple") cylinder(h = baseThickness + frontVerticalCapture + 2, r = cordCutoutDiameter/2);
+                        translate(v = [-cordCutoutDiameter/2,0,0]) color("pink") cube([cordCutoutDiameter,internalWidth/2+wallThickness+1,baseThickness + frontVerticalCapture + 2]);
+                    }
                 }
-    //}
+            }
+    }
+    
 }
 
 
