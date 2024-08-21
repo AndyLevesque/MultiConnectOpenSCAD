@@ -21,11 +21,16 @@ slotQuickRelease = false;
 //Dimple scale tweaks the size of the dimple in the slot for printers that need a larger dimple to print correctly
 dimpleScale = 1; //[0.5:.05:1.5]
 //Scale of slots in the back (1.015 scale is default per MultiConnect specs)
-slotTolerance = 1.02; //[1.0:0.005:1.075]
+slotTolerance = 1.00; //[0.925:0.005:1.075]
+//Move the slot in (positive) or out (negative)
+slotDepthMicroadjustment = 0; //[-.5:0.05:.5]
+
 
 /*[Hidden]*/
 //Thickness of the back of the item (default in 6.5mm). Changes are untested. 
 backThickness = 6.5; //.1
+//profile coordinates for the multiconnect slot
+slotProfile = [[0,0],[10.15,0],[10.15,1.2121],[7.65,3.712],[7.65,5],[0,5]];
 //slot count calculates how many slots can fit on the back. Based on internal width for buffer.
 slotCount = floor(max(distanceBetweenSlots,hookWidth)/distanceBetweenSlots);
 echo(str("Slot Count: ",slotCount));
@@ -35,7 +40,7 @@ backWidth = max(distanceBetweenSlots,hookWidth);
 union(){
     //back
     translate(v = [-backWidth/2,0,0]) 
-        back(backWidth = backWidth, backHeight = backHeight);
+        multiconnectBack(backWidth = backWidth, backHeight = backHeight);
     //hook base
     translate(v = [-hookWidth/2,0,0]) 
         cube(size = [hookWidth,hookInternalDepth+hookLipThickness,hookBottomThickness]);
@@ -44,46 +49,45 @@ union(){
         cube(size = [hookWidth,hookLipThickness,hookLipHeight+hookBottomThickness]);
 }
 
+//BEGIN MODULES
 //Slotted back
-module back(backWidth, backHeight)
+module multiconnectBack(backWidth, backHeight)
 {
-
     difference() {
-        translate(v = [0,-backThickness,0]) cube(size = [backWidth,backThickness,backHeight]);
+        translate(v = [0,-6.5,0]) cube(size = [backWidth,6.5,backHeight]);
         //Loop through slots and center on the item
         //Note: I kept doing math until it looked right. It's possible this can be simplified.
         for (slotNum = [0:1:slotCount-1]) {
-            translate(v = [distanceBetweenSlots/2+(backWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.575,backHeight-13]) {
+            translate(v = [distanceBetweenSlots/2+(backWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.35+slotDepthMicroadjustment,backHeight-13]) {
                 color(c = "red")  slotTool(backHeight);
             }
         }
     }
-}
-//Create Slot Tool
-module slotTool(productHeight) {
-    //translate(v = [0,-0.075,0]) //removed for redundancy
-    scale(v = slotTolerance) //scale for 0.15mm tolerance per Multiconnect design specs
-    difference() {
-        union() {
-            //round top
-            rotate(a = [90,0,0,]) 
-                rotate_extrude($fn=50) 
-                    polygon(points = [[0,0],[10,0],[10,1],[7.5,3.5],[7.5,4],[0,4]]);
-            //long slot
-            translate(v = [0,0,0]) 
-                rotate(a = [180,0,0]) 
-                linear_extrude(height = productHeight+1) 
-                    union(){
-                        polygon(points = [[0,0],[10,0],[10,1],[7.5,3.5],[7.5,4],[0,4]]);
-                        mirror([1,0,0])
-                            polygon(points = [[0,0],[10,0],[10,1],[7.5,3.5],[7.5,4],[0,4]]);
-                    }
+    //Create Slot Tool
+    module slotTool(totalHeight) {
+        scale(v = slotTolerance)
+        difference() {
+            union() {
+                //round top
+                rotate(a = [90,0,0,]) 
+                    rotate_extrude($fn=50) 
+                        polygon(points = slotProfile);
+                //long slot
+                translate(v = [0,0,0]) 
+                    rotate(a = [180,0,0]) 
+                    linear_extrude(height = totalHeight+1) 
+                        union(){
+                            polygon(points = slotProfile);
+                            mirror([1,0,0])
+                                polygon(points = slotProfile);
+                        }
+            }
+            //dimple
+            if (slotQuickRelease == false)
+                scale(v = dimpleScale) 
+                rotate(a = [90,0,0,]) 
+                    rotate_extrude($fn=50) 
+                        polygon(points = [[0,0],[0,1.5],[1.5,0]]);
         }
-        //dimple
-        if (slotQuickRelease == false)
-            scale(v = dimpleScale) 
-            rotate(a = [90,0,0,]) 
-                rotate_extrude($fn=50) 
-                    polygon(points = [[0,0],[0,1.5],[1.5,0]]);
     }
 }
