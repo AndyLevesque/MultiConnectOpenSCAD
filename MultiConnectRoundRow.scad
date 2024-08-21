@@ -12,27 +12,22 @@ TODO:
     - Clean up unused parameters
 */
 
-/*[Parameters]*/
+/*[Standard Parameters]*/
 //diameter (in mm) of the item you wish to insert (this becomes the internal diameter)
 itemDiameter = 25;
-//distance between each item (in mm)
-distanceBetweenEach = 1;
-//Thickness (in mm) of the base underneath the item you are holding
-baseThickness = 3;
-//Additional thickness of the area between the item holding and the backer.
-shelfSupportHeight = 0;
-//Angle for items
-itemAngle = 30; //[0:1:60]
-//Additional height (in mm) of the rim protruding upward to hold the item
-holeDepth = 10;
-//Additional Backer Height (in mm) in case you prefer additional support for something heavy
-additionalBackerHeight = 0;
 //number of items you wish to hold width-wise (along the back)
 itemsWide = 3;
-//number of items you wish to hold depth-wise (away from back)
-itemsDeep = 1;
-//item row offset
-tierOffestZ = itemDiameter/2;
+//distance between each item (in mm)
+distanceBetweenEach = 1;
+//Minimum thickness (in mm) of the base underneath the item you are holding
+baseThickness = 2;
+//Angle for items
+itemAngle = 30; //[0:2.5:60]
+//Additional height (in mm) of the rim protruding upward to hold the item
+holeDepth = 15;
+//Additional Backer Height (in mm) in case you prefer additional support for something heavy
+additionalBackerHeight = 0;
+
 
 /* [Slot Customization] */
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
@@ -48,6 +43,8 @@ slotDepthMicroadjustment = 0; //[-.5:0.05:.5]
 
 
 /*[Hidden]*/
+//number of items you wish to hold depth-wise (away from back)
+itemsDeep = 1;
 //fit items plus 
 totalWidth = itemDiameter*itemsWide + distanceBetweenEach*itemsWide + distanceBetweenEach;
 //profile coordinates for the multiconnect slot
