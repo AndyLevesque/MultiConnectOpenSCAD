@@ -65,6 +65,7 @@ slotCount = floor(max(distanceBetweenSlots,totalWidth)/distanceBetweenSlots);
 echo(str("Slot Count: ",slotCount));
 backWidth = max(distanceBetweenSlots,totalWidth);
 
+//this is why I should have paid attention in trig...
 hypotenuse = rowDepth;
 smallHypotenuse = holeDepth+baseThickness;
 triangleY = min(sin(itemAngle)*hypotenuse,tan(itemAngle)*hypotenuse);
@@ -73,42 +74,32 @@ smallTriangleY = min(sin(itemAngle)*smallHypotenuse,tan(itemAngle)*smallHypotenu
 smallTriangleX = min(cos(itemAngle)*smallHypotenuse,tan(itemAngle)*smallHypotenuse);
 inverseSmallTriangleY = min(sin(90-itemAngle)*smallHypotenuse,tan(90-itemAngle)*smallHypotenuse);
 inverseSmallTriangleX = min(cos(90-itemAngle)*smallHypotenuse,tan(90-itemAngle)*smallHypotenuse);
+shelfDepth = max(cos(itemAngle)*hypotenuse) + smallTriangleY;
+shelfFrontHeight = inverseSmallTriangleY;
+shelfBackHeight = triangleY+inverseSmallTriangleY;
 totalHeight = max(triangleY+inverseSmallTriangleY,25);
 
+
+echo(str("hypotenuse: ", hypotenuse))
 //start build
 multiconnectBack(backWidth = backWidth, backHeight = totalHeight+additionalBackerHeight);
-//create shelves
-//hull() {
-    translate(v = [0,0,0]) rotate(a = [0,-90,0]) 
-    polygon(points = [[0,0],[triangleY+inverseSmallTriangleY,0],[triangleY+inverseSmallTriangleY,smallTriangleY]]);
-    //cube(size = [backWidth,1,totalHeight]);
-    //color(c = "green") rotate(a = [-itemAngle,0,0]) cube(size = [backWidth,1,holeDepth+baseThickness]);
-//}
+    //craft the 5-sided outline for the shelf that accomodates the desired angle and depth
+difference() {
+    translate(v = [0,0,0]) rotate(a = [90,0,90]) 
+        linear_extrude(height = totalWidth) 
+            polygon(points = [[0,0],[0,shelfBackHeight],[smallTriangleY,shelfBackHeight],[shelfDepth,shelfFrontHeight],[shelfDepth,0]]);
+    //delete tools
     for(itemY = [0:1:itemsDeep-1]){
         for (itemX = [0:1:itemsWide-1]){
             translate(v = [0,0,triangleY])     
                 rotate([-itemAngle,0,0]) {
                     //shelf
-                    cube(size = [totalWidth, rowDepth,holeDepth+baseThickness]);
+                    //cube(size = [totalWidth, rowDepth,holeDepth+baseThickness]);
                     //delete tools
-                    //translate(v = [itemDiameter/2+distanceBetweenEach + (itemX*itemDiameter+distanceBetweenEach*itemX),itemY*rowDepth+itemDiameter/2+distanceBetweenEach,baseThickness]) 
-                    //    color(c = "red") cylinder(h = holeDepth+1, r = itemDiameter/2);
+                    translate(v = [itemDiameter/2+distanceBetweenEach + (itemX*itemDiameter+distanceBetweenEach*itemX),itemY*rowDepth+itemDiameter/2+distanceBetweenEach,baseThickness]) 
+                        color(c = "red") cylinder(h = holeDepth+1, r = itemDiameter/2);
                 }
         }
-    }
-
-
-//delete tools
-for(itemY = [0:1:itemsDeep-1]){
-    for (itemX = [0:1:itemsWide-1]){
-        translate(v = [0,0,triangleY])     
-            rotate([-itemAngle,0,0]) {
-                //shelf
-                //cube(size = [totalWidth, rowDepth,holeDepth+baseThickness]);
-                //delete tools
-                translate(v = [itemDiameter/2+distanceBetweenEach + (itemX*itemDiameter+distanceBetweenEach*itemX),itemY*rowDepth+itemDiameter/2+distanceBetweenEach,baseThickness]) 
-                    color(c = "red") cylinder(h = holeDepth+1, r = itemDiameter/2);
-            }
     }
 }
 

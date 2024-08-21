@@ -8,14 +8,17 @@ Example in OpenSCAD
 ![image](https://github.com/user-attachments/assets/1fb201eb-66d4-4f9b-b52b-4cf9fbe7a652)
 
 Development Standards
-- Back Standards
+- Backer Standards
     - Back types as a single module accepting height and width parameters
+    - All customizable parameters for a back type must be enclosed in their own parameter section
 - Positioning Standards
     - Model starts at X 0 and goes positive
     - Back starts at X 0 and goes negative
+    - Center the entire unit on x axis last
 - Testing Critiera
     - Compiles without error
     - Test items under 5mm in height, depth, and width and verify back generates properly
+    - Test for very large items
 
 Shield: [![CC BY-NC 4.0][cc-by-nc-shield]][cc-by-nc]
 
