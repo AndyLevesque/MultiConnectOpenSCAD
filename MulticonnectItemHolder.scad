@@ -15,10 +15,12 @@ internalDepth = 15.0; //.1
 //cut out the front
 frontCutout = true; 
 //Distance upward from the bottom (in mm) that captures the bottom front of the item
-frontVerticalCapture = 7;
+frontLowerCapture = 7;
+//Distance downward from the top (in mm) that captures the top front of the item. Use zero (0) for a cutout top. May require printing supports if used. 
+frontUpperCapture = 0;
 //Distance inward from the sides (in mm) that captures the sides of the item
 frontLateralCapture = 3;
-//Thickness of the walls surrounding the item (default 2mm)
+
 
 /*[Bottom Cutout Customizations]*/
 //Cut out the bottom 
@@ -42,19 +44,23 @@ cordCutoutDepthOffset = 0;
 
 /* [Right Cutout Customizations] */
 rightCutout = false; 
-//Distance upward from the bottom (in mm) that captures the bottom front of the item
-rightVerticalCapture = 7;
+//Distance upward from the bottom (in mm) that captures the bottom right of the item
+rightLowerCapture = 7;
+//Distance downward from the top (in mm) that captures the bottom right of the item. Use zero (0) for a cutout top. May require printing supports if used. 
+rightUpperCapture = 0;
 //Distance inward from the sides (in mm) that captures the sides of the item
 rightLateralCapture = 3;
-//Thickness of the walls surrounding the item (default 2mm)
+
 
 /* [Left Cutout Customizations] */
 leftCutout = false; 
-//Distance upward from the bottom (in mm) that captures the bottom front of the item
-leftVerticalCapture = 7;
+//Distance upward from the bottom (in mm) that captures the upper left of the item
+leftLowerCapture = 7;
+//Distance downward from the top (in mm) that captures the upper left of the item. Use zero (0) for a cutout top. May require printing supports if used. 
+leftUpperCapture = 0;
 //Distance inward from the sides (in mm) that captures the sides of the item
 leftLateralCapture = 3;
-//Thickness of the walls surrounding the item (default 2mm)
+
 
 /* [Additional Customization] */
 //Thickness of bin walls (in mm)
@@ -116,23 +122,23 @@ module basket() {
 
         //frontCaptureDeleteTool for item holders
             if (frontCutout == true)
-                translate([frontLateralCapture,internalDepth-1,frontVerticalCapture])
-                    color("red") cube([internalWidth-frontLateralCapture*2,wallThickness+2,internalHeight-frontVerticalCapture+1]);
+                translate([frontLateralCapture,internalDepth-1,frontLowerCapture])
+                    color("red") cube([internalWidth-frontLateralCapture*2,wallThickness+2,internalHeight-frontLowerCapture-frontUpperCapture+0.01]);
             if (bottomCutout == true)
                 translate(v = [bottomSideCapture,bottomBackCapture,-baseThickness-1]) 
                     color("orange") cube([internalWidth-bottomSideCapture*2,internalDepth-bottomFrontCapture-bottomBackCapture,baseThickness+2]);
                     //frontCaptureDeleteTool for item holders
             if (rightCutout == true)
-                translate([-wallThickness-1,rightLateralCapture,rightVerticalCapture])
-                    color("green") cube([wallThickness+2,internalDepth-rightLateralCapture*2,internalHeight-rightVerticalCapture+1]);
+                translate([-wallThickness-1,rightLateralCapture,rightLowerCapture])
+                    color("green") cube([wallThickness+2,internalDepth-rightLateralCapture*2,internalHeight-rightLowerCapture-rightUpperCapture+0.01]);
             if (leftCutout == true)
-                translate([internalWidth-1,leftLateralCapture,leftVerticalCapture])
-                    color("blue") cube([wallThickness+2,internalDepth-leftLateralCapture*2,internalHeight-leftVerticalCapture+1]);
+                translate([internalWidth-1,leftLateralCapture,leftLowerCapture])
+                    color("blue") cube([wallThickness+2,internalDepth-leftLateralCapture*2,internalHeight-leftLowerCapture-leftUpperCapture+0.01]);
             if (cordCutout == true) {
                 translate(v = [internalWidth/2+cordCutoutLateralOffset,internalDepth/2+cordCutoutDepthOffset,-baseThickness-1]) {
                     union(){
-                        color("purple") cylinder(h = baseThickness + frontVerticalCapture + 2, r = cordCutoutDiameter/2);
-                        translate(v = [-cordCutoutDiameter/2,0,0]) color("pink") cube([cordCutoutDiameter,internalWidth/2+wallThickness+1,baseThickness + frontVerticalCapture + 2]);
+                        color("purple") cylinder(h = baseThickness + frontLowerCapture + 2, r = cordCutoutDiameter/2);
+                        translate(v = [-cordCutoutDiameter/2,0,0]) color("pink") cube([cordCutoutDiameter,internalWidth/2+wallThickness+1,baseThickness + frontLowerCapture + 2]);
                     }
                 }
             }
