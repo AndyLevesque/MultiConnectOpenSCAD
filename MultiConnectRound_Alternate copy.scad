@@ -47,7 +47,7 @@ slotTolerance = 1.02; //[1.0:0.005:1.075]
 /*[Hidden]*/
 //fit items plus 
 totalWidth = itemDiameter*itemsWide + distanceBetweenEach*itemsWide + distanceBetweenEach;
-totalHeight = max(baseThickness+itemsDeep*tierOffestZ,25);
+
 rowDepth = itemDiameter+distanceBetweenEach*2;
 //inputs the row depth and desired angle to calculate the height of the back
 rowBackHeight = rowDepth * tan(itemAngle);
@@ -60,15 +60,24 @@ echo(str("Slot Count: ",slotCount));
 backWidth = max(distanceBetweenSlots,totalWidth);
 
 hypotenuse = rowDepth;
+smallHypotenuse = holeDepth+baseThickness;
 triangleY = min(sin(itemAngle)*hypotenuse,tan(itemAngle)*hypotenuse);
 triangleX = min(cos(itemAngle)*hypotenuse,tan(itemAngle)*hypotenuse);
-
+smallTriangleY = min(sin(itemAngle)*smallHypotenuse,tan(itemAngle)*smallHypotenuse);
+smallTriangleX = min(cos(itemAngle)*smallHypotenuse,tan(itemAngle)*smallHypotenuse);
+inverseSmallTriangleY = min(sin(90-itemAngle)*smallHypotenuse,tan(90-itemAngle)*smallHypotenuse);
+inverseSmallTriangleX = min(cos(90-itemAngle)*smallHypotenuse,tan(90-itemAngle)*smallHypotenuse);
+totalHeight = max(triangleY+inverseSmallTriangleY,25);
 
 //start build
 back(backWidth = backWidth, backHeight = totalHeight+additionalBackerHeight, backThickness = backThickness);
 //create shelves
-hull() {
-    cube(size = [backWidth,1,totalHeight]);
+//hull() {
+    translate(v = [0,0,0]) rotate(a = [0,-90,0]) 
+    polygon(points = [[0,0],[triangleY+inverseSmallTriangleY,0],[triangleY+inverseSmallTriangleY,smallTriangleY]]);
+    //cube(size = [backWidth,1,totalHeight]);
+    //color(c = "green") rotate(a = [-itemAngle,0,0]) cube(size = [backWidth,1,holeDepth+baseThickness]);
+//}
     for(itemY = [0:1:itemsDeep-1]){
         for (itemX = [0:1:itemsWide-1]){
             translate(v = [0,0,triangleY])     
@@ -80,8 +89,8 @@ hull() {
                     //    color(c = "red") cylinder(h = holeDepth+1, r = itemDiameter/2);
                 }
         }
-}
-}
+    }
+
 
 //delete tools
 for(itemY = [0:1:itemsDeep-1]){
