@@ -3,25 +3,34 @@ Credit to @David D on Printables and Jonathan at Keep Making for Multiconnect an
 Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attribution
 */
 
+/*
+TODO: 
+    Important: Fix hull issue when angle is less than 20
+    - Cap print angle to 45 when item angle exceeds 45
+    - Separate distanceBetweenEach and front/back thickness
+    - Fix backer height for high diameter items
+    - Clean up unused parameters
+*/
+
 /*[Parameters]*/
 //diameter (in mm) of the item you wish to insert (this becomes the internal diameter)
 itemDiameter = 25;
-//thickness (in mm) of the wall surrounding the item
-rimThickness = 1;
+//distance between each item (in mm)
+distanceBetweenEach = 1;
 //Thickness (in mm) of the base underneath the item you are holding
 baseThickness = 3;
 //Additional thickness of the area between the item holding and the backer.
 shelfSupportHeight = 0;
 //Angle for items
-itemAngle = 15; //[0:1:60]
+itemAngle = 30; //[0:1:60]
 //Additional height (in mm) of the rim protruding upward to hold the item
-rimHeight = 10;
+holeDepth = 10;
 //Additional Backer Height (in mm) in case you prefer additional support for something heavy
 additionalBackerHeight = 0;
 //number of items you wish to hold width-wise (along the back)
 itemsWide = 3;
 //number of items you wish to hold depth-wise (away from back)
-itemsDeep = 3;
+itemsDeep = 1;
 //item row offset
 tierOffestZ = itemDiameter/2;
 
@@ -37,9 +46,9 @@ slotTolerance = 1.02; //[1.0:0.005:1.075]
 
 /*[Hidden]*/
 //fit items plus 
-totalWidth = itemDiameter*itemsWide + rimThickness*itemsWide + rimThickness;
+totalWidth = itemDiameter*itemsWide + distanceBetweenEach*itemsWide + distanceBetweenEach;
 totalHeight = max(baseThickness+itemsDeep*tierOffestZ,25);
-rowDepth = itemDiameter+rimThickness*2;
+rowDepth = itemDiameter+distanceBetweenEach*2;
 //inputs the row depth and desired angle to calculate the height of the back
 rowBackHeight = rowDepth * tan(itemAngle);
 
@@ -50,23 +59,43 @@ slotCount = floor(max(distanceBetweenSlots,totalWidth)/distanceBetweenSlots);
 echo(str("Slot Count: ",slotCount));
 backWidth = max(distanceBetweenSlots,totalWidth);
 
+hypotenuse = rowDepth;
+triangleY = min(sin(itemAngle)*hypotenuse,tan(itemAngle)*hypotenuse);
+triangleX = min(cos(itemAngle)*hypotenuse,tan(itemAngle)*hypotenuse);
+
+
 //start build
-    back(backWidth = backWidth, backHeight = totalHeight+additionalBackerHeight, backThickness = backThickness);
-    //number of items wide plus room between each
-    //create shelf once per row
+back(backWidth = backWidth, backHeight = totalHeight+additionalBackerHeight, backThickness = backThickness);
+//create shelves
+hull() {
+    cube(size = [backWidth,1,totalHeight]);
     for(itemY = [0:1:itemsDeep-1]){
-            echo(str("Shelf: ", itemY));
-            translate(v = [totalWidth,0,0]) rotate([180,-90,180])  linear_extrude(height = totalWidth) polygon(points = [[0,0],[rowBackHeight+(itemsDeep-itemY)*tierOffestZ,0],[(itemsDeep-itemY)*tierOffestZ,rowDepth],[0,rowDepth]]);
-            translate(v = [0,itemY*rowDepth,0]) 
-                cube(size = [totalWidth, rowDepth,(itemsDeep-itemY)*tierOffestZ]);
-    }
-    //create cylinder delete tools
-    for(itemY = [0:1:itemsDeep-1]){
-        rotate(a = [-itemAngle,0,0]) cube(size = [totalWidth, rowDepth,(itemsDeep-itemY)*tierOffestZ]);
         for (itemX = [0:1:itemsWide-1]){
-            color(c = "red") rotate([-itemAngle,0,0]) translate(v = [itemDiameter/2+rimThickness + (itemX*itemDiameter+rimThickness*itemX),itemDiameter/2+rowDepth*itemY+rimThickness,baseThickness+(itemsDeep-itemY-1)*tierOffestZ]) cylinder(h = rimHeight*2, r = itemDiameter/2);
+            translate(v = [0,0,triangleY])     
+                rotate([-itemAngle,0,0]) {
+                    //shelf
+                    cube(size = [totalWidth, rowDepth,holeDepth+baseThickness]);
+                    //delete tools
+                    //translate(v = [itemDiameter/2+distanceBetweenEach + (itemX*itemDiameter+distanceBetweenEach*itemX),itemY*rowDepth+itemDiameter/2+distanceBetweenEach,baseThickness]) 
+                    //    color(c = "red") cylinder(h = holeDepth+1, r = itemDiameter/2);
+                }
         }
+}
+}
+
+//delete tools
+for(itemY = [0:1:itemsDeep-1]){
+    for (itemX = [0:1:itemsWide-1]){
+        translate(v = [0,0,triangleY])     
+            rotate([-itemAngle,0,0]) {
+                //shelf
+                //cube(size = [totalWidth, rowDepth,holeDepth+baseThickness]);
+                //delete tools
+                translate(v = [itemDiameter/2+distanceBetweenEach + (itemX*itemDiameter+distanceBetweenEach*itemX),itemY*rowDepth+itemDiameter/2+distanceBetweenEach,baseThickness]) 
+                    color(c = "red") cylinder(h = holeDepth+1, r = itemDiameter/2);
+            }
     }
+}
 
 //BEGIN MODULES
 //Slotted back
