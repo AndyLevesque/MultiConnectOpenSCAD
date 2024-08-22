@@ -17,32 +17,27 @@ rimThickness = 1.5;
 baseThickness = 1.5;
 backHeight = 15+10*unitsDeep;
 
-/* [Slot Customization] */
+/*[Slot Customization]*/
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
 distanceBetweenSlots = 25;
 //QuickRelease removes the small indent in the top of the slots that lock the part into place
 slotQuickRelease = false;
 //Dimple scale tweaks the size of the dimple in the slot for printers that need a larger dimple to print correctly
 dimpleScale = 1; //[0.5:.05:1.5]
-//Scale of slots in the back (1.015 scale is default per MultiConnect specs)
+//Scale the size of slots in the back (1.015 scale is default for a tight fit. Increase if your finding poor fit. )
 slotTolerance = 1.00; //[0.925:0.005:1.075]
 //Move the slot in (positive) or out (negative)
 slotDepthMicroadjustment = 0; //[-.5:0.05:.5]
+//enable a slot on-ramp for easy mounting of tall items
+onRampEnabled = true;
+//frequency of slots for on-ramp. 1 = every slot; 2 = every 2 slots; etc.
+onRampEveryXSlots = 1;
 
 
 /*[Hidden]*/
-//Thickness of the back of the item (default in 6.5mm). Changes are untested. 
-backThickness = 6.5; //.1
-//profile coordinates for the multiconnect slot
-slotProfile = [[0,0],[10.15,0],[10.15,1.2121],[7.65,3.712],[7.65,5],[0,5]];
-
 
 totalWidth = unitsWide*42+rimThickness*2;
-totalDepth = 6.5+unitsDeep*42+rimThickness;
-
-//slot count calculates how many slots can fit on the back.
-slotCount = floor(totalWidth/distanceBetweenSlots);
-echo(str("Slot Count: ",slotCount));
+totalDepth = unitsDeep*42+rimThickness;
 
 //begin build
 translate(v = [-totalWidth/2,-totalDepth/2]) 
@@ -50,13 +45,13 @@ union(){
     translate(v = [rimThickness,0,0]) 
         gridfinity_grid(xCount = unitsWide, yCount = unitsDeep);
     translate(v = [0,0,-baseThickness]) 
-        multiconnectBack(backWidth = totalWidth, backHeight = backHeight);
+        multiconnectBack(backWidth = totalWidth, backHeight = backHeight, distanceBetweenSlots = distanceBetweenSlots);
     //shelf
     difference(){
             translate(v = [0,0,-baseThickness]) 
-                cube([totalWidth,totalDepth-backThickness,4.65+baseThickness]);
+                cube([totalWidth,totalDepth,4.65+baseThickness]);
             translate(v = [rimThickness,0,0]) 
-                cube([totalWidth-rimThickness*2,totalDepth-backThickness-rimThickness,6]);
+                cube([totalWidth-rimThickness*2,totalDepth-rimThickness,6]);
     }
     //bracket
     exposedBackHeight = backHeight-baseThickness-4.65;
@@ -116,22 +111,28 @@ module gridfinity_base() {
 }
 
 //BEGIN MODULES
-//Slotted back
-module multiconnectBack(backWidth, backHeight)
+//Slotted back Module
+module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
 {
-    difference() {
-        translate(v = [0,-6.5,0]) cube(size = [backWidth,6.5,backHeight]);
-        //Loop through slots and center on the item
-        //Note: I kept doing math until it looked right. It's possible this can be simplified.
-        for (slotNum = [0:1:slotCount-1]) {
-            translate(v = [distanceBetweenSlots/2+(backWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.35+slotDepthMicroadjustment,backHeight-13]) {
-                color(c = "red")  slotTool(backHeight);
+    //slot count calculates how many slots can fit on the back. Based on internal width for buffer. 
+    //slot width needs to be at least the distance between slot for at least 1 slot to generate
+    let (backWidth = max(backWidth,distanceBetweenSlots), backHeight = max(backHeight, 25),slotCount = floor(backWidth/distanceBetweenSlots), backThickness = 6.5){
+        difference() {
+            translate(v = [0,-backThickness,0]) cube(size = [backWidth,backThickness,backHeight]);
+            //Loop through slots and center on the item
+            //Note: I kept doing math until it looked right. It's possible this can be simplified.
+            for (slotNum = [0:1:slotCount-1]) {
+                translate(v = [distanceBetweenSlots/2+(backWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.35+slotDepthMicroadjustment,backHeight-13]) {
+                    color(c = "red")  slotTool(backHeight);
+                }
             }
         }
     }
     //Create Slot Tool
     module slotTool(totalHeight) {
         scale(v = slotTolerance)
+        //slot minus optional dimple with optional on-ramp
+        let (slotProfile = [[0,0],[10.15,0],[10.15,1.2121],[7.65,3.712],[7.65,5],[0,5]])
         difference() {
             union() {
                 //round top
@@ -147,6 +148,12 @@ module multiconnectBack(backWidth, backHeight)
                             mirror([1,0,0])
                                 polygon(points = slotProfile);
                         }
+                //on-ramp
+                if(onRampEnabled)
+                    for(y = [1:onRampEveryXSlots:totalHeight/distanceBetweenSlots])
+                        translate(v = [0,-5,-y*distanceBetweenSlots]) 
+                            rotate(a = [-90,0,0]) 
+                                color(c = "orange") cylinder(h = 5, r1 = 12, r2 = 10.15);
             }
             //dimple
             if (slotQuickRelease == false)

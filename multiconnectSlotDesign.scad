@@ -26,12 +26,12 @@ onRampEveryXSlots = 1;
 multiconnectBack(backWidth = totalWidth, backHeight = totalHeight, distanceBetweenSlots = distanceBetweenSlots);
 
 //BEGIN MODULES
-//Slotted back
+//Slotted back Module
 module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
 {
     //slot count calculates how many slots can fit on the back. Based on internal width for buffer. 
     //slot width needs to be at least the distance between slot for at least 1 slot to generate
-    let (backWidth = max(backWidth,distanceBetweenSlots), slotCount = floor(backWidth/distanceBetweenSlots), backThickness = 6.5){
+    let (backWidth = max(backWidth,distanceBetweenSlots), backHeight = max(backHeight, 25),slotCount = floor(backWidth/distanceBetweenSlots), backThickness = 6.5){
         difference() {
             translate(v = [0,-backThickness,0]) cube(size = [backWidth,backThickness,backHeight]);
             //Loop through slots and center on the item
