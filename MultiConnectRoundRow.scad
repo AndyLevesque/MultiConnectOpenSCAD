@@ -10,7 +10,7 @@ TODO:
 
 /*[Standard Parameters]*/
 //diameter (in mm) of the item you wish to insert (this becomes the internal diameter)
-itemDiameter = 25;
+itemDiameter = 25; //0.1
 //number of items you wish to hold width-wise (along the back)
 itemsWide = 3;
 //distance between each item (in mm)
@@ -23,6 +23,8 @@ itemAngle = 30; //[0:2.5:60]
 holeDepth = 15;
 //Additional Backer Height (in mm) in case you prefer additional support for something heavy
 additionalBackerHeight = 0;
+//have front of holder vertical. Recommend enabling if angle exceeds 45 degrees to avoid print overhang issues. 
+forceFlatFront = false;
 
 
 /*[Slot Customization]*/
@@ -74,8 +76,11 @@ multiconnectBack(backWidth = totalWidth, backHeight = totalHeight+additionalBack
 //craft the 5-sided outline for the shelf that accomodates the desired angle and depth
 difference() {
     translate(v = [0,0,0]) rotate(a = [90,0,90]) 
-        linear_extrude(height = totalWidth) 
-            polygon(points = [[0,0],[0,shelfBackHeight],[smallTriangleY,shelfBackHeight],[shelfDepth,shelfFrontHeight],[shelfDepth,0]]);
+        linear_extrude(height = totalWidth) {
+            if(itemAngle > 45 || forceFlatFront)
+                polygon(points = [[0,0],[0,shelfBackHeight],[smallTriangleY,shelfBackHeight],[shelfDepth,shelfFrontHeight],[shelfDepth,0]]);
+            else polygon(points = [[0,0],[0,shelfBackHeight],[smallTriangleY,shelfBackHeight],[shelfDepth,shelfFrontHeight],[shelfDepth-smallTriangleY,0]]);
+        }
     //delete tools
     for(itemY = [0:1:itemsDeep-1]){
         for (itemX = [0:1:itemsWide-1]){

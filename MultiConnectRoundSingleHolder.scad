@@ -5,7 +5,7 @@ Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attributi
 
 /*[Parameters]*/
 //diameter (in mm) of the item you wish to insert (this becomes the internal diameter)
-itemDiameter = 50;
+itemDiameter = 50; //0.1
 //thickness (in mm) of the wall surrounding the item
 rimThickness = 1;
 //Thickness (in mm) of the base underneath the item you are holding
