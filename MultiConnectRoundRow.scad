@@ -13,14 +13,17 @@ TODO:
 itemDiameter = 25; //0.1
 //number of items you wish to hold width-wise (along the back)
 itemsWide = 3;
+//Additional height (in mm) of the rim protruding upward to hold the item
+holeDepth = 15; //.1
+//Chamfer at the top of the hold (in mm)
+holeChamfer = 0.7; //.1
 //distance between each item (in mm)
-distanceBetweenEach = 1;
+distanceBetweenEach = 2;
 //Minimum thickness (in mm) of the base underneath the item you are holding
 baseThickness = 2;
 //Angle for items
 itemAngle = 30; //[0:2.5:60]
-//Additional height (in mm) of the rim protruding upward to hold the item
-holeDepth = 15;
+
 //Additional Backer Height (in mm) in case you prefer additional support for something heavy
 additionalBackerHeight = 0;
 //have front of holder vertical. Recommend enabling if angle exceeds 45 degrees to avoid print overhang issues. 
@@ -89,8 +92,13 @@ difference() {
                     //shelf
                     //cube(size = [totalWidth, rowDepth,holeDepth+baseThickness]);
                     //delete tools
-                    translate(v = [itemDiameter/2+distanceBetweenEach + (itemX*itemDiameter+distanceBetweenEach*itemX),itemY*rowDepth+itemDiameter/2+distanceBetweenEach,baseThickness]) 
-                        color(c = "red") cylinder(h = holeDepth+1, r = itemDiameter/2);
+                    translate(v = [itemDiameter/2+distanceBetweenEach + (itemX*itemDiameter+distanceBetweenEach*itemX),itemY*rowDepth+itemDiameter/2+distanceBetweenEach,baseThickness]) {
+                        color(c = "red") 
+                            cylinder(h = holeDepth+1, r = itemDiameter/2, $fn = 50);
+                        translate(v = [0,0,holeDepth-holeChamfer]) 
+                            color(c = "orange")
+                                cylinder(h = itemDiameter, r1 = itemDiameter/2, r2 = itemDiameter*2, $fn = 50); 
+                    }
                 }
         }
     }
