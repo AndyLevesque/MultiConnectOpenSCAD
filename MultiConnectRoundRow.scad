@@ -6,28 +6,37 @@ Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attributi
 /*
 TODO: 
     - Separate distanceBetweenEach and front/back thickness and ends thickness
+    - SmallTriangleY is the vertical distance of the lower front
 */
+
+include <BOSL2/std.scad>
 
 /*[Standard Parameters]*/
 //diameter (in mm) of the item you wish to insert (this becomes the internal diameter)
 itemDiameter = 25; //0.1
 //number of items you wish to hold width-wise (along the back)
 itemsWide = 3;
+//number of items you wish to hold depth-wise (away from back)
+itemsDeep = 2;
 //Additional height (in mm) of the rim protruding upward to hold the item
 holeDepth = 15; //.1
-//Chamfer at the top of the hold (in mm)
+//Chamfer at the top of the hole
+enableChamfer = false;
+//Depth of Chamfer (in mm)
 holeChamfer = 0.7; //.1
 //distance between each item (in mm)
 distanceBetweenEach = 2;
 //Minimum thickness (in mm) of the base underneath the item you are holding
 baseThickness = 2;
 //Angle for items
-itemAngle = 30; //[0:2.5:60]
+itemAngle = 30; //[0:2.5:90]
 
 //Additional Backer Height (in mm) in case you prefer additional support for something heavy
 additionalBackerHeight = 0;
 //have front of holder vertical. Recommend enabling if angle exceeds 45 degrees to avoid print overhang issues. 
 forceFlatFront = false;
+//Shelf stepdown is the heigh (in mm) that rows/shelves will vertically step down. If zero, all rows will be on the same plane. 
+shelfStepdown = 5; //.1
 
 
 /*[Slot Customization]*/
@@ -48,8 +57,7 @@ onRampEveryXSlots = 1;
 
 
 /*[Hidden]*/
-//number of items you wish to hold depth-wise (away from back)
-itemsDeep = 1;
+
 //fit items plus 
 totalWidth = itemDiameter*itemsWide + distanceBetweenEach*itemsWide + distanceBetweenEach;
 
@@ -67,38 +75,64 @@ smallTriangleY = min(sin(itemAngle)*smallHypotenuse,tan(itemAngle)*smallHypotenu
 smallTriangleX = min(cos(itemAngle)*smallHypotenuse,tan(itemAngle)*smallHypotenuse);
 inverseSmallTriangleY = min(sin(90-itemAngle)*smallHypotenuse,tan(90-itemAngle)*smallHypotenuse);
 inverseSmallTriangleX = min(cos(90-itemAngle)*smallHypotenuse,tan(90-itemAngle)*smallHypotenuse);
-shelfDepth = max(cos(itemAngle)*hypotenuse) + smallTriangleY;
+unadjustedShelfDepth = cos(itemAngle)*hypotenuse;
+additionalShelfDepth = smallTriangleY;
+shelfDepth = unadjustedShelfDepth + additionalShelfDepth;
 shelfFrontHeight = inverseSmallTriangleY;
 shelfBackHeight = triangleY+inverseSmallTriangleY;
-totalHeight = max(triangleY+inverseSmallTriangleY,25);
+//totalHeight = max((shelfBackHeight)*itemsDeep,25);
+totalHeight = max((triangleY)*itemsDeep+shelfFrontHeight+shelfStepdown*itemsDeep,25);
+
+echo(str("hypotenuse: ", hypotenuse, "; smallHypotenuse: ", smallHypotenuse, "; triangleY: ", triangleY, "; smallTriangleY: ", smallTriangleY, "; inverseSmallTriangleY: ", inverseSmallTriangleY))
+echo(str("hypotenuse: ", hypotenuse, "; smallHypotenuse: ", smallHypotenuse, "; triangleX: ", triangleX, "; smallTriangleX: ", smallTriangleX, "; inverseSmallTriangleX: ", inverseSmallTriangleX))
 
 
-echo(str("hypotenuse: ", hypotenuse))
 //start build
 multiconnectBack(backWidth = totalWidth, backHeight = totalHeight+additionalBackerHeight, distanceBetweenSlots = distanceBetweenSlots);
-//craft the 5-sided outline for the shelf that accomodates the desired angle and depth
+//shelf and delete tools. The most parent translates need to match.
 difference() {
-    translate(v = [0,0,0]) rotate(a = [90,0,90]) 
-        linear_extrude(height = totalWidth) {
-            if(itemAngle > 45 || forceFlatFront)
-                polygon(points = [[0,0],[0,shelfBackHeight],[smallTriangleY,shelfBackHeight],[shelfDepth,shelfFrontHeight],[shelfDepth,0]]);
-            else polygon(points = [[0,0],[0,shelfBackHeight],[smallTriangleY,shelfBackHeight],[shelfDepth,shelfFrontHeight],[shelfDepth-smallTriangleY,0]]);
+    for(itemY = [0:1:itemsDeep-1]){
+        //position each shelf. Start at the closets to the back and work forward. Several multipliers should not apply to the first shelf, hence the formula. 
+        //the min() check for shelf stepdown is to nullify the shelf stepdown if it will create a gap between the shelves. 
+        //y axis is to push the item out the full depth and then bring it back if not the first row. 
+        echo(str("Shelf Stepdown: ", shelfStepdown, "; inverseSmallTriangleY", inverseSmallTriangleY, "; itemY: ", itemY));
+        translate(v = [0,unadjustedShelfDepth*itemY,(itemsDeep-itemY-1)*triangleY-shelfStepdown*itemY+shelfStepdown*(itemsDeep-1)]) {
+                difference() {
+                //shelf
+                    rotate(a = [90,0,90]) 
+                        linear_extrude(height = totalWidth) {
+                            //craft the 5-sided outline for the shelf that accomodates the desired angle and depth
+                            //Don't chamfer the front if angle is over 45 degrees, user doesn't want it, or it is not in the front row
+                            if(itemAngle > 45 || forceFlatFront || (itemsDeep > 1 && itemY != itemsDeep-1))
+                                polygon(points = [[0,0],[0,shelfBackHeight],[smallTriangleY,shelfBackHeight],[shelfDepth,shelfFrontHeight],[shelfDepth,0]]);
+                            else polygon(points = [[0,0],[0,shelfBackHeight],[smallTriangleY,shelfBackHeight],[shelfDepth,shelfFrontHeight],[shelfDepth-smallTriangleY,0]]);
+                        }
+                }
+                //fill from back of row to back
+                if (unadjustedShelfDepth*itemY>0){
+                    translate(v = [0,-unadjustedShelfDepth*itemY,0]) cube(size = [totalWidth,unadjustedShelfDepth*itemY,triangleY-shelfStepdown*itemY+shelfStepdown*(itemsDeep)]);
+                }
         }
+    }
+
     //delete tools
     for(itemY = [0:1:itemsDeep-1]){
-        for (itemX = [0:1:itemsWide-1]){
-            translate(v = [0,0,triangleY])     
-                rotate([-itemAngle,0,0]) {
-                    //shelf
-                    //cube(size = [totalWidth, rowDepth,holeDepth+baseThickness]);
-                    //delete tools
-                    translate(v = [itemDiameter/2+distanceBetweenEach + (itemX*itemDiameter+distanceBetweenEach*itemX),itemY*rowDepth+itemDiameter/2+distanceBetweenEach,baseThickness]) {
-                        color(c = "red") 
-                            cylinder(h = holeDepth+1, r = itemDiameter/2, $fn = 50);
-                        translate(v = [0,0,holeDepth-holeChamfer]) 
-                            color(c = "orange")
-                                cylinder(h = itemDiameter, r1 = itemDiameter/2, r2 = itemDiameter*2, $fn = 50); 
-                    }
+        translate(v = [0,unadjustedShelfDepth*itemY,(itemsDeep-itemY-1)*triangleY-shelfStepdown*itemY+shelfStepdown*(itemsDeep-1)]) {
+                //delete tools
+                for (itemX = [0:1:itemsWide-1]){
+                    translate(v = [0,0,triangleY])     
+                        //delete tools
+                        rotate([-itemAngle,0,0]) {
+                            translate(v = [itemDiameter/2+distanceBetweenEach + (itemX*itemDiameter+distanceBetweenEach*itemX),itemDiameter/2+distanceBetweenEach,baseThickness]) {
+                                color(c = "red") 
+                                    cylinder(h = holeDepth+1, r = itemDiameter/2, $fn = 50);
+                                //chamfer
+                                if(enableChamfer)
+                                    translate(v = [0,0,holeDepth-holeChamfer]) 
+                                        color(c = "orange")
+                                            cylinder(h = itemDiameter, r1 = itemDiameter/2, r2 = itemDiameter*2, $fn = 50); 
+                            }
+                        }
                 }
         }
     }
@@ -158,3 +192,6 @@ module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
         }
     }
 }
+
+//this function accepts the parameter of which iteration of the loop your are in and what the parameter should be if not the first. If it is the first, use zero. 
+function zeroIfFirst(i, input) = (i == 0) ? 0 : input;
