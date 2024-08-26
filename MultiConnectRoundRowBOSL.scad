@@ -6,10 +6,11 @@ Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attributi
 /*
 TODO: 
     - Separate distanceBetweenEach and front/back thickness and ends thickness
-    - SmallTriangleY is the vertical distance of the lower front
+    - SmalllargeTriangleY is the vertical distance of the lower front
 */
 
 include <BOSL2/std.scad>
+include <BOSL2/rounding.scad>
 
 /*[Standard Parameters]*/
 //diameter (in mm) of the item you wish to insert (this becomes the internal diameter)
@@ -62,21 +63,56 @@ onRampEnabled = true;
 onRampEveryXSlots = 1;
 
 
+
 /*[Hidden]*/
 totalWidth = itemDiameter*itemsWide + distanceBetweenEach*itemsWide + distanceBetweenEach + sideBuffer*2;
 shelfDepth = itemDiameter+frontBuffer+backBuffer;
+shelfHeight = holeDepth+baseThickness;
+
+//calculate the Y and Z distances for the two triangels formed when rotating a square. 
+largeHypotenuse = shelfDepth;
+largeTriangleY = largeHypotenuse*cos(itemAngle);
+largeTriangleZ = largeHypotenuse*sin(itemAngle);
+smallHypotenuse = shelfHeight;
+smallTriangleY = smallHypotenuse*sin(itemAngle);
+smallTriangleZ = smallHypotenuse*cos(itemAngle);
+echo(str("Shelf Depth: ", shelfDepth));
+echo(str("Hypostenuse: ", largeHypotenuse));
+
 
 //START BUILD
+%zcopies(smallTriangleZ+largeTriangleZ, n=itemsDeep)
+    translate(v = [0,(largeTriangleY-smallTriangleY)*$idx,0]) 
+        xrot(itemAngle, cp=BACK)
+            diff()
+                cuboid(size = [totalWidth, itemDiameter+frontBuffer+backBuffer, holeDepth+baseThickness], chamfer=2, edges=[TOP+LEFT,TOP+RIGHT], anchor=BOTTOM+BACK)
+                        attach(TOP,TOP, inside=true, shiftout=0.01) 
+                            xcopies(itemDiameter + distanceBetweenEach, n = itemsWide)
+                                cylinder(h = holeDepth, r = itemDiameter/2, anchor=BOTTOM);
 
-ycopies(shelfDepth, n=itemsDeep)
-xrot(itemAngle)
-diff()
-    cuboid(size = [totalWidth, itemDiameter+frontBuffer+backBuffer, holeDepth+baseThickness], chamfer=2, edges=[TOP+LEFT,TOP+RIGHT], anchor=BOTTOM+BACK)
-            attach(TOP,TOP, inside=true, shiftout=0.01) 
-                xcopies(itemDiameter + distanceBetweenEach, n = itemsWide)
-                    cylinder(h = holeDepth, r = itemDiameter/2, anchor=BOTTOM);
+zcopies(smallTriangleZ+largeTriangleZ, n=itemsDeep)
+    translate(v = [0,0,0]) 
+        xrot(itemAngle, cp=BACK)
+            diff()
+                cuboid(size = [totalWidth, itemDiameter+frontBuffer+backBuffer, holeDepth+baseThickness], chamfer=2, edges=[TOP+LEFT,TOP+RIGHT], anchor=BOTTOM+BACK)
+                        attach(TOP,TOP, inside=true, shiftout=0.01) 
+                            xcopies(itemDiameter + distanceBetweenEach, n = itemsWide)
+                                cylinder(h = holeDepth, r = itemDiameter/2, anchor=BOTTOM);
 
 
+
+
+//alternative
+/*
+%xrot(itemAngle)
+    ycopies(shelfDepth, n=itemsDeep)
+        translate(v = [0,0,0]) 
+            diff()
+                cuboid(size = [totalWidth, itemDiameter+frontBuffer+backBuffer, holeDepth+baseThickness], chamfer=2, edges=[TOP+LEFT,TOP+RIGHT], anchor=BOTTOM+BACK)
+                        attach(TOP,TOP, inside=true, shiftout=0.01) 
+                            xcopies(itemDiameter + distanceBetweenEach, n = itemsWide)
+                                cylinder(h = holeDepth, r = itemDiameter/2, anchor=BOTTOM);
+*/
 
 //BEGIN MODULES
 //Slotted back Module
