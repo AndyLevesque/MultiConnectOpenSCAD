@@ -12,7 +12,10 @@ include <BOSL2/rounding.scad>
 
 //snap connector https://a360.co/3AI9ZVW
 
-snapConnectBacker();
+//distance (in mm) to offset the back from the multiboard.
+offset = 10; 
+
+snapConnectBacker(offset = offset);
 
 
 module snapConnectBacker(offset = 0){
