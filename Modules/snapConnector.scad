@@ -14,11 +14,13 @@ include <BOSL2/rounding.scad>
 
 //distance (in mm) to offset the back from the multiboard.
 offset = 0; 
+//scaling of the bumpout that holds the snap in place
+holdingTolerance = 1; //[0.5:0.05:1.5]
 
-snapConnectBacker(offset = offset);
+snapConnectBacker(offset = offset, holdingTolerance = holdingTolerance);
 
 
-module snapConnectBacker(offset = 0){
+module snapConnectBacker(offset = 0, holdingTolerance=1){
     //bumpout profile
 bumpout = turtle([
     "ymove", -2.237,
@@ -39,7 +41,7 @@ bumpout = turtle([
                     //position(TOP) oct_prism(h = 0.4, r1 = 12.9985, r2 = 12.555, anchor=BOTTOM);
         //end base
         //bumpouts
-        attach([RIGHT, LEFT, FWD, BACK],LEFT)  color("green") fwd(1) down(0.8) offset_sweep(path = bumpout, height=3, spin=[0,270,0]);
+        attach([RIGHT, LEFT, FWD, BACK],LEFT)  color("green") fwd(1) down(0.8) scale([1,1,holdingTolerance])offset_sweep(path = bumpout, height=3, spin=[0,270,0]);
         //delete tools
         //Bottom and side cutout - 2 cubes that form an L (cut from bottom and from outside) and then rotated around the side
         tag("remove") align(BOTTOM, [RIGHT, BACK, LEFT, FWD], inside=true, shiftout=0.01, inset = 1.6) color("lightblue") cuboid([0.8,7.161,3.4], spin=90*$idx)
