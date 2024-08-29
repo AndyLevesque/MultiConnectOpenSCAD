@@ -1,0 +1,21 @@
+{
+    "fileFormatVersion": "1",
+    "parameterSets": {
+        "New set 1": {
+            "dimpleInset": "0",
+            "dimpleScale": "1.25",
+            "distanceBetweenSlots": "25",
+            "onRampEnabled": "true",
+            "onRampEveryNSlots": "1",
+            "onRampOffsetNSlots": "0",
+            "slotDepthMicroadjustment": "0",
+            "slotOrientation": "Vertical",
+            "slotQuickRelease": "false",
+            "slotTolerance": "1",
+            "slotType": "Passthru",
+            "slotVerticalOffset": "2.8500000000000001",
+            "totalHeight": "100",
+            "totalWidth": "100"
+        }
+    }
+}
