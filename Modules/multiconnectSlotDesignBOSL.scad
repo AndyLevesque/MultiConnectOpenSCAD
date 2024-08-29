@@ -28,7 +28,7 @@ onRampEveryNSlots = 1;
 onRampOffsetNSlots = 0;
 //move the start of the slots (in mm) up (positive) or down (negative)
 slotVerticalOffset = 2.85;
-//DOES NOT YET WORK - Only applies to passthru - change slot orientation
+//Only applies to passthru - change slot orientation
 slotOrientation = "Vertical"; //["Horizontal", "Vertical"]
 //Only applies to passthru - set distance (in mm) inward from the start if the set. 0 = middle of slot. 
 dimpleInset = 0;
@@ -76,21 +76,7 @@ module multiconnectBacker(width, height, slotType = "Backer", distanceBetweenSlo
         children();
     }
 }
-/*
-module multiconnectPassthru(width, height, distanceBetweenSlots = 25, onRampEnabled = false, onRampEveryNSlots = 1, onRampOffsetNSlots = 0, scale = 1, backerThickness = 6.5, slotDimple = true, dimpleScale = 1, dimpleInset = 0, anchor=CENTER, spin=0, orient=UP){
-    attachable(anchor, spin, orient, size=[width, 6.5, height]*slotTolerance){ 
-            diff("remove"){
-                cuboid([width, 6.5, height]);
-                xcopies(n = floor(width/distanceBetweenSlots), spacing = distanceBetweenSlots)
-                    tag("remove") 
-                        attach(TOP, TOP, inside=true, align=FRONT, shiftout = 0.01) multiconnectSlot(length = height, onRampEnabled = false, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, anchor=FRONT)
-                    //if (slotDimple)  tag("keep") back(4.15)  down(height/2-1.5-dimpleInset) attach(FRONT, BOT, align=TOP) cylinder(h = 1.5*dimpleScale, r1 = 1.5*dimpleScale, r2 = 0, $fn = 50);
-                    if (slotDimple)  tag("keep") back(4.15)  down(dimpleInset == 0 ? height/2-1.5 : dimpleInset-1.5) attach(FRONT, BOT, align=TOP) cylinder(h = 1.5*dimpleScale, r1 = 1.5*dimpleScale, r2 = 0, $fn = 50);
-            }
-        children();
-    }
-}
-*/
+
 //round top
 module multiconnectRoundedEnd(scale=1, anchor=CENTER, spin=0, orient=UP){
     attachable(anchor, spin, orient, size=[10.15*2,4.15,10.15]*scale){
