@@ -1,0 +1,22 @@
+{
+    "fileFormatVersion": "1",
+    "parameterSets": {
+        "New set 1": {
+            "baseThickness": "1.5",
+            "dimpleInset": "0",
+            "dimpleScale": "1",
+            "distanceBetweenSlots": "25",
+            "onRampEnabled": "true",
+            "onRampEveryNSlots": "1",
+            "onRampOffsetNSlots": "0",
+            "shelfDepthUnits": "7",
+            "shelfHeight": "20",
+            "shelfWidthUnits": "7",
+            "slotOrientation": "Vertical",
+            "slotQuickRelease": "false",
+            "slotTolerance": "1",
+            "slotType": "Backer",
+            "slotVerticalOffset": "2.8500000000000001"
+        }
+    }
+}
