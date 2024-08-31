@@ -72,7 +72,7 @@ dimpleOffset = 0;
 
 //drawer
 diff(){
-    up(4.5) rect_tube(size=[shelfWidthUnits*25-slideSlop,shelfDepthUnits*25], wall=wallThickness, h=shelfHeight, anchor=TOP){
+    rect_tube(size=[shelfWidthUnits*25-slideSlop,shelfDepthUnits*25], wall=wallThickness, h=shelfHeight, anchor=BOT){
         //slide sides
         tag("keep") down(4.5) attach([LEFT, RIGHT], BOT, align=TOP) 
             prismoid(size1=[shelfDepthUnits*25,slideDepth*2], size2=[shelfDepthUnits*25,0], h=slideDepth);
@@ -89,7 +89,7 @@ diff(){
 //slides
 diff(){
     xcopies(n = 2, spacing = widthInMM+slideDepth*2+30)
-    cuboid(size = [25,depthInMM,slideDepth*2], anchor=TOP){
+    cuboid(size = [25,depthInMM,slideDepth*2], anchor=BOT){
         //slide slots
         attach([LEFT, RIGHT], BOT, align=TOP, inside=true, shiftout=0.01) 
             tag("remove") prismoid(size1=[shelfDepthUnits*25,slideDepth*2+0.25], size2=[shelfDepthUnits*25+1,0], h=slideDepth+0.25);
