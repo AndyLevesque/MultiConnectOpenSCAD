@@ -3,7 +3,6 @@
     "parameterSets": {
         "New set 1": {
             "baseThickness": "1.5",
-            "dimpleInset": "0",
             "dimpleScale": "1",
             "distanceBetweenSlots": "25",
             "onRampEnabled": "true",
@@ -13,10 +12,33 @@
             "shelfHeight": "20",
             "shelfWidthUnits": "7",
             "slotOrientation": "Vertical",
-            "slotQuickRelease": "false",
             "slotTolerance": "1",
             "slotType": "Backer",
             "slotVerticalOffset": "2.8500000000000001"
+        },
+        "New set 2": {
+            "baseThickness": "1.5",
+            "bottomType": "Hex",
+            "centerMulticonnect": "true",
+            "dimpleEveryNSlots": "3",
+            "dimpleOffset": "1",
+            "dimpleScale": "1",
+            "dimplesEnabled": "true",
+            "distanceBetweenSlots": "25",
+            "hexSpacing": "8",
+            "hexStrut": "1.5",
+            "onRampEnabled": "true",
+            "onRampEveryNSlots": "2",
+            "onRampOffsetNSlots": "1",
+            "onRampPassthruEnabled": "false",
+            "shelfDepthUnits": "7",
+            "shelfHeight": "20",
+            "shelfWidthUnits": "7",
+            "slotOrientation": "Vertical",
+            "slotSpacing": "2",
+            "slotTolerance": "1",
+            "slotType": "Backer",
+            "slotVerticalOffset": "0"
         }
     }
 }

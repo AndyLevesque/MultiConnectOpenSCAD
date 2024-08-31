@@ -117,7 +117,7 @@ module multiconnectBacker(width, height, slotType = "Backer", distanceBetweenSlo
             down(10.15/2)
             //top_half() 
             diff("slotDimple"){
-                multiconnectRounded();
+                multiconnectRounded()
                 if(slotDimple) tag("slotDimple")attach(BACK, BOT, inside=true, shiftout=0.01) cylinder(h = 1.5*dimpleScale, r1 = 1.5*dimpleScale, r2 = 0, $fn = 50);
             }
             children();
@@ -140,15 +140,20 @@ module multiconnectBacker(width, height, slotType = "Backer", distanceBetweenSlo
                 multiconnectLinear(length = length, slotType = slotType, distanceBetweenSlots = distanceBetweenSlots, onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, onRampPassthruEnabled = onRampPassthruEnabled);
                 if(slotDimple && dimpleEveryNSlots != 0 && slotType == "Backer") {
                     //calculate the dimples. Dimplecount can override if less than calculated slots
-                    zcopies(n = min(length/distanceBetweenSlots/dimpleEveryNSlots+1-dimpleOffset, dimpleCount), spacing = -distanceBetweenSlots*dimpleEveryNSlots, sp=[0,0,0]) 
+                    echo("Dimples for Backer");
+                    tag("slotDimple") attach(BACK, BOT, align=TOP, inside=true, shiftout=0.01) back(1.5*dimpleScale) 
+                            cylinder(h = 1.5*dimpleScale, r1 = 1.5*dimpleScale, r2 = 0, $fn = 50);
+                    zcopies(n = min(length/distanceBetweenSlots/dimpleEveryNSlots+1, dimpleCount), spacing = -distanceBetweenSlots*dimpleEveryNSlots, sp=[0,0,dimpleOffset*distanceBetweenSlots]) 
                         tag("slotDimple") attach(BACK, BOT, align=TOP, inside=true, shiftout=0.01) back(1.5*dimpleScale) 
                             cylinder(h = 1.5*dimpleScale, r1 = 1.5*dimpleScale, r2 = 0, $fn = 50);
                 }
                 if(slotDimple && dimpleEveryNSlots != 0 && slotType == "Passthru"){ //passthru
                     //calculate the dimples. Dimplecount can override if less than calculated slots
+                    echo("Dimples for Passthru");
                     zcopies(n = min(length/distanceBetweenSlots/dimpleEveryNSlots+2, dimpleCount), spacing = -distanceBetweenSlots*dimpleEveryNSlots, sp=[0,0,centerMulticonnect ? -length/2+25*3/2-12.5+25+dimpleOffset*distanceBetweenSlots: -length/2+25*3/2+25+dimpleOffset*distanceBetweenSlots]) 
                         tag("slotDimple") attach(BACK, BOT, align=TOP, inside=true, shiftout=0.01) back(1.5*dimpleScale) 
                             cylinder(h = 1.5*dimpleScale, r1 = 1.5*dimpleScale, r2 = 0, $fn = 50);
+
                 }
             
             }
@@ -172,7 +177,6 @@ module multiconnectBacker(width, height, slotType = "Backer", distanceBetweenSlo
                                 zcopies(spacing=-distanceBetweenSlots*onRampEveryNSlots, n=length/distanceBetweenSlots/onRampEveryNSlots+1, sp=[0,0,-distanceBetweenSlots-onRampOffsetNSlots*distanceBetweenSlots]) 
                                     fwd(4.15/2) color("orange") 
                                         cyl(h = 4.15, r1 = 12, r2 = 10.15, spin=([90,0,180]));
-                                echo("Got Here");
                         } 
                         if(onRampPassthruEnabled && onRampEveryNSlots != 0 && slotType == "Passthru"){
                                 zcopies(spacing=-distanceBetweenSlots*onRampEveryNSlots, n=length/distanceBetweenSlots+2, sp=[0,0,centerMulticonnect ? -length/2+25*3/2-12.5+25: -length/2+25*3/2+25]) 
@@ -192,7 +196,3 @@ module multiconnectBacker(width, height, slotType = "Backer", distanceBetweenSlo
 //take a total length and divisible by and calculate the remainder
 //For example, if the total length is 81 and units are 25 each, then the excess is 5
 function excess(total, divisibleBy) = round(total - floor(total/divisibleBy)*divisibleBy);
-//80 wide
-//3 slots
-//start at 2.5
-//-excess(width, distanceBetweenSlots)/2
