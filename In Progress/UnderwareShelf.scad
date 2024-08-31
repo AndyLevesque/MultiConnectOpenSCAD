@@ -70,12 +70,23 @@ dimpleEveryNSlots = 2;
 //shift the series of dimples left or right by n units
 dimpleOffset = 0;
 
+/*[Hidden]*/
+drawerDimpleRadius = 1;
+drawerDimpleHeight = 7.5;
+drawerDimpleInset = 5; 
+drawerDimpleSlideToDrawerRatio = 1.25;
+
 //drawer
-diff(){
+diff("remove", "keep"){
     rect_tube(size=[shelfWidthUnits*25-slideSlop,shelfDepthUnits*25], wall=wallThickness, h=shelfHeight, anchor=BOT){
         //slide sides
         tag("keep") down(4.5) attach([LEFT, RIGHT], BOT, align=TOP) 
-            prismoid(size1=[shelfDepthUnits*25,slideDepth*2], size2=[shelfDepthUnits*25,0], h=slideDepth);
+                tag("") prismoid(size1=[shelfDepthUnits*25,slideDepth*2+0.25], size2=[shelfDepthUnits*25+1,0], h=slideDepth+0.25){
+                    //drawer dimple
+                    attach(FRONT, CENTER+FRONT, align=[LEFT, RIGHT], inset=drawerDimpleInset, shiftout = -drawerDimpleRadius) 
+                        force_tag("remove") 
+                            cyl(h= drawerDimpleHeight+1.5, r = drawerDimpleRadius*drawerDimpleSlideToDrawerRatio, $fn=30);
+                }
         //drawer bottom
         if (bottomType == "Solid") tag("keep")attach(BOT) cuboid([shelfWidthUnits*25-slideSlop,shelfDepthUnits*25,baseThickness]);
         if (bottomType == "Hex") tag("keep") attach(BOT) 
@@ -92,7 +103,12 @@ diff(){
     cuboid(size = [25,depthInMM,slideDepth*2], anchor=BOT){
         //slide slots
         attach([LEFT, RIGHT], BOT, align=TOP, inside=true, shiftout=0.01) 
-            tag("remove") prismoid(size1=[shelfDepthUnits*25,slideDepth*2+0.25], size2=[shelfDepthUnits*25+1,0], h=slideDepth+0.25);
+            tag("remove") 
+                diff("slideDimple")
+                prismoid(size1=[shelfDepthUnits*25,slideDepth*2+0.25], size2=[shelfDepthUnits*25+1,0], h=slideDepth+0.25){
+                    attach(FRONT, CENTER+FRONT, align=[LEFT, RIGHT], inset=drawerDimpleInset, shiftout = -drawerDimpleRadius+.5) 
+                        tag("slideDimple") cyl(h= drawerDimpleHeight-1, r = drawerDimpleRadius, $fn=30);
+}
         //bottom cutout
         attach(BOT, BOT, inside=true, shiftout=0.01) 
             tag("remove") prismoid(size1=[slideDepth*2, shelfDepthUnits*25], size2=[0,shelfDepthUnits*25+1], h=slideDepth);
@@ -103,8 +119,6 @@ diff(){
             multiconnectBacker(height = depthInMM, width = 25, slotType = slotType, slotTolerance = slotTolerance, onRampEnabled = true, onRampEveryNSlots = slotSpacing,slotDimple = dimplesEnabled, dimpleScale = dimpleScale, dimpleEveryNSlots = dimpleEveryNSlots, dimpleOffset = dimpleOffset, anchor=BOTTOM+BACK, slotOrientation=slotOrientation, spin=[0,180,0]);
     }
 }
-
-
 
 /*
 BEGIN MODULES
