@@ -89,7 +89,7 @@ diff("remove", "keep"){
                     //drawer dimple
                     attach(FRONT, CENTER+FRONT, align=[LEFT, RIGHT], inset=drawerDimpleInset, shiftout = -drawerDimpleRadius) 
                         force_tag("remove") 
-                            cyl(h= drawerDimpleHeight+1.5, r = drawerDimpleRadius*drawerDimpleSlideToDrawerRatio, $fn=30);
+                            cyl(h= 10.9, r = drawerDimpleRadius*drawerDimpleSlideToDrawerRatio, $fn=30);
                 }
         //drawer bottom
         if (bottomType == "Solid") tag("keep")attach(BOT) cuboid([shelfWidthUnits*25-slideSlop,shelfDepthUnits*25,baseThickness]);
@@ -126,10 +126,10 @@ diff(){
     }
 }
 
-//slide locks
+//slide lock tools
 xcopies(n = 2, spacing = widthInMM+slideDepth*2+30) fwd(depthInMM/2-12.5) cuboid([6 , 25,  2-slideLockTolerance], anchor=BOT);
 
-//drawer stops
+//drawer stop snaps
 ycopies(n = 4, spacing= 25) move([widthInMM/2+50,-depthInMM/2+50,0]) snapConnectBacker(offset=1, anchor=BOT)
     attach(TOP, BOT, align=FRONT) cuboid([6, 2, 4+drawerPlateClearance], chamfer=0.5, edges=TOP);
 
