@@ -75,12 +75,14 @@ drawerDimpleRadius = 1;
 drawerDimpleHeight = 7.5;
 drawerDimpleInset = 5; 
 drawerDimpleSlideToDrawerRatio = 1.25;
+//Distance (in mm) the top of the drawer will have to the multiboard it is mounted to (not including slop)
+drawerPlateClearance = 2; //[0:.5:6.5]
 
 //drawer
 diff("remove", "keep"){
-    rect_tube(size=[shelfWidthUnits*25-slideSlop,shelfDepthUnits*25], wall=wallThickness, h=shelfHeight, anchor=BOT){
+    up(baseThickness/2)rect_tube(size=[shelfWidthUnits*25-slideSlop,shelfDepthUnits*25], wall=wallThickness, h=shelfHeight, anchor=BOT){
         //slide sides
-        tag("keep") down(4.5) attach([LEFT, RIGHT], BOT, align=TOP) 
+        tag("keep") down(6.5-drawerPlateClearance) attach([LEFT, RIGHT], BOT, align=TOP) 
                 tag("") prismoid(size1=[shelfDepthUnits*25,slideDepth*2+0.25], size2=[shelfDepthUnits*25+1,0], h=slideDepth+0.25){
                     //drawer dimple
                     attach(FRONT, CENTER+FRONT, align=[LEFT, RIGHT], inset=drawerDimpleInset, shiftout = -drawerDimpleRadius) 
