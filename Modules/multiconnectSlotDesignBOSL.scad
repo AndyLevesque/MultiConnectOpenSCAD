@@ -27,8 +27,6 @@ totalHeight = 75;
 /*[Slot Customization]*/
 //Slot type. Backer is for vertical mounting. Passthru for horizontal mounting.
 slotType = "Backer"; //[Backer, Passthru]
-//Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
-distanceBetweenSlots = 25;
 //QuickRelease removes the small indent in the top of the slots that lock the part into place
 dimplesEnabled = true;
 //Dimple scale tweaks the size of the dimple in the slot for printers that need a larger dimple to print correctly
@@ -38,6 +36,8 @@ slotTolerance = 1.00; //[1:0.005:1.075]
 //Move the slot in (positive) or out (negative) - Disabled at the moment
 //slotDepthMicroadjustment = 0; //[-.5:0.05:.5]
 //enable a slot on-ramp for easy mounting of tall items
+//ADVANCED: Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
+distanceBetweenSlots = 25;
 /*[Backer-Style Slot Customization]*/
 onRampEnabled = true;
 //frequency of slots for on-ramp. 1 = every slot; 2 = every 2 slots; etc.
