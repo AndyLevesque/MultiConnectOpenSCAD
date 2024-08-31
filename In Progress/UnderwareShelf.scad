@@ -105,14 +105,14 @@ module multiconnectBacker(width, height, slotType = "Backer", distanceBetweenSlo
     //Backer type
     if (slotType == "Backer"){
         width = width < 25 ? 25 : width; //if width is less than 25, force 25 to ensure at least 1 slot
-        diff("slot", "dimple"){
-        cuboid([width, backerThickness, height]);
-        xcopies(n = floor(width/distanceBetweenSlots), spacing = distanceBetweenSlots)
-            tag("slot") 
-                down(13-10.15)attach(TOP, TOP, inside=true, align=FRONT, shiftout=0.01) multiconnectRoundedEnd(scale= slotTolerance, anchor=BOT+BACK)
-                    attach(BOT, TOP) multiconnectSlot(length = height, onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, anchor=FRONT)
-            if (slotDimple)  tag("dimple") back(4.15)  up(1.5*dimpleScale) attach(FRONT, BOT, align=TOP) cylinder(h = 1.5*dimpleScale, r1 = 1.5*dimpleScale, r2 = 0, $fn = 50);
-        }
+            diff("slot", "dimple"){
+                cuboid([width, backerThickness, height]);
+                xcopies(n = floor(width/distanceBetweenSlots), spacing = distanceBetweenSlots)
+                    tag("slot") 
+                        down(13-10.15)attach(TOP, TOP, inside=true, align=FRONT, shiftout=0.01) multiconnectRoundedEnd(scale= slotTolerance, anchor=BOT+BACK)
+                            attach(BOT, TOP) multiconnectSlot(length = height, onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, anchor=FRONT)
+                    if (slotDimple)  tag("dimple") back(4.15)  up(1.5*dimpleScale) attach(FRONT, BOT, align=TOP) cylinder(h = 1.5*dimpleScale, r1 = 1.5*dimpleScale, r2 = 0, $fn = 50);
+                }        
     }
     //Passthru type
     
