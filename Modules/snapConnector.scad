@@ -17,22 +17,24 @@ offset = 0;
 //scaling of the bumpout that holds the snap in place
 holdingTolerance = 1; //[0.5:0.05:1.5]
 
-snapConnectBacker(offset = offset, holdingTolerance = holdingTolerance);
+snapConnectBacker(offset = offset, holdingTolerance = holdingTolerance) show_anchors();
 
 
 module snapConnectBacker(offset = 0, holdingTolerance=1){
+    attachable(anchor, spin, orient, size=[11.4465*2, 11.4465*2, 6.2+offset]){ 
     //bumpout profile
-bumpout = turtle([
-    "ymove", -2.237,
-    "turn", 40,
-    "move", 0.557,
-    "arcleft", 0.5, 50,
-    "ymove", 0.252
-    ]   );
+    bumpout = turtle([
+        "ymove", -2.237,
+        "turn", 40,
+        "move", 0.557,
+        "arcleft", 0.5, 50,
+        "ymove", 0.252
+        ]   );
 
+    down(6.2/2+offset)
     diff("remove")
         //base
-        oct_prism(h = 4.23, r = 11.4465) {
+        oct_prism(h = 4.23, r = 11.4465, anchor=BOT) {
             //first bevel
             position(TOP) oct_prism(h = 1.97, r1 = 11.4465, r2 = 12.5125, $fn =8, anchor=BOTTOM)
                 //top - used as offset. Independen snap height is 2.2
@@ -47,6 +49,8 @@ bumpout = turtle([
         tag("remove") align(BOTTOM, [RIGHT, BACK, LEFT, FWD], inside=true, shiftout=0.01, inset = 1.6) color("lightblue") cuboid([0.8,7.161,3.4], spin=90*$idx)
             align(RIGHT, [TOP]) cuboid([0.8,7.161,1], anchor=BACK);
     }
+    children();
+    }
 
     //octo_prism - module that creates an oct_prism with anchors positioned on the faces instead of the edges (as per cyl default for 8 sides)
     module oct_prism(h, r=0, r1=0, r2=0, anchor=CENTER) {
@@ -60,6 +64,7 @@ bumpout = turtle([
             echo("Error: You must provide either r or both r1 and r2.");
         }
     }
+    
 }
 
 //octo_prism - module that creates an oct_prism with anchors positioned on the faces instead of the edges (as per cyl default for 8 sides)
