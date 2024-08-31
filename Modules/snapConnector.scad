@@ -16,8 +16,19 @@ include <BOSL2/rounding.scad>
 offset = 0; 
 //scaling of the bumpout that holds the snap in place
 holdingTolerance = 1; //[0.5:0.05:1.5]
+//width of backer  (in mm)
+width = 100;
+//height of backer  (in mm)
+height = 100; 
+//thickness of backer (in mm)
+thickness = 2.0; //.1
+//frequency of snaps. 2 means 1 snap every 2 spots (or 50mm)
+snapEveryNSpots = 2;
 
-snapConnectBacker(offset = offset, holdingTolerance = holdingTolerance) show_anchors();
+
+cuboid([width, height, thickness])
+ attach(BOT, TOP) grid_copies(spacing=snapEveryNSpots*25, size=[width-11.4465*2, height-11.4465*2])
+    snapConnectBacker(offset = offset, holdingTolerance = holdingTolerance);
 
 
 module snapConnectBacker(offset = 0, holdingTolerance=1, anchor=CENTER, spin=0, orient=UP){
