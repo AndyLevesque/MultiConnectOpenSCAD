@@ -42,7 +42,7 @@ module snapConnectBacker(offset = 0, holdingTolerance=1, anchor=CENTER, spin=0, 
         "ymove", 0.252
         ]   );
 
-    down(6.2/2+offset)
+    down(6.2/2+offset/2)
     diff("remove")
         //base
         oct_prism(h = 4.23, r = 11.4465, anchor=BOT) {
