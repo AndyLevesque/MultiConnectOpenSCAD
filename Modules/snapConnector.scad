@@ -20,7 +20,7 @@ holdingTolerance = 1; //[0.5:0.05:1.5]
 snapConnectBacker(offset = offset, holdingTolerance = holdingTolerance) show_anchors();
 
 
-module snapConnectBacker(offset = 0, holdingTolerance=1){
+module snapConnectBacker(offset = 0, holdingTolerance=1, anchor=CENTER, spin=0, orient=UP){
     attachable(anchor, spin, orient, size=[11.4465*2, 11.4465*2, 6.2+offset]){ 
     //bumpout profile
     bumpout = turtle([
