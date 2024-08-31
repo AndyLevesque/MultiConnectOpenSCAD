@@ -77,6 +77,8 @@ drawerDimpleInset = 5;
 drawerDimpleSlideToDrawerRatio = 1.25;
 //Distance (in mm) the top of the drawer will have to the multiboard it is mounted to (not including slop)
 drawerPlateClearance = 2; //[0:.5:6.5]
+//size, in mm, the slide lock is thinner than the slot
+slideLockTolerance = 0.15;
 
 //drawer
 diff("remove", "keep"){
@@ -118,9 +120,19 @@ diff(){
         //ycopies(n=ceil(depthInMM/(slotSpacing*unitsInMM)), spacing = slotSpacing*unitsInMM, sp=[0,25,0]) attach(TOP, BACK, align=FRONT) multiconnectBacker(height = 25, width = 25, slotType = slotType, scale = slotTolerance, onRampEnabled = false, slotDimple = !slotQuickRelease, dimpleScale = dimpleScale, anchor=BOTTOM+BACK, slotOrientation=slotOrientation, spin=[0,180,0]);
         //long multiconnect slot
         attach(TOP, BACK) 
-            multiconnectBacker(height = depthInMM, width = 25, slotType = slotType, slotTolerance = slotTolerance, onRampEnabled = true, onRampEveryNSlots = slotSpacing,slotDimple = dimplesEnabled, dimpleScale = dimpleScale, dimpleEveryNSlots = dimpleEveryNSlots, dimpleOffset = dimpleOffset, anchor=BOTTOM+BACK, slotOrientation=slotOrientation, spin=[0,180,0]);
+            multiconnectBacker(height = depthInMM, width = 25, slotType = slotType, slotTolerance = slotTolerance, onRampEnabled = true, onRampEveryNSlots = slotSpacing,slotDimple = dimplesEnabled, dimpleScale = dimpleScale, dimpleEveryNSlots = dimpleEveryNSlots, dimpleOffset = dimpleOffset, anchor=BOTTOM+BACK, slotOrientation=slotOrientation, spin=[0,180,0])
+                //slide lock slot
+                tag("remove")attach(FRONT, BOT, align=TOP, inset = 19, shiftout=-5.99) cuboid([26, 2, 6]);
     }
 }
+
+//slide locks
+xcopies(n = 2, spacing = widthInMM+slideDepth*2+30) fwd(depthInMM/2-12.5) cuboid([6 , 25,  2-slideLockTolerance], anchor=BOT);
+
+//drawer stops
+ycopies(n = 4, spacing= 25) move([widthInMM/2+50,-depthInMM/2+50,0]) snapConnectBacker(offset=1, anchor=BOT)
+    attach(TOP, BOT, align=FRONT) cuboid([6, 2, 4+drawerPlateClearance], chamfer=0.5, edges=TOP);
+
 
 /*
 BEGIN MODULES
@@ -243,6 +255,66 @@ module multiconnectBacker(width, height, slotType = "Backer", distanceBetweenSlo
                 children();
             }
         }
+    }
+}
+
+module snapConnectBacker(offset = 0, holdingTolerance=1, anchor=CENTER, spin=0, orient=UP){
+    attachable(anchor, spin, orient, size=[11.4465*2, 11.4465*2, 6.2+offset]){ 
+    //bumpout profile
+    bumpout = turtle([
+        "ymove", -2.237,
+        "turn", 40,
+        "move", 0.557,
+        "arcleft", 0.5, 50,
+        "ymove", 0.252
+        ]   );
+
+    down(6.2/2+offset)
+    diff("remove")
+        //base
+        oct_prism(h = 4.23, r = 11.4465, anchor=BOT) {
+            //first bevel
+            position(TOP) oct_prism(h = 1.97, r1 = 11.4465, r2 = 12.5125, $fn =8, anchor=BOTTOM)
+                //top - used as offset. Independen snap height is 2.2
+                position(TOP) oct_prism(h = offset, r = 12.9885, anchor=BOTTOM);
+                    //top bevel - not used when applied as backer
+                    //position(TOP) oct_prism(h = 0.4, r1 = 12.9985, r2 = 12.555, anchor=BOTTOM);
+        //end base
+        //bumpouts
+        attach([RIGHT, LEFT, FWD, BACK],LEFT)  color("green") fwd(1) down(0.8) scale([1,1,holdingTolerance])offset_sweep(path = bumpout, height=3, spin=[0,270,0]);
+        //delete tools
+        //Bottom and side cutout - 2 cubes that form an L (cut from bottom and from outside) and then rotated around the side
+        tag("remove") align(BOTTOM, [RIGHT, BACK, LEFT, FWD], inside=true, shiftout=0.01, inset = 1.6) color("lightblue") cuboid([0.8,7.161,3.4], spin=90*$idx)
+            align(RIGHT, [TOP]) cuboid([0.8,7.161,1], anchor=BACK);
+    }
+    children();
+    }
+
+    //octo_prism - module that creates an oct_prism with anchors positioned on the faces instead of the edges (as per cyl default for 8 sides)
+    module oct_prism(h, r=0, r1=0, r2=0, anchor=CENTER) {
+        if (r != 0) {
+            // If r is provided, create a regular octagonal prism with radius r
+            rotate (22.5) cylinder(h=h, r1=r, r2=r, $fn=8, anchor=anchor) rotate (-22.5) children();
+        } else if (r1 != 0 && r2 != 0) {
+            // If r1 and r2 are provided, create an octagonal prism with different top and bottom radii
+            rotate (22.5) cylinder(h=h, r1=r1, r2=r2, $fn=8, anchor=anchor) rotate (-22.5)  children();
+        } else {
+            echo("Error: You must provide either r or both r1 and r2.");
+        }
+    }
+    
+}
+
+//octo_prism - module that creates an oct_prism with anchors positioned on the faces instead of the edges (as per cyl default for 8 sides)
+module oct_prism(h, r=0, r1=0, r2=0, anchor=CENTER) {
+    if (r != 0) {
+        // If r is provided, create a regular octagonal prism with radius r
+        rotate (22.5) cylinder(h=h, r1=r, r2=r, $fn=8, anchor=anchor) rotate (-22.5) children();
+    } else if (r1 != 0 && r2 != 0) {
+        // If r1 and r2 are provided, create an octagonal prism with different top and bottom radii
+        rotate (22.5) cylinder(h=h, r1=r1, r2=r2, $fn=8, anchor=anchor) rotate (-22.5)  children();
+    } else {
+        echo("Error: You must provide either r or both r1 and r2.");
     }
 }
 
