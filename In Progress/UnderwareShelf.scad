@@ -103,7 +103,7 @@ renderSnaps = false;
 
 //drawer
 diff("remove"){
-    up(baseThickness) rect_tube(size=[shelfWidthUnits*25,shelfDepthUnits*25], wall=wallThickness, h=shelfHeight, anchor=BOT){
+    up(baseThickness) rect_tube(size=[shelfWidthUnits*25-slideSlop,shelfDepthUnits*25], wall=wallThickness, h=shelfHeight, anchor=BOT){
         //slide sides
         tag("keep") down(6.5-drawerPlateClearance) attach([LEFT, RIGHT], BOT, align=TOP) 
                 tag("") prismoid(size1=[shelfDepthUnits*25,slideDepth*2+0.25], size2=[shelfDepthUnits*25,0], h=slideDepth+0.25){
@@ -113,9 +113,9 @@ diff("remove"){
                             cyl(h= 10.9, r = drawerDimpleRadius*drawerDimpleSlideToDrawerRatio, $fn=30);
                 }
         //drawer bottom
-        if (bottomType == "Solid") tag("keep")attach(BOT, TOP) cuboid([shelfWidthUnits*25,shelfDepthUnits*25,baseThickness]);
+        if (bottomType == "Solid") tag("keep")attach(BOT, TOP) cuboid([shelfWidthUnits*25-slideSlop,shelfDepthUnits*25,baseThickness]);
         if (bottomType == "Hex") tag("keep") attach(BOT, TOP) 
-            hex_panel([shelfWidthUnits*25,shelfDepthUnits*25,baseThickness], strut=hexStrut < hexSpacing ? hexStrut : hexSpacing - 0.25, spacing = hexSpacing, frame = wallThickness+2);
+            hex_panel([shelfWidthUnits*25-slideSlop,shelfDepthUnits*25,baseThickness], strut=hexStrut < hexSpacing ? hexStrut : hexSpacing - 0.25, spacing = hexSpacing, frame = wallThickness+2);
         //upper notch drawer pull
         if (drawerPullType == "Upper Notch") tag("remove") attach(FRONT, FRONT, inside=true, shiftout=0.01, align=TOP) 
             cuboid([widthInMM/3,wallThickness+1, 10], rounding=3, edges = [BOTTOM+LEFT, BOTTOM+RIGHT]);
