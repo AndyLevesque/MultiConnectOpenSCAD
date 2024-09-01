@@ -195,8 +195,9 @@ xcopies(n = 2, spacing = widthInMM+slideDepth*2+30) fwd(depthInMM/2-12.5) cuboid
 
 //drawer stop snaps
 if(renderSnaps)
-ycopies(n = 2, spacing= 25) move([widthInMM/2+50,-depthInMM/2+50,0]) snapConnectBacker(offset=1, anchor=BOT)
+union() {ycopies(n = 2, spacing= 25) move([widthInMM/2+50,-depthInMM/2+50,0]) snapConnectBacker(offset=1, anchor=BOT)
     attach(TOP, BOT, align=FRONT) cuboid([6, 4, 4+drawerPlateClearance], chamfer=0.5, edges=TOP);
+}
 
 
 
@@ -338,6 +339,7 @@ module snapConnectBacker(offset = 0, holdingTolerance=1, anchor=CENTER, spin=0, 
     down(6.2/2+offset/2)
     diff("remove")
         //base
+        union(){
         oct_prism(h = 4.23, r = 11.4465, anchor=BOT) {
             //first bevel
             position(TOP) oct_prism(h = 1.97, r1 = 11.4465, r2 = 12.5125, $fn =8, anchor=BOTTOM)
@@ -345,6 +347,7 @@ module snapConnectBacker(offset = 0, holdingTolerance=1, anchor=CENTER, spin=0, 
                 position(TOP) oct_prism(h = offset, r = 12.9885, anchor=BOTTOM);
                     //top bevel - not used when applied as backer
                     //position(TOP) oct_prism(h = 0.4, r1 = 12.9985, r2 = 12.555, anchor=BOTTOM);
+        
         //end base
         //bumpouts
         attach([RIGHT, LEFT, FWD, BACK],LEFT)  color("green") fwd(1) down(0.8) scale([1,1,holdingTolerance])offset_sweep(path = bumpout, height=3, spin=[0,270,0]);
@@ -352,6 +355,7 @@ module snapConnectBacker(offset = 0, holdingTolerance=1, anchor=CENTER, spin=0, 
         //Bottom and side cutout - 2 cubes that form an L (cut from bottom and from outside) and then rotated around the side
         tag("remove") align(BOTTOM, [RIGHT, BACK, LEFT, FWD], inside=true, shiftout=0.01, inset = 1.6) color("lightblue") cuboid([0.8,7.161,3.4], spin=90*$idx)
             align(RIGHT, [TOP]) cuboid([0.8,7.161,1], anchor=BACK);
+        }
     }
     children();
     }
