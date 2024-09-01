@@ -9,7 +9,7 @@ Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attributi
 //Depth of shelf (in multiboard units of 25mm each) from front to back 
 shelfDepthUnits = 7;
 //Width of shelf (in multiboard units of 25mm each) from left to right 
-shelfWidthUnits = 7;
+shelfWidthUnits = 4;
 //internal height of shelf (in mm)
 shelfHeight = 20;//5
 //thickness (in mm) of the shelf floor
@@ -25,7 +25,7 @@ hexStrut = 1.5; //[0.5:0.25:5]
 
 /*[Drawer Front]*/
 drawerFrontType = "Detached Dovetail";// [Attached, Detached Dovetail, Detached Dado]
-drawerPullType = "Hardware";// [Upper Notch, Hardware, None]
+drawerPullType = "Upper Notch";// [Upper Notch, Hardware, None]
 //The small measurement (in mm) For the slot to slide in the drawer of the drawer
 drawerMountConeMin = 4.2;
 //The small measurement (in mm) For the slot to slide in the drawer of the drawer
@@ -56,8 +56,6 @@ depthInMM = shelfDepthUnits*unitsInMM;
 widthInMM = shelfWidthUnits*unitsInMM;
 
 /*[Slot Customization]*/
-//Slot type. Backer is for vertical mounting. Passthru for horizontal mounting.
-slotType = "Backer"; //[Backer, Passthru]
 //QuickRelease removes the small indent in the top of the slots that lock the part into place
 dimplesEnabled = true;
 //Dimple scale tweaks the size of the dimple in the slot for printers that need a larger dimple to print correctly
@@ -67,8 +65,7 @@ slotTolerance = 1.00; //[1:0.005:1.075]
 //Move the slot in (positive) or out (negative) - Disabled at the moment
 //slotDepthMicroadjustment = 0; //[-.5:0.05:.5]
 //enable a slot on-ramp for easy mounting of tall items
-//ADVANCED: Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
-distanceBetweenSlots = 25;
+
 /*[Backer-Style Slot Customization]*/
 onRampEnabled = true;
 //frequency of slots for on-ramp. 1 = every slot; 2 = every 2 slots; etc.
@@ -77,7 +74,29 @@ onRampEveryNSlots = 2;
 onRampOffsetNSlots = 1;
 //move the start of the slots (in mm) up (positive) or down (negative)
 slotVerticalOffset = 0;
-/*[Passthru-Style Slot Customization]*/
+
+
+/*[Hidden]*/
+drawerDimpleRadius = 1;
+drawerDimpleHeight = 7.5;
+drawerDimpleInset = 5; 
+drawerDimpleSlideToDrawerRatio = 1.25;
+//Distance (in mm) the top of the drawer will have to the multiboard it is mounted to (not including slop)
+drawerPlateClearance = 2; //[0:.5:6.5]
+//size (in mm) the slide lock is thinner than the slot
+slideLockTolerance = 0.15;
+renderSlides = true;
+renderSnaps = true;
+
+
+
+//slot settings hidden
+//Slot type. Backer is for vertical mounting. Passthru for horizontal mounting.
+slotType = "Backer"; //[Backer, Passthru]
+//ADVANCED: Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
+distanceBetweenSlots = 25;
+
+///*[Passthru-Style Slot Customization]*/
 //change slot orientation
 slotOrientation = "Vertical"; //["Horizontal", "Vertical"]
 //set distance (in mm) inward from the start if the set. 0 = middle of slot. 
@@ -90,18 +109,6 @@ onRampPassthruEnabled = false;
 dimpleEveryNSlots = 2;
 //shift the series of dimples left or right by n units
 dimpleOffset = 0;
-
-/*[Hidden]*/
-drawerDimpleRadius = 1;
-drawerDimpleHeight = 7.5;
-drawerDimpleInset = 5; 
-drawerDimpleSlideToDrawerRatio = 1.25;
-//Distance (in mm) the top of the drawer will have to the multiboard it is mounted to (not including slop)
-drawerPlateClearance = 2; //[0:.5:6.5]
-//size (in mm) the slide lock is thinner than the slot
-slideLockTolerance = 0.15;
-renderSlides = true;
-renderSnaps = false;
 
 //drawer
 diff("remove"){
@@ -143,7 +150,7 @@ diff("remove"){
 //drawer front
 if(drawerFrontType == "Detached Dovetail"){
     diff("remove"){
-    fwd(depthInMM/2+wallThickness/2) color("tan")cuboid([widthInMM+slideDepth*2, wallThickness, shelfHeight+baseThickness], anchor=BOT){
+    fwd(depthInMM/2+wallThickness/2+shelfHeight/2) up(wallThickness/2) xrot(90) color("tan")cuboid([widthInMM+slideDepth*2, wallThickness, shelfHeight+baseThickness], anchor=BOT){
         //dovetails
         up(baseThickness/2)attach(BACK, BOT, align=[LEFT, RIGHT], inset=(drawerMountConeMax+3)/2+wallThickness-drawerMountConeMin/2+slideDepth+slideSlop/2+dovetailTolerance/2) prismoid(size1=[drawerMountConeMin-dovetailTolerance, shelfHeight], size2=[drawerMountConeMax-dovetailTolerance, shelfHeight], h=drawerMountConeDepth-dovetailTolerance/2);
             //drawer pull cutout
