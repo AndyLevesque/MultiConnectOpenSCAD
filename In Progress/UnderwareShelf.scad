@@ -164,14 +164,15 @@ if(drawerFrontType == "Detached Dovetail" && ExportDrawerFront){
         up(drawerDovetailTest ? 0 :  wallThickness/2)
             cuboid([widthInMM+drawerFrontExtraWidth, wallThickness, shelfHeight+baseThickness], anchor=BOT, spin=[drawerDovetailTest ? 0 : 90,0,0]){
         //dovetails
-        up(baseThickness/2)attach(BACK, BOT, align=[LEFT, RIGHT], inset=(drawerMountConeMax+3)/2+wallThickness-drawerMountConeMin/2+slideDepth+slideSlop/2+dovetailTolerance/2) prismoid(size1=[drawerMountConeMin-dovetailTolerance, shelfHeight], size2=[drawerMountConeMax-dovetailTolerance, shelfHeight], h=drawerMountConeDepth-dovetailTolerance/2);
-            //drawer pull cutout
-            if(drawerPullType == "Upper Notch") tag("remove") attach(FRONT, FRONT, inside=true, shiftout=0.01, align=TOP) 
-                    cuboid([widthInMM/3,wallThickness+1, 10], rounding=3, edges = [BOTTOM+LEFT, BOTTOM+RIGHT]);
-            //drawer pull hardware
-            if(drawerPullType == "Hardware") tag("remove") attach(FRONT, BOT, inside=true, shiftout=0.01) 
-                        xcopies(n=drawerPullHardwareMounting=="Single" ? 1 : 2, spacing = drawerPullHardwareHoleSeparation)cyl(r=drawerPullHardwareDiameter/2, h = wallThickness+1, $fn=25);
-            }
+        up(baseThickness/2)attach(BACK, BOT, align=[LEFT, RIGHT], inset=(drawerMountConeMax+3)/2+wallThickness-drawerMountConeMin/2+drawerFrontExtraWidth/2+slideSlop/2+dovetailTolerance/2) 
+            prismoid(size1=[drawerMountConeMin-dovetailTolerance, shelfHeight], size2=[drawerMountConeMax-dovetailTolerance, shelfHeight], h=drawerMountConeDepth-dovetailTolerance/2);
+        //drawer pull cutout
+        if(drawerPullType == "Upper Notch") tag("remove") attach(FRONT, FRONT, inside=true, shiftout=0.01, align=TOP) 
+                cuboid([widthInMM/3,wallThickness+1, 10], rounding=3, edges = [BOTTOM+LEFT, BOTTOM+RIGHT]);
+        //drawer pull hardware
+        if(drawerPullType == "Hardware") tag("remove") attach(FRONT, BOT, inside=true, shiftout=0.01) 
+                    xcopies(n=drawerPullHardwareMounting=="Single" ? 1 : 2, spacing = drawerPullHardwareHoleSeparation)cyl(r=drawerPullHardwareDiameter/2, h = wallThickness+1, $fn=25);
+        }
     }
 }
 
