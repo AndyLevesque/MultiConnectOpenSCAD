@@ -42,6 +42,8 @@ drawerPullHardwareMounting = "Dual";//[Single, Dual]
 drawerPullHardwareHoleSeparation = 40;
 //Difference (in mm) the shelf front dovetail is to the hole
 dovetailTolerance = 0.3;
+//Additional total width of the drawer front (0 matches the shelf width plus walls; 21 covers most of the drawer slide)
+drawerFrontExtraWidth = 21;
 
 /*[Export Selection]*/
 ExportDrawer = true;
@@ -84,6 +86,7 @@ slotVerticalOffset = 0;
 /*[Debug]*/
 //If the front is detached, show the fit. Do not print in this orientation. 
 drawerDovetailTest = false;
+slideFitTest = false; 
 
 /*[Hidden]*/
 drawerDimpleRadius = 1;
@@ -159,7 +162,7 @@ if(drawerFrontType == "Detached Dovetail" && ExportDrawerFront){
         left(0) //front face placement for export
         //drawer front wall
         up(drawerDovetailTest ? 0 :  wallThickness/2)
-            cuboid([widthInMM+slideDepth*2, wallThickness, shelfHeight+baseThickness], anchor=BOT, spin=[drawerDovetailTest ? 0 : 90,0,0]){
+            cuboid([widthInMM+drawerFrontExtraWidth, wallThickness, shelfHeight+baseThickness], anchor=BOT, spin=[drawerDovetailTest ? 0 : 90,0,0]){
         //dovetails
         up(baseThickness/2)attach(BACK, BOT, align=[LEFT, RIGHT], inset=(drawerMountConeMax+3)/2+wallThickness-drawerMountConeMin/2+slideDepth+slideSlop/2+dovetailTolerance/2) prismoid(size1=[drawerMountConeMin-dovetailTolerance, shelfHeight], size2=[drawerMountConeMax-dovetailTolerance, shelfHeight], h=drawerMountConeDepth-dovetailTolerance/2);
             //drawer pull cutout
@@ -175,7 +178,8 @@ if(drawerFrontType == "Detached Dovetail" && ExportDrawerFront){
 //slides
 if(ExportSlides)
 diff(){
-    xcopies(n = 2, spacing = widthInMM+slideDepth*2+30)
+    up(slideFitTest ? shelfHeight+baseThickness-6.5/2-drawerPlateClearance-slideDepth*2+0.5 : 0)
+    xcopies(n = 2, spacing = slideFitTest ? widthInMM+ 25 + slideSlop*2 : widthInMM+slideDepth*2+30)
     cuboid(size = [25,depthInMM,slideDepth*2], anchor=BOT){
         //slide slots
         attach([LEFT, RIGHT], BOT, align=TOP, inside=true, shiftout=0.01) 
