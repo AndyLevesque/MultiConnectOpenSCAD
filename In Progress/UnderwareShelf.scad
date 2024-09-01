@@ -40,6 +40,8 @@ drawerPullHardwareDiameter = 4;
 drawerPullHardwareMounting = "Dual";//[Single, Dual]
 //If Multiple hardware mounting points, distance FROM CENTER of each
 drawerPullHardwareHoleSeparation = 40;
+//Difference (in mm) the shelf front dovetail is to the hole
+dovetailTolerance = 0.15;
 
 
 /*[Hidden]*/
@@ -96,7 +98,7 @@ drawerDimpleInset = 5;
 drawerDimpleSlideToDrawerRatio = 1.25;
 //Distance (in mm) the top of the drawer will have to the multiboard it is mounted to (not including slop)
 drawerPlateClearance = 2; //[0:.5:6.5]
-//size, in mm, the slide lock is thinner than the slot
+//size (in mm) the slide lock is thinner than the slot
 slideLockTolerance = 0.15;
 renderSlides = true;
 renderSnaps = false;
@@ -126,7 +128,7 @@ diff("remove"){
         if (drawerFrontType == "Detached Dovetail"){
             //front removal tool
             up(3) attach(FRONT, FRONT, inside = true, shiftout=0.01) color("red") 
-                tag("remove")cuboid([widthInMM-wallThickness*2-(drawerMountConeMax+3)*2, wallThickness+1,shelfHeight+1]);
+                tag("remove")cuboid([widthInMM-wallThickness*2-(drawerMountConeMax+3)*2-slideSlop, wallThickness+1,shelfHeight+1]);
             //dovetail slots
             attach(FRONT, FRONT, align=[LEFT, RIGHT], inside=true, inset=wallThickness)
                 //mounting block
@@ -142,7 +144,8 @@ diff("remove"){
 if(drawerFrontType == "Detached Dovetail"){
     diff("remove"){
     fwd(depthInMM/2+wallThickness/2) color("tan")cuboid([widthInMM+slideDepth*2, wallThickness, shelfHeight+baseThickness], anchor=BOT){
-        up(baseThickness/2)attach(BACK, BOT, align=[LEFT, RIGHT], inset=(drawerMountConeMax+3)/2+wallThickness-drawerMountConeMin/2+slideDepth) prismoid(size1=[drawerMountConeMin, shelfHeight], size2=[drawerMountConeMax, shelfHeight], h=drawerMountConeDepth);
+        //dovetails
+        up(baseThickness/2)attach(BACK, BOT, align=[LEFT, RIGHT], inset=(drawerMountConeMax+3)/2+wallThickness-drawerMountConeMin/2+slideDepth+slideSlop/2+dovetailTolerance/2) prismoid(size1=[drawerMountConeMin-dovetailTolerance, shelfHeight], size2=[drawerMountConeMax-dovetailTolerance, shelfHeight], h=drawerMountConeDepth-dovetailTolerance/2);
             //drawer pull cutout
             if(drawerPullType == "Upper Notch") tag("remove") attach(FRONT, FRONT, inside=true, shiftout=0.01, align=TOP) 
                     cuboid([widthInMM/3,wallThickness+1, 10], rounding=3, edges = [BOTTOM+LEFT, BOTTOM+RIGHT]);
