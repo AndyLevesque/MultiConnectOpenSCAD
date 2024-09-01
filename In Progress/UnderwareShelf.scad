@@ -23,6 +23,25 @@ hexSpacing = 8; //[1:0.5:20]
 //Thickness of hexagonal bracing. Must be less than hexSpacing.
 hexStrut = 1.5; //[0.5:0.25:5]
 
+/*[Drawer Front]*/
+drawerFrontType = "Detached Dovetail";// [Attached, Detached Dovetail, Detached Dado]
+drawerPullType = "Hardware";// [Upper Notch, Hardware, None]
+//The small measurement (in mm) For the slot to slide in the drawer of the drawer
+drawerMountConeMin = 4.2;
+//The small measurement (in mm) For the slot to slide in the drawer of the drawer
+drawerMountConeMax = 8.2;
+//Depth/distance (in mm) from the small part of the cone to the large part of the cone
+drawerMountConeDepth = 3.6; 
+//Total depth/distance of the slot the slot
+drawerMountInset = 3.6;
+//Diameter of the drawer pull screw hole
+drawerPullHardwareDiameter = 4;
+//Drawer pull one screw or two? 
+drawerPullHardwareMounting = "Dual";//[Single, Dual]
+//If Multiple hardware mounting points, distance FROM CENTER of each
+drawerPullHardwareHoleSeparation = 40;
+
+
 /*[Hidden]*/
 //wallThickness - need to figure out how to handle differing wall thicknesses without throwing off 25mm mounting increments
 wallThickness = 1.5; 
@@ -79,29 +98,63 @@ drawerDimpleSlideToDrawerRatio = 1.25;
 drawerPlateClearance = 2; //[0:.5:6.5]
 //size, in mm, the slide lock is thinner than the slot
 slideLockTolerance = 0.15;
+renderSlides = true;
+renderSnaps = false;
 
 //drawer
-diff("remove", "keep"){
-    up(baseThickness/2)rect_tube(size=[shelfWidthUnits*25-slideSlop,shelfDepthUnits*25], wall=wallThickness, h=shelfHeight, anchor=BOT){
+diff("remove"){
+    up(baseThickness) rect_tube(size=[shelfWidthUnits*25,shelfDepthUnits*25], wall=wallThickness, h=shelfHeight, anchor=BOT){
         //slide sides
         tag("keep") down(6.5-drawerPlateClearance) attach([LEFT, RIGHT], BOT, align=TOP) 
-                tag("") prismoid(size1=[shelfDepthUnits*25,slideDepth*2+0.25], size2=[shelfDepthUnits*25+1,0], h=slideDepth+0.25){
+                tag("") prismoid(size1=[shelfDepthUnits*25,slideDepth*2+0.25], size2=[shelfDepthUnits*25,0], h=slideDepth+0.25){
                     //drawer dimple
                     attach(FRONT, CENTER+FRONT, align=[LEFT, RIGHT], inset=drawerDimpleInset, shiftout = -drawerDimpleRadius) 
                         force_tag("remove") 
                             cyl(h= 10.9, r = drawerDimpleRadius*drawerDimpleSlideToDrawerRatio, $fn=30);
                 }
         //drawer bottom
-        if (bottomType == "Solid") tag("keep")attach(BOT) cuboid([shelfWidthUnits*25-slideSlop,shelfDepthUnits*25,baseThickness]);
-        if (bottomType == "Hex") tag("keep") attach(BOT) 
-            hex_panel([shelfWidthUnits*25-slideSlop,shelfDepthUnits*25,baseThickness], strut=hexStrut < hexSpacing ? hexStrut : hexSpacing - 0.25, spacing = hexSpacing, frame = wallThickness+2);
-        //drawer pull
-        tag("remove") attach(FRONT, FRONT, inside=true, shiftout=0.01, align=TOP) 
+        if (bottomType == "Solid") tag("keep")attach(BOT, TOP) cuboid([shelfWidthUnits*25,shelfDepthUnits*25,baseThickness]);
+        if (bottomType == "Hex") tag("keep") attach(BOT, TOP) 
+            hex_panel([shelfWidthUnits*25,shelfDepthUnits*25,baseThickness], strut=hexStrut < hexSpacing ? hexStrut : hexSpacing - 0.25, spacing = hexSpacing, frame = wallThickness+2);
+        //upper notch drawer pull
+        if (drawerPullType == "Upper Notch") tag("remove") attach(FRONT, FRONT, inside=true, shiftout=0.01, align=TOP) 
             cuboid([widthInMM/3,wallThickness+1, 10], rounding=3, edges = [BOTTOM+LEFT, BOTTOM+RIGHT]);
+        //drawer pull hardware
+        if(drawerPullType == "Hardware") tag("remove") attach(FRONT, BOT, inside=true, shiftout=0.01) 
+            xcopies(n=drawerPullHardwareMounting=="Single" ? 1 : 2, spacing = drawerPullHardwareHoleSeparation)cyl(r=drawerPullHardwareDiameter/2, h = wallThickness+1, $fn=25);
+        //Detached Dovetail Front
+        if (drawerFrontType == "Detached Dovetail"){
+            //front removal tool
+            up(3) attach(FRONT, FRONT, inside = true, shiftout=0.01) color("red") 
+                tag("remove")cuboid([widthInMM-wallThickness*2-(drawerMountConeMax+3)*2, wallThickness+1,shelfHeight+1]);
+            //dovetail slots
+            attach(FRONT, FRONT, align=[LEFT, RIGHT], inside=true, inset=wallThickness)
+                //mounting block
+                color("green")tag("")cuboid([drawerMountConeMax+3,drawerMountInset+2,shelfHeight]) 
+                //dovetail cone
+                    attach(FRONT, BOT, inside=true, shiftout=drawerMountConeDepth-drawerMountInset) color("green") prismoid(size1=[drawerMountConeMin, shelfHeight+0.01], size2=[drawerMountConeMax, shelfHeight+0.01], h=drawerMountConeDepth)
+                    attach(BOT, FRONT, shiftout=-0.01) cuboid([drawerMountConeMin, drawerMountInset+drawerMountConeDepth+0.01, shelfHeight+0.01]);   
+        }           
+    }
+}
+
+//drawer front
+if(drawerFrontType == "Detached Dovetail"){
+    diff("remove"){
+    fwd(depthInMM/2+wallThickness/2) color("tan")cuboid([widthInMM+slideDepth*2, wallThickness, shelfHeight+baseThickness], anchor=BOT){
+        up(baseThickness/2)attach(BACK, BOT, align=[LEFT, RIGHT], inset=(drawerMountConeMax+3)/2+wallThickness-drawerMountConeMin/2+slideDepth) prismoid(size1=[drawerMountConeMin, shelfHeight], size2=[drawerMountConeMax, shelfHeight], h=drawerMountConeDepth);
+            //drawer pull cutout
+            if(drawerPullType == "Upper Notch") tag("remove") attach(FRONT, FRONT, inside=true, shiftout=0.01, align=TOP) 
+                    cuboid([widthInMM/3,wallThickness+1, 10], rounding=3, edges = [BOTTOM+LEFT, BOTTOM+RIGHT]);
+            //drawer pull hardware
+            if(drawerPullType == "Hardware") tag("remove") attach(FRONT, BOT, inside=true, shiftout=0.01) 
+                        xcopies(n=drawerPullHardwareMounting=="Single" ? 1 : 2, spacing = drawerPullHardwareHoleSeparation)cyl(r=drawerPullHardwareDiameter/2, h = wallThickness+1, $fn=25);
+            }
     }
 }
 
 //slides
+if(renderSlides)
 diff(){
     xcopies(n = 2, spacing = widthInMM+slideDepth*2+30)
     cuboid(size = [25,depthInMM,slideDepth*2], anchor=BOT){
@@ -121,17 +174,20 @@ diff(){
         //long multiconnect slot
         attach(TOP, BACK) 
             multiconnectBacker(height = depthInMM, width = 25, slotType = slotType, slotTolerance = slotTolerance, onRampEnabled = true, onRampEveryNSlots = slotSpacing,slotDimple = dimplesEnabled, dimpleScale = dimpleScale, dimpleEveryNSlots = dimpleEveryNSlots, dimpleOffset = dimpleOffset, anchor=BOTTOM+BACK, slotOrientation=slotOrientation, spin=[0,180,0])
-                //slide lock slot
-                tag("remove")attach(FRONT, BOT, align=TOP, inset = 19, shiftout=-5.99) cuboid([26, 2, 6]);
+        //slide lock slot
+        tag("remove")attach(FRONT, BOT, align=TOP, inset = 16.5, shiftout=-5.99) cuboid([26, 2, 6]);
     }
 }
 
 //slide lock tools
+if(renderSlides)
 xcopies(n = 2, spacing = widthInMM+slideDepth*2+30) fwd(depthInMM/2-12.5) cuboid([6 , 25,  2-slideLockTolerance], anchor=BOT);
 
 //drawer stop snaps
-ycopies(n = 4, spacing= 25) move([widthInMM/2+50,-depthInMM/2+50,0]) snapConnectBacker(offset=1, anchor=BOT)
-    attach(TOP, BOT, align=FRONT) cuboid([6, 2, 4+drawerPlateClearance], chamfer=0.5, edges=TOP);
+if(renderSnaps)
+ycopies(n = 2, spacing= 25) move([widthInMM/2+50,-depthInMM/2+50,0]) snapConnectBacker(offset=1, anchor=BOT)
+    attach(TOP, BOT, align=FRONT) cuboid([6, 4, 4+drawerPlateClearance], chamfer=0.5, edges=TOP);
+
 
 
 /*

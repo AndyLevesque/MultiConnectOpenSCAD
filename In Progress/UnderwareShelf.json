@@ -63,6 +63,36 @@
             "slotTolerance": "1",
             "slotType": "Backer",
             "slotVerticalOffset": "0"
+        },
+        "New set 4": {
+            "baseThickness": "1.5",
+            "bottomType": "Hex",
+            "centerMulticonnect": "true",
+            "dimpleEveryNSlots": "2",
+            "dimpleOffset": "0",
+            "dimpleScale": "1",
+            "dimplesEnabled": "true",
+            "distanceBetweenSlots": "25",
+            "drawerFrontType": "Detached Dovetail",
+            "drawerMountConeDepth": "3.6000000000000001",
+            "drawerMountConeMax": "8.1999999999999993",
+            "drawerMountConeMin": "4.2000000000000002",
+            "drawerMountInset": "3.6000000000000001",
+            "drawerPullType": "Upper Notch",
+            "hexSpacing": "8",
+            "hexStrut": "1.5",
+            "onRampEnabled": "true",
+            "onRampEveryNSlots": "2",
+            "onRampOffsetNSlots": "1",
+            "onRampPassthruEnabled": "false",
+            "shelfDepthUnits": "7",
+            "shelfHeight": "20",
+            "shelfWidthUnits": "7",
+            "slotOrientation": "Vertical",
+            "slotSpacing": "2",
+            "slotTolerance": "1",
+            "slotType": "Backer",
+            "slotVerticalOffset": "0"
         }
     }
 }
