@@ -43,6 +43,12 @@ drawerPullHardwareHoleSeparation = 40;
 //Difference (in mm) the shelf front dovetail is to the hole
 dovetailTolerance = 0.15;
 
+/*[Export Selection]*/
+ExportDrawer = true;
+ExportSlides = true;
+ExportSlideTabs = true; 
+ExportDrawerFront = true; 
+ExportStopSnaps = true; 
 
 /*[Hidden]*/
 //wallThickness - need to figure out how to handle differing wall thicknesses without throwing off 25mm mounting increments
@@ -111,7 +117,7 @@ dimpleEveryNSlots = 2;
 dimpleOffset = 0;
 
 //drawer
-diff("remove"){
+if(ExportDrawer) diff("remove"){
     up(baseThickness) rect_tube(size=[shelfWidthUnits*25-slideSlop,shelfDepthUnits*25], wall=wallThickness, h=shelfHeight, anchor=BOT){
         //slide sides
         tag("keep") down(6.5-drawerPlateClearance) attach([LEFT, RIGHT], BOT, align=TOP) 
@@ -148,7 +154,7 @@ diff("remove"){
 }
 
 //drawer front
-if(drawerFrontType == "Detached Dovetail"){
+if(drawerFrontType == "Detached Dovetail" && ExportDrawerFront){
     diff("remove"){
     fwd(depthInMM/2+wallThickness/2+shelfHeight/2) up(wallThickness/2) xrot(90) color("tan")cuboid([widthInMM+slideDepth*2, wallThickness, shelfHeight+baseThickness], anchor=BOT){
         //dovetails
@@ -164,7 +170,7 @@ if(drawerFrontType == "Detached Dovetail"){
 }
 
 //slides
-if(renderSlides)
+if(ExportSlides)
 diff(){
     xcopies(n = 2, spacing = widthInMM+slideDepth*2+30)
     cuboid(size = [25,depthInMM,slideDepth*2], anchor=BOT){
@@ -190,11 +196,11 @@ diff(){
 }
 
 //slide lock tools
-if(renderSlides)
+if(ExportSlideTabs)
 xcopies(n = 2, spacing = widthInMM+slideDepth*2+30) fwd(depthInMM/2-12.5) cuboid([6 , 25,  2-slideLockTolerance], anchor=BOT);
 
 //drawer stop snaps
-if(renderSnaps)
+if(ExportStopSnaps)
 union() {ycopies(n = 2, spacing= 25) move([widthInMM/2+50,-depthInMM/2+50,0]) snapConnectBacker(offset=1, anchor=BOT)
     attach(TOP, BOT, align=FRONT) cuboid([6, 4, 4+drawerPlateClearance], chamfer=0.5, edges=TOP);
 }
