@@ -2,7 +2,7 @@ include <BOSL2/std.scad>
 include <BOSL2/walls.scad>
 /*Created by Andy Levesque
 Credit to @David D on Printables and Jonathan at Keep Making for Multiconnect and Multiboard, respectively
-Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attribution
+Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attribution for all parts except the snaps, which fall under the Keep Making license at multiboard.io/license
 */
 
 /*[Standard Parameters]*/
@@ -41,7 +41,7 @@ drawerPullHardwareMounting = "Dual";//[Single, Dual]
 //If Multiple hardware mounting points, distance FROM CENTER of each
 drawerPullHardwareHoleSeparation = 40;
 //Difference (in mm) the shelf front dovetail is to the hole
-dovetailTolerance = 0.15;
+dovetailTolerance = 0.3;
 
 /*[Export Selection]*/
 ExportDrawer = true;
@@ -81,6 +81,9 @@ onRampOffsetNSlots = 1;
 //move the start of the slots (in mm) up (positive) or down (negative)
 slotVerticalOffset = 0;
 
+/*[Debug]*/
+//If the front is detached, show the fit. Do not print in this orientation. 
+drawerDovetailTest = false;
 
 /*[Hidden]*/
 drawerDimpleRadius = 1;
@@ -89,12 +92,8 @@ drawerDimpleInset = 5;
 drawerDimpleSlideToDrawerRatio = 1.25;
 //Distance (in mm) the top of the drawer will have to the multiboard it is mounted to (not including slop)
 drawerPlateClearance = 2; //[0:.5:6.5]
-//size (in mm) the slide lock is thinner than the slot
+//size (in mm) the slide lock (which prevents the multiconnect from sliding off) is thinner than the slot 
 slideLockTolerance = 0.15;
-renderSlides = true;
-renderSnaps = true;
-
-
 
 //slot settings hidden
 //Slot type. Backer is for vertical mounting. Passthru for horizontal mounting.
@@ -140,14 +139,14 @@ if(ExportDrawer) diff("remove"){
         //Detached Dovetail Front
         if (drawerFrontType == "Detached Dovetail"){
             //front removal tool
-            up(3) attach(FRONT, FRONT, inside = true, shiftout=0.01) color("red") 
+            up(3) attach(FRONT, FRONT, inside = true, shiftout=0.01) 
                 tag("remove")cuboid([widthInMM-wallThickness*2-(drawerMountConeMax+3)*2-slideSlop, wallThickness+1,shelfHeight+1]);
             //dovetail slots
             attach(FRONT, FRONT, align=[LEFT, RIGHT], inside=true, inset=wallThickness)
                 //mounting block
-                color("green")tag("")cuboid([drawerMountConeMax+3,drawerMountInset+2,shelfHeight]) 
+                tag("")cuboid([drawerMountConeMax+3,drawerMountInset+2,shelfHeight]) 
                 //dovetail cone
-                    attach(FRONT, BOT, inside=true, shiftout=drawerMountConeDepth-drawerMountInset) color("green") prismoid(size1=[drawerMountConeMin, shelfHeight+0.01], size2=[drawerMountConeMax, shelfHeight+0.01], h=drawerMountConeDepth)
+                    attach(FRONT, BOT, inside=true, shiftout=drawerMountConeDepth-drawerMountInset) prismoid(size1=[drawerMountConeMin, shelfHeight+0.01], size2=[drawerMountConeMax, shelfHeight+0.01], h=drawerMountConeDepth)
                     attach(BOT, FRONT, shiftout=-0.01) cuboid([drawerMountConeMin, drawerMountInset+drawerMountConeDepth+0.01, shelfHeight+0.01]);   
         }           
     }
@@ -156,7 +155,11 @@ if(ExportDrawer) diff("remove"){
 //drawer front
 if(drawerFrontType == "Detached Dovetail" && ExportDrawerFront){
     diff("remove"){
-    fwd(depthInMM/2+wallThickness/2+shelfHeight/2) up(wallThickness/2) xrot(90) color("tan")cuboid([widthInMM+slideDepth*2, wallThickness, shelfHeight+baseThickness], anchor=BOT){
+        fwd(drawerDovetailTest ? depthInMM/2+wallThickness/2 : depthInMM/2+wallThickness/2+shelfHeight/2) 
+        left(0) //front face placement for export
+        //drawer front wall
+        up(drawerDovetailTest ? 0 :  wallThickness/2)
+            cuboid([widthInMM+slideDepth*2, wallThickness, shelfHeight+baseThickness], anchor=BOT, spin=[drawerDovetailTest ? 0 : 90,0,0]){
         //dovetails
         up(baseThickness/2)attach(BACK, BOT, align=[LEFT, RIGHT], inset=(drawerMountConeMax+3)/2+wallThickness-drawerMountConeMin/2+slideDepth+slideSlop/2+dovetailTolerance/2) prismoid(size1=[drawerMountConeMin-dovetailTolerance, shelfHeight], size2=[drawerMountConeMax-dovetailTolerance, shelfHeight], h=drawerMountConeDepth-dovetailTolerance/2);
             //drawer pull cutout
@@ -201,9 +204,8 @@ xcopies(n = 2, spacing = widthInMM+slideDepth*2+30) fwd(depthInMM/2-12.5) cuboid
 
 //drawer stop snaps
 if(ExportStopSnaps)
-union() {ycopies(n = 2, spacing= 25) move([widthInMM/2+50,-depthInMM/2+50,0]) snapConnectBacker(offset=1, anchor=BOT)
-    attach(TOP, BOT, align=FRONT) cuboid([6, 4, 4+drawerPlateClearance], chamfer=0.5, edges=TOP);
-}
+ycopies(n = 2, spacing= 25) move([widthInMM/2+50,-depthInMM/2+50,0]) snapConnectBacker(offset=1, anchor=BOT)
+    attach(TOP, BOT, align=FRONT, shiftout=-0.1) cuboid([6, 4, 4+drawerPlateClearance], chamfer=0.5, edges=TOP);
 
 
 
@@ -343,55 +345,48 @@ module snapConnectBacker(offset = 0, holdingTolerance=1, anchor=CENTER, spin=0, 
         ]   );
 
     down(6.2/2+offset/2)
+    union(){
     diff("remove")
         //base
-        union(){
-        oct_prism(h = 4.23, r = 11.4465, anchor=BOT) {
-            //first bevel
-            position(TOP) oct_prism(h = 1.97, r1 = 11.4465, r2 = 12.5125, $fn =8, anchor=BOTTOM)
-                //top - used as offset. Independen snap height is 2.2
-                position(TOP) oct_prism(h = offset, r = 12.9885, anchor=BOTTOM);
-                    //top bevel - not used when applied as backer
-                    //position(TOP) oct_prism(h = 0.4, r1 = 12.9985, r2 = 12.555, anchor=BOTTOM);
-        
-        //end base
-        //bumpouts
-        attach([RIGHT, LEFT, FWD, BACK],LEFT)  color("green") fwd(1) down(0.8) scale([1,1,holdingTolerance])offset_sweep(path = bumpout, height=3, spin=[0,270,0]);
-        //delete tools
-        //Bottom and side cutout - 2 cubes that form an L (cut from bottom and from outside) and then rotated around the side
-        tag("remove") align(BOTTOM, [RIGHT, BACK, LEFT, FWD], inside=true, shiftout=0.01, inset = 1.6) color("lightblue") cuboid([0.8,7.161,3.4], spin=90*$idx)
-            align(RIGHT, [TOP]) cuboid([0.8,7.161,1], anchor=BACK);
-        }
+            oct_prism(h = 4.23, r = 11.4465, anchor=BOT) {
+                //first bevel
+                attach(TOP, BOT, shiftout=-0.01) oct_prism(h = 1.97, r1 = 11.4465, r2 = 12.5125, $fn =8, anchor=BOT)
+                    //top - used as offset. Independen snap height is 2.2
+                    attach(TOP, BOT, shiftout=-0.01) oct_prism(h = offset, r = 12.9885, anchor=BOTTOM);
+                        //top bevel - not used when applied as backer
+                        //position(TOP) oct_prism(h = 0.4, r1 = 12.9985, r2 = 12.555, anchor=BOTTOM);
+            
+            //end base
+            //bumpouts
+            attach([RIGHT, LEFT, FWD, BACK],LEFT, shiftout=-0.01)  color("green") down(0.87) fwd(1)scale([1,1,holdingTolerance])offset_sweep(path = bumpout, height=3, spin=[0,270,0]);
+            //delete tools
+            //Bottom and side cutout - 2 cubes that form an L (cut from bottom and from outside) and then rotated around the side
+            tag("remove") 
+                 align(BOTTOM, [RIGHT, BACK, LEFT, FWD], inside=true, shiftout=0.01, inset = 1.6) 
+                    color("lightblue") cuboid([0.8,7.161,3.4], spin=90*$idx)
+                        align(RIGHT, [TOP]) cuboid([0.8,7.161,1], anchor=BACK);
+            }
     }
     children();
     }
 
     //octo_prism - module that creates an oct_prism with anchors positioned on the faces instead of the edges (as per cyl default for 8 sides)
-    module oct_prism(h, r=0, r1=0, r2=0, anchor=CENTER) {
-        if (r != 0) {
-            // If r is provided, create a regular octagonal prism with radius r
-            rotate (22.5) cylinder(h=h, r1=r, r2=r, $fn=8, anchor=anchor) rotate (-22.5) children();
-        } else if (r1 != 0 && r2 != 0) {
-            // If r1 and r2 are provided, create an octagonal prism with different top and bottom radii
-            rotate (22.5) cylinder(h=h, r1=r1, r2=r2, $fn=8, anchor=anchor) rotate (-22.5)  children();
-        } else {
-            echo("Error: You must provide either r or both r1 and r2.");
+    module oct_prism(h, r=0, r1=0, r2=0, anchor=CENTER, spin=0, orient=UP) {
+        attachable(anchor, spin, orient, size=[max(r*2, r1*2, r2*2), max(r*2, r1*2, r2*2), h]){ 
+            down(h/2)
+            if (r != 0) {
+                // If r is provided, create a regular octagonal prism with radius r
+                rotate (22.5) cylinder(h=h, r1=r, r2=r, $fn=8) rotate (-22.5);
+            } else if (r1 != 0 && r2 != 0) {
+                // If r1 and r2 are provided, create an octagonal prism with different top and bottom radii
+                rotate (22.5) cylinder(h=h, r1=r1, r2=r2, $fn=8) rotate (-22.5);
+            } else {
+                echo("Error: You must provide either r or both r1 and r2.");
+            }  
+            children(); 
         }
     }
     
-}
-
-//octo_prism - module that creates an oct_prism with anchors positioned on the faces instead of the edges (as per cyl default for 8 sides)
-module oct_prism(h, r=0, r1=0, r2=0, anchor=CENTER) {
-    if (r != 0) {
-        // If r is provided, create a regular octagonal prism with radius r
-        rotate (22.5) cylinder(h=h, r1=r, r2=r, $fn=8, anchor=anchor) rotate (-22.5) children();
-    } else if (r1 != 0 && r2 != 0) {
-        // If r1 and r2 are provided, create an octagonal prism with different top and bottom radii
-        rotate (22.5) cylinder(h=h, r1=r1, r2=r2, $fn=8, anchor=anchor) rotate (-22.5)  children();
-    } else {
-        echo("Error: You must provide either r or both r1 and r2.");
-    }
 }
 
 //take a total length and divisible by and calculate the remainder
