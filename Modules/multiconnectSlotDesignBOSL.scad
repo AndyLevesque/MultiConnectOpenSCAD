@@ -11,22 +11,28 @@ NOTE: This module may break if the child of another object subject to diff(), in
     For example: 
         cuboid([1]){
             somthing else;
-            attach() multiconnectBacker()
+            attach() multiconnectGenerator()
         }
     NOT: 
         cuboid([1])
-            attach() multiconnectBacker()
+            attach() multiconnectGenerator()
     https://github.com/BelfrySCAD/BOSL2/issues/270
 */
 
 include <BOSL2/std.scad>
 
+/*[Part Selection]*/
+//Backer is for vertical mounting. Passthru for horizontal mounting. Linear Connector is for generating the male connector. 
+multiconnectPartType = "Backer"; //[Backer, Passthru, Linear Connector]
+
+/*[Receptor Parameters]*/
 totalWidth = 50;
 totalHeight = 75;
 
-/*[Slot Customization]*/
-//Slot type. Backer is for vertical mounting. Passthru for horizontal mounting.
-slotType = "Backer"; //[Backer, Passthru]
+/*[Male Connector Parameters]*/
+unitsWide = 4;
+
+/*[General Multiconnect Customization]*/
 //QuickRelease removes the small indent in the top of the slots that lock the part into place
 dimplesEnabled = true;
 //Dimple scale tweaks the size of the dimple in the slot for printers that need a larger dimple to print correctly
@@ -63,9 +69,10 @@ dimpleOffset = 1;
 /* [Hidden] */
 
 //standard module call
-multiconnectBacker(
-    width = totalWidth, height = totalHeight, 
-    slotType = slotType, slotTolerance = slotTolerance, slotOrientation=slotOrientation,
+multiconnectGenerator(
+    width = multiconnectPartType == "Linear Connector" ? (unitsWide-1) *distanceBetweenSlots : totalWidth, 
+    height = multiconnectPartType == "Linear Connector" ? 0 : totalHeight, 
+    multiconnectPartType = multiconnectPartType, slotTolerance = slotTolerance, slotOrientation=slotOrientation,
     slotDimple = dimplesEnabled, dimpleScale = dimpleScale, dimpleEveryNSlots = dimpleEveryNSlots, dimpleOffset = dimpleOffset, dimpleCount = 1, centerMulticonnect=centerMulticonnect,
     distanceBetweenSlots = distanceBetweenSlots, slotVerticalOffset = slotVerticalOffset, 
     onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, 
@@ -74,71 +81,82 @@ multiconnectBacker(
     );
 
 //BEGIN MODULES
-module multiconnectBacker(width, height, slotType = "Backer", distanceBetweenSlots = 25, onRampEnabled = true, onRampEveryNSlots = 1, onRampOffsetNSlots = 0, slotTolerance = 1, slotVerticalOffset = 2.85, backerThickness = 6.5, slotOrientation = "Vertical", slotDimple = true, dimpleScale = 1, dimpleEveryNSlots = 1, dimpleOffset = 0, dimpleCount = 999, centerMulticonnect=centerMulticonnect, onRampPassthruEnabled = onRampPassthruEnabled, anchor=CENTER, spin=0, orient=UP){
+module multiconnectGenerator(width, height, multiconnectPartType = "Backer", distanceBetweenSlots = 25, onRampEnabled = true, onRampEveryNSlots = 1, onRampOffsetNSlots = 0, slotTolerance = 1, slotVerticalOffset = 2.85, backerThickness = 6.5, slotOrientation = "Vertical", slotDimple = true, dimpleScale = 1, dimpleEveryNSlots = 1, dimpleOffset = 0, dimpleCount = 999, centerMulticonnect=centerMulticonnect, onRampPassthruEnabled = onRampPassthruEnabled, anchor=CENTER, spin=0, orient=UP){
+
     attachable(anchor, spin, orient, size=[width, backerThickness, height]*slotTolerance){ 
-    //Backer type
-    if (slotType == "Backer"){
-        width = width < 25 ? 25 : width; //if width is less than 25, force 25 to ensure at least 1 slot
-        diff("slot"){
-        cuboid([width, backerThickness, height]);
-            xcopies(n = floor(width/distanceBetweenSlots), spacing = distanceBetweenSlots)
-                tag("slot") 
-                    down((13-10.15-slotVerticalOffset)*slotTolerance) attach(TOP, TOP, inside=true, align=FRONT, shiftout=0.01) 
-                        scale(slotTolerance) 
-                            multiconnectRoundedEnd(slotDimple = slotDimple, dimpleScale = dimpleScale, anchor=BOT+BACK)
-                                up(0.1) attach(BOT, TOP, overlap=0.01) 
-                                    multiconnectSlot(length = height, slotType = slotType, slotDimple = dimplesEnabled, distanceBetweenSlots = distanceBetweenSlots, onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, anchor=FRONT, dimpleScale = dimpleScale, dimpleEveryNSlots = dimpleEveryNSlots, dimpleOffset = dimpleOffset, dimpleCount=dimpleCount);
-        }
-    }
-    //Passthru type
-    else {
-        diff("slot"){
-                cuboid([width, backerThickness, height]){
-                if (slotOrientation == "Vertical") {
-                    xcopies(n = floor(width/distanceBetweenSlots), spacing = distanceBetweenSlots)
-                        tag("slot") 
-                            attach(TOP, TOP, inside=true, align=FRONT, shiftout = 0.01) multiconnectSlot(length = height, slotType = slotType, onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, slotDimple = dimplesEnabled,  dimpleEveryNSlots = dimpleEveryNSlots, dimpleOffset = dimpleOffset, onRampPassthruEnabled = onRampPassthruEnabled, anchor=FRONT);
-                }
-                else { 
-                    zcopies(n = floor(height/distanceBetweenSlots), spacing = distanceBetweenSlots)
+    
+        slotStandardPath = [[0,0],[10.15,0],[10.15,1.2121],[7.65,3.712],[7.65,4.15],[0,4.15]];
+        connectorStandardPath = [[0,0], [10, 0], [10, 1], [7.5, 3.5], [7.5, 4], [0, 4]];
+
+        //Backer type
+        if (multiconnectPartType == "Backer"){
+            width = width < 25 ? 25 : width; //if width is less than 25, force 25 to ensure at least 1 slot
+            diff("slot"){
+            cuboid([width, backerThickness, height]);
+                xcopies(n = floor(width/distanceBetweenSlots), spacing = distanceBetweenSlots)
                     tag("slot") 
-                        attach(LEFT, TOP, inside=true, align=FRONT, shiftout = 0.01) back(10.15)
-                            multiconnectSlot(length = width+1, slotType = slotType, onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, slotDimple = dimplesEnabled, dimpleEveryNSlots = dimpleEveryNSlots, dimpleOffset = dimpleOffset, onRampPassthruEnabled = onRampPassthruEnabled, anchor=FRONT, spin=90);
-                }
-                }
+                        down((13-10.15-slotVerticalOffset)*slotTolerance) attach(TOP, TOP, inside=true, align=FRONT, shiftout=0.01) 
+                            scale(slotTolerance) 
+                                multiconnectRoundedEnd(slotProfile = slotStandardPath, slotDimple = slotDimple, dimpleScale = dimpleScale, anchor=BOT+BACK)
+                                    up(0.1) attach(BOT, TOP, overlap=0.01) 
+                                        multiconnectSlot(length = height, slotProfile = slotStandardPath, multiconnectPartType = multiconnectPartType, slotDimple = dimplesEnabled, distanceBetweenSlots = distanceBetweenSlots, onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, anchor=FRONT, dimpleScale = dimpleScale, dimpleEveryNSlots = dimpleEveryNSlots, dimpleOffset = dimpleOffset, dimpleCount=dimpleCount);
             }
-    }
-        children();
+        }
+        //Passthru type
+        else if (multiconnectPartType == "Passthru"){
+            diff("slot"){
+                    cuboid([width, backerThickness, height]){
+                    if (slotOrientation == "Vertical") {
+                        xcopies(n = floor(width/distanceBetweenSlots), spacing = distanceBetweenSlots)
+                            tag("slot") 
+                                attach(TOP, TOP, inside=true, align=FRONT, shiftout = 0.01) 
+                                    multiconnectSlot(length = height, slotProfile = slotStandardPath, multiconnectPartType = multiconnectPartType, onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, slotDimple = dimplesEnabled,  dimpleEveryNSlots = dimpleEveryNSlots, dimpleOffset = dimpleOffset, onRampPassthruEnabled = onRampPassthruEnabled, anchor=FRONT);
+                    }
+                    else { //slots horizontal
+                        zcopies(n = floor(height/distanceBetweenSlots), spacing = distanceBetweenSlots)
+                            tag("slot") 
+                                attach(LEFT, TOP, inside=true, align=FRONT, shiftout = 0.01) back(10.15)
+                                    multiconnectSlot(length = width+1, slotProfile = slotStandardPath, multiconnectPartType = multiconnectPartType, onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, slotDimple = dimplesEnabled, dimpleEveryNSlots = dimpleEveryNSlots, dimpleOffset = dimpleOffset, onRampPassthruEnabled = onRampPassthruEnabled, anchor=FRONT, spin=90);
+                    }
+                    }
+                }
+        }
+        //male connector
+        else  {   
+            multiconnectSlot(width, slotProfile = connectorStandardPath, onRampEnabled = false, spin=[90,0,0])
+                attach([TOP, BOT], BOT) multiconnectRoundedEnd(slotProfile = connectorStandardPath);
+        }
+        children();  
     }
 
     //round top
-    module multiconnectRoundedEnd(slotDimple = true, dimpleScale = 1, anchor=CENTER, spin=0, orient=UP){
+    module multiconnectRoundedEnd(slotProfile, slotDimple = true, dimpleScale = 1, anchor=CENTER, spin=0, orient=UP){
         attachable(anchor, spin, orient, size=[10.15*2,4.15,10.15]){
             down(10.15/2)
             //top_half() 
             diff("slotDimple"){
-                multiconnectRounded()
+                multiconnectRounded(slotProfile = slotProfile)
                 if(slotDimple) tag("slotDimple")attach(BACK, BOT, inside=true, shiftout=0.01) cylinder(h = 1.5*dimpleScale, r1 = 1.5*dimpleScale, r2 = 0, $fn = 50);
             }
             children();
         }
-        module multiconnectRounded(anchor=CENTER, spin=0, orient=UP){
+        module multiconnectRounded(slotProfile, anchor=CENTER, spin=0, orient=UP){
             attachable(anchor, spin, orient, size=[10.15*2,4.15,20.3]){
                 down(0) back(4.15/2)
                     top_half()
                         rotate(a = [90,0,0,]) 
                             rotate_extrude($fn=50) 
-                                polygon(points = [[0,0],[10.15,0],[10.15,1.2121],[7.65,3.712],[7.65,4.15],[0,4.15]]);
+                                polygon(points = slotProfile);
                 children();
             }
         }//End multiconnectRounded
     }
 
-    module multiconnectSlot(length, slotType = "Backer", distanceBetweenSlots = 25, onRampEnabled = true, onRampEveryNSlots = 1, onRampOffsetNSlots = 0, slotDimple = true, dimpleScale = 1, dimpleEveryNSlots = 1, dimpleOffset = 0, dimpleCount = 999, onRampPassthruEnabled = false, anchor=CENTER, spin=0, orient=UP){
+    module multiconnectSlot(length, slotProfile, multiconnectPartType = "Backer", distanceBetweenSlots = 25, onRampEnabled = true, onRampEveryNSlots = 1, onRampOffsetNSlots = 0, slotDimple = true, dimpleScale = 1, dimpleEveryNSlots = 1, dimpleOffset = 0, dimpleCount = 999, onRampPassthruEnabled = false, anchor=CENTER, spin=0, orient=UP){
         attachable(anchor, spin, orient, size=[10.15*2,4.15,length]){
             diff("slotDimple"){
-                multiconnectLinear(length = length, slotType = slotType, distanceBetweenSlots = distanceBetweenSlots, onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, onRampPassthruEnabled = onRampPassthruEnabled);
-                if(slotDimple && dimpleEveryNSlots != 0 && slotType == "Backer") {
+                multiconnectLinear(length = length, slotProfile = slotProfile, multiconnectPartType = multiconnectPartType, distanceBetweenSlots = distanceBetweenSlots, onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, onRampPassthruEnabled = onRampPassthruEnabled);
+                if(slotDimple && dimpleEveryNSlots != 0 && multiconnectPartType == "Backer") {
                     //calculate the dimples. Dimplecount can override if less than calculated slots
                     echo("Dimples for Backer");
                     tag("slotDimple") attach(BACK, BOT, align=TOP, inside=true, shiftout=0.01) back(1.5*dimpleScale) 
@@ -147,7 +165,7 @@ module multiconnectBacker(width, height, slotType = "Backer", distanceBetweenSlo
                         tag("slotDimple") attach(BACK, BOT, align=TOP, inside=true, shiftout=0.01) back(1.5*dimpleScale) 
                             cylinder(h = 1.5*dimpleScale, r1 = 1.5*dimpleScale, r2 = 0, $fn = 50);
                 }
-                if(slotDimple && dimpleEveryNSlots != 0 && slotType == "Passthru"){ //passthru
+                if(slotDimple && dimpleEveryNSlots != 0 && multiconnectPartType == "Passthru"){ //passthru
                     //calculate the dimples. Dimplecount can override if less than calculated slots
                     echo("Dimples for Passthru");
                     zcopies(n = min(length/distanceBetweenSlots/dimpleEveryNSlots+2, dimpleCount), spacing = -distanceBetweenSlots*dimpleEveryNSlots, sp=[0,0,centerMulticonnect ? -length/2+25*3/2-12.5+25+dimpleOffset*distanceBetweenSlots: -length/2+25*3/2+25+dimpleOffset*distanceBetweenSlots]) 
@@ -160,7 +178,7 @@ module multiconnectBacker(width, height, slotType = "Backer", distanceBetweenSlo
             children();
         }
         //long slot
-        module multiconnectLinear(length, slotType = "Backer", distanceBetweenSlots = 25, onRampEnabled = true, onRampEveryNSlots = 1, onRampOffsetNSlots = 0, onRampPassthruEnabled = false, anchor=CENTER, spin=0, orient=UP){
+        module multiconnectLinear(length, slotProfile, multiconnectPartType = "Backer", distanceBetweenSlots = 25, onRampEnabled = true, onRampEveryNSlots = 1, onRampOffsetNSlots = 0, onRampPassthruEnabled = false, anchor=CENTER, spin=0, orient=UP){
             attachable(anchor, spin, orient, size=[10.15*2,4.15,length]){
                 up(length/2) back(4.15/2) 
                 intersection() {
@@ -168,17 +186,17 @@ module multiconnectBacker(width, height, slotType = "Backer", distanceBetweenSlo
                         rotate(a = [180,0,0]) 
                             linear_extrude(height = length) 
                                 union(){
-                                    polygon(points = [[0,0],[10.15,0],[10.15,1.2121],[7.65,3.712],[7.65,4.15],[0,4.15]]);
+                                    polygon(points = slotProfile);
                                         mirror([1,0,0])
-                                            polygon(points = [[0,0],[10.15,0],[10.15,1.2121],[7.65,3.712],[7.65,4.15],[0,4.15]]);
+                                            polygon(points = slotProfile);
                                 }
                         //onramp
-                        if(onRampEnabled && onRampEveryNSlots != 0 && slotType == "Backer") {
+                        if(onRampEnabled && onRampEveryNSlots != 0 && multiconnectPartType == "Backer") {
                                 zcopies(spacing=-distanceBetweenSlots*onRampEveryNSlots, n=length/distanceBetweenSlots/onRampEveryNSlots+1, sp=[0,0,-distanceBetweenSlots-onRampOffsetNSlots*distanceBetweenSlots]) 
                                     fwd(4.15/2) color("orange") 
                                         cyl(h = 4.15, r1 = 12, r2 = 10.15, spin=([90,0,180]));
                         } 
-                        if(onRampPassthruEnabled && onRampEveryNSlots != 0 && slotType == "Passthru"){
+                        if(onRampPassthruEnabled && onRampEveryNSlots != 0 && multiconnectPartType == "Passthru"){
                                 zcopies(spacing=-distanceBetweenSlots*onRampEveryNSlots, n=length/distanceBetweenSlots+2, sp=[0,0,centerMulticonnect ? -length/2+25*3/2-12.5+25: -length/2+25*3/2+25]) 
                                     fwd(4.15/2) color("orange") 
                                         cyl(h = 4.15, r1 = 12, r2 = 10.15, spin=([90,0,180]));
