@@ -67,17 +67,31 @@ dimpleEveryNSlots = 2;
 dimpleOffset = 1;
 
 /* [Hidden] */
+debug = false; 
 
 //standard module call
 multiconnectGenerator(
     width = multiconnectPartType == "Linear Connector" ? (unitsWide-1) *distanceBetweenSlots : totalWidth, 
     height = multiconnectPartType == "Linear Connector" ? 0 : totalHeight, 
-    multiconnectPartType = multiconnectPartType, slotTolerance = slotTolerance, slotOrientation=slotOrientation,
-    slotDimple = dimplesEnabled, dimpleScale = dimpleScale, dimpleEveryNSlots = dimpleEveryNSlots, dimpleOffset = dimpleOffset, dimpleCount = 1, centerMulticonnect=centerMulticonnect,
-    distanceBetweenSlots = distanceBetweenSlots, slotVerticalOffset = slotVerticalOffset, 
-    onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, 
+    multiconnectPartType = multiconnectPartType, 
+    slotTolerance = slotTolerance, 
+    slotOrientation=slotOrientation,
+    //dimple values
+    slotDimple = dimplesEnabled, 
+    dimpleScale = dimpleScale, 
+    dimpleEveryNSlots = dimpleEveryNSlots, 
+    dimpleOffset = dimpleOffset, 
+    dimpleCount = 1, 
+    centerMulticonnect=centerMulticonnect,
+    slotVerticalOffset = slotVerticalOffset, 
+    //onramp values
+    onRampEnabled = onRampEnabled, 
+    onRampEveryNSlots = onRampEveryNSlots, 
+    onRampOffsetNSlots = onRampOffsetNSlots, 
     onRampPassthruEnabled = onRampPassthruEnabled,
-    anchor=BOTTOM+BACK 
+    //other values
+    distanceBetweenSlots = distanceBetweenSlots, 
+    anchor=BOTTOM 
     );
 
 //BEGIN MODULES
@@ -90,7 +104,7 @@ module multiconnectGenerator(width, height, multiconnectPartType = "Backer", dis
 
         //Backer type
         if (multiconnectPartType == "Backer"){
-            width = width < 25 ? 25 : width; //if width is less than 25, force 25 to ensure at least 1 slot
+            width = width < distanceBetweenSlots ? distanceBetweenSlots : width; //if width is less than 25, force 25 to ensure at least 1 slot
             diff("slot"){
             cuboid([width, backerThickness, height]);
                 xcopies(n = floor(width/distanceBetweenSlots), spacing = distanceBetweenSlots)
@@ -116,7 +130,7 @@ module multiconnectGenerator(width, height, multiconnectPartType = "Backer", dis
                         zcopies(n = floor(height/distanceBetweenSlots), spacing = distanceBetweenSlots)
                             tag("slot") 
                                 attach(LEFT, TOP, inside=true, align=FRONT, shiftout = 0.01) back(10.15)
-                                    multiconnectSlot(length = width+1, slotProfile = slotStandardPath, multiconnectPartType = multiconnectPartType, onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, slotDimple = dimplesEnabled, dimpleEveryNSlots = dimpleEveryNSlots, dimpleOffset = dimpleOffset, onRampPassthruEnabled = onRampPassthruEnabled, anchor=FRONT, spin=90);
+                                    multiconnectSlot(length = width+1, slotProfile = slotStandardPath, multiconnectPartType = multiconnectPartType, onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, slotDimple = dimplesEnabled, dimpleEveryNSlots = dimpleEveryNSlots, dimpleOffset = dimpleOffset, onRampPassthruEnabled = onRampPassthruEnabled, distanceBetweenSlots=distanceBetweenSlots, anchor=FRONT, spin=90);
                     }
                     }
                 }
@@ -131,8 +145,8 @@ module multiconnectGenerator(width, height, multiconnectPartType = "Backer", dis
 
     //round top
     module multiconnectRoundedEnd(slotProfile, slotDimple = true, dimpleScale = 1, anchor=CENTER, spin=0, orient=UP){
-        attachable(anchor, spin, orient, size=[10.15*2,4.15,10.15]){
-            down(10.15/2)
+        attachable(anchor, spin, orient, size=[maxX(slotProfile)*2,maxY(slotProfile),maxX(slotProfile)]){
+            down(maxX(slotProfile)/2)
             //top_half() 
             diff("slotDimple"){
                 multiconnectRounded(slotProfile = slotProfile)
@@ -141,8 +155,8 @@ module multiconnectGenerator(width, height, multiconnectPartType = "Backer", dis
             children();
         }
         module multiconnectRounded(slotProfile, anchor=CENTER, spin=0, orient=UP){
-            attachable(anchor, spin, orient, size=[10.15*2,4.15,20.3]){
-                down(0) back(4.15/2)
+            attachable(anchor, spin, orient, size=[maxX(slotProfile)*2,maxY(slotProfile),maxX(slotProfile)*2]){
+                back(maxY(slotProfile)/2)
                     top_half()
                         rotate(a = [90,0,0,]) 
                             rotate_extrude($fn=50) 
@@ -153,12 +167,12 @@ module multiconnectGenerator(width, height, multiconnectPartType = "Backer", dis
     }
 
     module multiconnectSlot(length, slotProfile, multiconnectPartType = "Backer", distanceBetweenSlots = 25, onRampEnabled = true, onRampEveryNSlots = 1, onRampOffsetNSlots = 0, slotDimple = true, dimpleScale = 1, dimpleEveryNSlots = 1, dimpleOffset = 0, dimpleCount = 999, onRampPassthruEnabled = false, anchor=CENTER, spin=0, orient=UP){
-        attachable(anchor, spin, orient, size=[10.15*2,4.15,length]){
+        attachable(anchor, spin, orient, size=[maxX(slotProfile)*2,maxY(slotProfile),length]){
             diff("slotDimple"){
                 multiconnectLinear(length = length, slotProfile = slotProfile, multiconnectPartType = multiconnectPartType, distanceBetweenSlots = distanceBetweenSlots, onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, onRampPassthruEnabled = onRampPassthruEnabled);
                 if(slotDimple && dimpleEveryNSlots != 0 && multiconnectPartType == "Backer") {
                     //calculate the dimples. Dimplecount can override if less than calculated slots
-                    echo("Dimples for Backer");
+                    if(debug) echo("Dimples for Backer");
                     tag("slotDimple") attach(BACK, BOT, align=TOP, inside=true, shiftout=0.01) back(1.5*dimpleScale) 
                             cylinder(h = 1.5*dimpleScale, r1 = 1.5*dimpleScale, r2 = 0, $fn = 50);
                     zcopies(n = min(length/distanceBetweenSlots/dimpleEveryNSlots+1, dimpleCount), spacing = -distanceBetweenSlots*dimpleEveryNSlots, sp=[0,0,dimpleOffset*distanceBetweenSlots]) 
@@ -167,7 +181,7 @@ module multiconnectGenerator(width, height, multiconnectPartType = "Backer", dis
                 }
                 if(slotDimple && dimpleEveryNSlots != 0 && multiconnectPartType == "Passthru"){ //passthru
                     //calculate the dimples. Dimplecount can override if less than calculated slots
-                    echo("Dimples for Passthru");
+                    if(debug) echo(str("Dimples for Passthru: ", min(length/distanceBetweenSlots/dimpleEveryNSlots+2, dimpleCount), ". Distance between: ", -distanceBetweenSlots*dimpleEveryNSlots));
                     zcopies(n = min(length/distanceBetweenSlots/dimpleEveryNSlots+2, dimpleCount), spacing = -distanceBetweenSlots*dimpleEveryNSlots, sp=[0,0,centerMulticonnect ? -length/2+25*3/2-12.5+25+dimpleOffset*distanceBetweenSlots: -length/2+25*3/2+25+dimpleOffset*distanceBetweenSlots]) 
                         tag("slotDimple") attach(BACK, BOT, align=TOP, inside=true, shiftout=0.01) back(1.5*dimpleScale) 
                             cylinder(h = 1.5*dimpleScale, r1 = 1.5*dimpleScale, r2 = 0, $fn = 50);
@@ -179,8 +193,8 @@ module multiconnectGenerator(width, height, multiconnectPartType = "Backer", dis
         }
         //long slot
         module multiconnectLinear(length, slotProfile, multiconnectPartType = "Backer", distanceBetweenSlots = 25, onRampEnabled = true, onRampEveryNSlots = 1, onRampOffsetNSlots = 0, onRampPassthruEnabled = false, anchor=CENTER, spin=0, orient=UP){
-            attachable(anchor, spin, orient, size=[10.15*2,4.15,length]){
-                up(length/2) back(4.15/2) 
+            attachable(anchor, spin, orient, size=[maxX(slotProfile)*2,maxY(slotProfile),length]){
+                up(length/2) back(maxY(slotProfile)/2) 
                 intersection() {
                     union(){
                         rotate(a = [180,0,0]) 
@@ -193,13 +207,13 @@ module multiconnectGenerator(width, height, multiconnectPartType = "Backer", dis
                         //onramp
                         if(onRampEnabled && onRampEveryNSlots != 0 && multiconnectPartType == "Backer") {
                                 zcopies(spacing=-distanceBetweenSlots*onRampEveryNSlots, n=length/distanceBetweenSlots/onRampEveryNSlots+1, sp=[0,0,-distanceBetweenSlots-onRampOffsetNSlots*distanceBetweenSlots]) 
-                                    fwd(4.15/2) color("orange") 
-                                        cyl(h = 4.15, r1 = 12, r2 = 10.15, spin=([90,0,180]));
+                                    fwd(maxY(slotProfile)/2) color("orange") 
+                                        cyl(h = maxY(slotProfile), r1 = maxX(slotProfile)+1.75, r2 = maxX(slotProfile), spin=([90,0,180]));
                         } 
                         if(onRampPassthruEnabled && onRampEveryNSlots != 0 && multiconnectPartType == "Passthru"){
-                                zcopies(spacing=-distanceBetweenSlots*onRampEveryNSlots, n=length/distanceBetweenSlots+2, sp=[0,0,centerMulticonnect ? -length/2+25*3/2-12.5+25: -length/2+25*3/2+25]) 
-                                    fwd(4.15/2) color("orange") 
-                                        cyl(h = 4.15, r1 = 12, r2 = 10.15, spin=([90,0,180]));
+                                zcopies(spacing=-distanceBetweenSlots*onRampEveryNSlots, n=length/distanceBetweenSlots+2, sp=[0,0,centerMulticonnect ? -length/2+distanceBetweenSlots*3/2-distanceBetweenSlots/2+distanceBetweenSlots: -length/2+distanceBetweenSlots*3/2+distanceBetweenSlots]) 
+                                    fwd(maxY(slotProfile)/2) color("orange") 
+                                        cyl(h = maxY(slotProfile), r1 = maxX(slotProfile)+1.75, r2 = maxX(slotProfile), spin=([90,0,180]));
                         }                    
                     }
                     //lop off any extra zcopies pieces
@@ -214,3 +228,6 @@ module multiconnectGenerator(width, height, multiconnectPartType = "Backer", dis
 //take a total length and divisible by and calculate the remainder
 //For example, if the total length is 81 and units are 25 each, then the excess is 5
 function excess(total, divisibleBy) = round(total - floor(total/divisibleBy)*divisibleBy);
+//calculate the max x and y points. Useful in calculating size of an object when the path are all positive variables originating from [0,0]
+function maxX(path) = max([for (p = path) p[0]]);
+function maxY(path) = max([for (p = path) p[1]]);
