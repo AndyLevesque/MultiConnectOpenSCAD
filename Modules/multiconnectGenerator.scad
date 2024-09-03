@@ -46,34 +46,26 @@ Depth2 = 2.5; //.1
 Depth3 = 0.5; //.1
 //Offset/Tolerance of receiver part
 Offset = 0.15; //.01
+//Radius (in mm) of dimple
+DimpleSize = 1.5; //.1
 
 /* [Hidden] */
 debug = false; 
 
-customMulticonnectProfile = dimensionsToCoords(Radius, Depth1, Depth2, Depth3, 0);
-customMulticonnectDeleteProfile = dimensionsToCoords(Radius, Depth1, Depth2, Depth3, Offset);
+customMulticonnectProfile = [dimensionsToCoords(Radius, Depth1, Depth2, Depth3, 0), DimpleSize];
+customMulticonnectDeleteProfile = [dimensionsToCoords(Radius, Depth1, Depth2, Depth3, Offset), DimpleSize];
 
 //Standard Sizes
-multiconnectStandardProfile = dimensionsToCoords(10, 1, 2.5, 0.5, 0);
-multiconnectStandardDeleteProfile = dimensionsToCoords(10, 1, 2.5, 0.5, 0.15);
+multiconnectStandardProfile = [dimensionsToCoords(10, 1, 2.5, 0.5, 0), 1.5];
+multiconnectStandardDeleteProfile = [dimensionsToCoords(10, 1, 2.5, 0.5, 0.15), 1.5];
 
-multiconnectJrProfile = dimensionsToCoords(5, 0.6, 1, 0.4, 0);
-multiconnectJrDeleteProfile = dimensionsToCoords(5, 0.6, 1, 0.4, 0.15);
+multiconnectJrProfile = [dimensionsToCoords(5, 0.6, 1, 0.4, 0), 0.8];
+multiconnectJrDeleteProfile = [dimensionsToCoords(5, 0.6, 1, 0.4, 0.15), 0.8];
 
-multiconnectMiniProfile = dimensionsToCoords(2.5, 0.6, 1, 0.4, 0);
-multiconnectMiniDeleteProfile = dimensionsToCoords(2.5, 0.6, 1, 0.4, 0.15);
+multiconnectMiniProfile = [dimensionsToCoords(2.5, 0.6, 1, 0.4, 0), 0.8];
+multiconnectMiniDeleteProfile = [dimensionsToCoords(2.5, 0.6, 1, 0.4, 0.15), 0.8];
 //End Standard Sizes
 
-//this function takes the measurements of a multiconnect-style dovetail and converts them to profile coordinates. 
-//When generating the male connector, set offsetMM to zero. Otherwise standard is 0.15 offset for delete tool
-function dimensionsToCoords(radius, depth1, depth2, depth3, offsetMM) = [
-    [0,0],
-    [radius+offsetMM, 0],
-    [radius+offsetMM,offsetMM == 0 ? depth1 : depth1+sin(45)*offsetMM*2],
-    [radius-depth2+offsetMM, offsetMM == 0 ? depth2+depth1 : depth2+depth1+sin(45)*offsetMM*2],
-    [radius-depth2+offsetMM, depth2+depth1+depth3+offsetMM],
-    [0,depth2+depth1+depth3+offsetMM]
-    ];
 
 //convert user inputs to usable variables
 profile = 
@@ -95,40 +87,67 @@ dimplesEnabled =
     false;
 
 if(!debugCompareAll)
-rail(Length,profile, dimplesEnabled = dimplesEnabled, dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size)
+rail(Length, profile[0], dimplesEnabled = dimplesEnabled, dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size)
     if(Rounding != "None")
         attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
-            roundedEnd(profile, dimplesEnabled = dimplesEnabled, dimpleScale = Dimple_Scale);
+            roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);
 
 if(debugCompareAll){
-    //connector
+    //rail connector
     xcopies(n = len(connectorList), spacing = 25)
         let(p = connectorList[$idx])
-            rail(Length,p, dimplesEnabled = dimplesEnabled, dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size, spin=180)
+            rail(Length,p[0], dimplesEnabled = dimplesEnabled, dimpleSize = p[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size, spin=180)
                 if(Rounding != "None")
                     attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
-                        roundedEnd(p, dimplesEnabled = dimplesEnabled, dimpleScale = Dimple_Scale);
+                        roundedEnd(p[0], dimplesEnabled = dimplesEnabled, dimpleSize = p[1], dimpleScale = Dimple_Scale);
     //passthru receiver
     fwd(20)
     xcopies(n = len(receiverList), spacing = 25)
         let(p = receiverList[$idx])
             diff(){
-            cuboid([maxX(p)*2+5, maxY(p)+2, Length])
-                attach(BACK, FRONT, inside=true, shiftout=0.01) rail(Length+0.04, p, dimplesEnabled = dimplesEnabled, dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size)
+            cuboid([maxX(p[0])*2+5, maxY(p[0])+2, Length])
+                attach(BACK, FRONT, inside=true, shiftout=0.01) rail(Length+0.04, p[0], dimplesEnabled = dimplesEnabled, dimpleSize = p[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size)
                     if(Rounding != "None")
                         attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
-                            roundedEnd(p, dimplesEnabled = dimplesEnabled, dimpleScale = Dimple_Scale);
+                            roundedEnd(p[0], dimplesEnabled = dimplesEnabled, dimpleSize = p[1], dimpleScale = Dimple_Scale);
             }
     //open-ended receiver
     fwd(40)
     xcopies(n = len(receiverList), spacing = 25)
         let(p = receiverList[$idx])
             diff(){
-            cuboid([maxX(p)*2+5, maxY(p)+2, Length])
-                attach(BACK, FRONT, inside=true, shiftout=0.01, align=TOP, inset=maxX(p)+2.5) rail(Length+0.04, p, dimplesEnabled = dimplesEnabled, dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size)
+            cuboid([maxX(p[0])*2+5, maxY(p[0])+2, Length])
+                attach(BACK, FRONT, inside=true, shiftout=0.01, align=TOP, inset=maxX(p[0])+2.5) rail(Length+0.04, p[0], dimplesEnabled = dimplesEnabled, dimpleSize = p[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size)
                     if(Rounding != "None")
                         attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
-                            roundedEnd(p, dimplesEnabled = dimplesEnabled, dimpleScale = Dimple_Scale);
+                            roundedEnd(p[0], dimplesEnabled = dimplesEnabled, dimpleSize = p[1], dimpleScale = Dimple_Scale);
+            }
+    //round connector
+    back(40) xcopies(n = len(connectorList), spacing = 25)
+    let(p = connectorList[$idx])
+        down(25/2)rail(0,p[0], dimplesEnabled = dimplesEnabled, dimpleSize = p[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size, spin=[90,0,0], anchor=FRONT)
+                attach([TOP, BOT], BOT, overlap=0.01)
+                    roundedEnd(p[0], dimplesEnabled = dimplesEnabled, dimpleSize = p[1], dimpleScale = Dimple_Scale);
+    //double-sided round connector
+    back(65) xcopies(n = len(connectorList), spacing = 25)
+    let(p = connectorList[$idx])
+        down(25/2-maxY(p[0]))rail(0,p[0], dimplesEnabled = dimplesEnabled, dimpleSize = p[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size, spin=[90,0,0], anchor=FRONT)
+                attach([TOP, BOT], BOT, overlap=0.01)
+                    roundedEnd(p[0], dimplesEnabled = dimplesEnabled, dimpleSize = p[1], dimpleScale = Dimple_Scale)
+                    attach(FRONT, FRONT, overlap=0.01)
+                        roundedEnd(p[0], dimplesEnabled = dimplesEnabled, dimpleSize = p[1], dimpleScale = Dimple_Scale);
+    //double-sided rail connector
+    back(15) xcopies(n = len(connectorList), spacing = 25)
+        let(p = connectorList[$idx])
+            rail(Length,p[0], dimplesEnabled = dimplesEnabled, dimpleSize = p[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size, spin=180){
+                if(Rounding != "None")
+                    attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
+                        roundedEnd(p[0], dimplesEnabled = dimplesEnabled, dimpleSize = p[1], dimpleScale = Dimple_Scale);
+            attach(FRONT, FRONT, overlap=0.01)
+                rail(Length,p[0], dimplesEnabled = dimplesEnabled, dimpleSize = p[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size)
+                if(Rounding != "None")
+                    attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
+                        roundedEnd(p[0], dimplesEnabled = dimplesEnabled, dimpleSize = p[1], dimpleScale = Dimple_Scale);
             }
 }
 
@@ -139,10 +158,7 @@ if(debug) echo(str("Calculated Standard Offset Coords: "), dimensionsToCoords(10
 if(debug) echo(str("Desired Jr Offset Coords:        [[0,0], [5.15, 0], [5.15, 0.8121], [4.15, 1.8121], [4.15, 2.15], [0, 2.15]]"));
 if(debug) echo(str("Calculated Jr Offset Coords: "), dimensionsToCoords(5, 0.6, 1, 0.4, 0.15));
 
-//multiconnectStandardProfile= [[0,0], [10, 0], [10, 1], [7.5, 3.5], [7.5, 4], [0, 4]];
-//multiconnectStandardDeleteProfile = [[0,0],[10.15,0],[10.15,1.2121],[7.65,3.712],[7.65,4.15],[0,4.15]];
-//multiconnectJrProfile = [[0,0], [5, 0], [5, 0.6], [4, 1.6], [4, 2.0], [0, 2.0]];
-//multiconnectJrDeleteProfile = [[0,0], [5.15, 0], [5.15, 0.8121], [4.15, 1.8121], [4.15, 2.15], [0, 2.15]];
+
 
 //BEGIN MODULES
 module roundedEnd(profile, dimplesEnabled = true, dimpleSize = 1.5, dimpleScale = 1, anchor=CENTER, spin=0, orient=UP){
@@ -157,7 +173,7 @@ module roundedEnd(profile, dimplesEnabled = true, dimpleSize = 1.5, dimpleScale 
                         polygon(points = profile);
                     //dimples
                     if(dimplesEnabled == true) {
-                        down(0.01) cylinder(h = dimpleSize*dimpleScale, r1 = 1.5*dimpleScale, r2 = 0, $fn = 50);
+                        down(0.01) cylinder(h = dimpleSize*dimpleScale, r1 = dimpleSize*dimpleScale, r2 = 0, $fn = 50);
                     }                        
                 }
         children();
@@ -190,7 +206,27 @@ module rail(length, profile, dimplesEnabled = true, dimpleSize = 1.5, dimpleScal
 function maxX(path) = max([for (p = path) p[0]]);
 function maxY(path) = max([for (p = path) p[1]]);
 
+//this function takes the measurements of a multiconnect-style dovetail and converts them to profile coordinates. 
+//When generating the male connector, set offsetMM to zero. Otherwise standard is 0.15 offset for delete tool
+function dimensionsToCoords(radius, depth1, depth2, depth3, offsetMM) = [
+    [0,0],
+    [radius+offsetMM, 0],
+    [radius+offsetMM,offsetMM == 0 ? depth1 : depth1+sin(45)*offsetMM*2],
+    [radius-depth2+offsetMM, offsetMM == 0 ? depth2+depth1 : depth2+depth1+sin(45)*offsetMM*2],
+    [radius-depth2+offsetMM, depth2+depth1+depth3+offsetMM],
+    [0,depth2+depth1+depth3+offsetMM]
+    ];
+
+
+
+
 /*NOTE: old sections of code needing review to either be removed or with features needing to be worked back in
+
+//multiconnectStandardProfile= [[0,0], [10, 0], [10, 1], [7.5, 3.5], [7.5, 4], [0, 4]];
+//multiconnectStandardDeleteProfile = [[0,0],[10.15,0],[10.15,1.2121],[7.65,3.712],[7.65,4.15],[0,4.15]];
+//multiconnectJrProfile = [[0,0], [5, 0], [5, 0.6], [4, 1.6], [4, 2.0], [0, 2.0]];
+//multiconnectJrDeleteProfile = [[0,0], [5.15, 0], [5.15, 0.8121], [4.15, 1.8121], [4.15, 2.15], [0, 2.15]];
+
 
 module multiconnectGenerator(width, height, multiconnectPartType = "Backer", distanceBetweenSlots = 25, onRampEnabled = true, onRampEveryNSlots = 1, onRampOffsetNSlots = 0, slotTolerance = 1, slotVerticalOffset = 2.85, backerThickness = 6.5, slotOrientation = "Vertical", slotDimple = true, dimpleScale = 1, dimpleEveryNSlots = 1, dimpleOffset = 0, dimpleCount = 999, centerMulticonnect=centerMulticonnect, onRampPassthruEnabled = onRampPassthruEnabled, anchor=CENTER, spin=0, orient=UP){
 
