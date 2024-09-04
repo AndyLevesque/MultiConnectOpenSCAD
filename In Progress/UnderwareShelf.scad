@@ -44,6 +44,10 @@ drawerPullHardwareHoleSeparation = 40;
 dovetailTolerance = 0.3;
 //Additional total width of the drawer front (0 matches the shelf width plus walls; 21 covers most of the drawer slide)
 drawerFrontExtraWidth = 21;
+//Depth of the dado slot all around
+dadoDepth = 2; 
+//Thickness (in mm) of the dado slot
+dadoThickness = 3;
 
 /*[Export Selection]*/
 ExportDrawer = true;
@@ -151,6 +155,15 @@ if(ExportDrawer) diff("remove"){
                 //dovetail cone
                     attach(FRONT, BOT, inside=true, shiftout=drawerMountConeDepth-drawerMountInset) prismoid(size1=[drawerMountConeMin, shelfHeight+0.01], size2=[drawerMountConeMax, shelfHeight+0.01], h=drawerMountConeDepth)
                     attach(BOT, FRONT, shiftout=-0.01) cuboid([drawerMountConeMin, drawerMountInset+drawerMountConeDepth+0.01, shelfHeight+0.01]);   
+        }
+        if (drawerFrontType == "Detached Dado"){
+            //front removal tool
+            up(3) attach(FRONT, FRONT, inside = true, shiftout=0.01) 
+                tag("remove")cuboid([widthInMM-wallThickness*2-slideSlop, wallThickness+1,shelfHeight+1]);
+            //bin slot
+            down(baseThickness/2) attach(FRONT, FRONT, overlap=0.01) 
+                rect_tube(size = [widthInMM-wallThickness/2, wallThickness*2+dadoDepth], wall=wallThickness, h=shelfHeight+baseThickness)
+                    attach(BACK, FRONT, align=TOP, inside=true, shiftout=0.01) color("red")cuboid([widthInMM-dadoDepth*2-wallThickness*3,wallThickness*2+dadoDepth + 0.02, shelfHeight-dadoDepth]);
         }           
     }
 }
