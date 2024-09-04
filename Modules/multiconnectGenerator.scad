@@ -38,9 +38,12 @@ Dimple_Scale = 1; //[0.5: 0.25: 1.5]
 Rounding = "Both Sides";//[None, One Side, Both Sides]
 
 /*[Receiver Customization]*/
-Receiver_Wall_Thickness = 2.5;
+Receiver_Side_Wall_Thickness = 2.5;
 Receiver_Back_Thickness = 2;
+Receiver_Top_Wall_Thickness = 2.5;
 OnRamps = "Enabled"; //[Enabled, Disabled]
+OnRamp_Every_n_Holes = 2;
+OnRamp_Start_Offset = 1;
 
 /*[AdvancedParameters]*/
 //Distance (in mm) between each grid (25 for Multiboard)
@@ -80,6 +83,9 @@ dimplesEnabled =
 onRampEnabled = 
     OnRamps == "Enabled" ? true : 
     false; 
+
+onRampEveryNHoles = OnRamp_Every_n_Holes * Grid_Size;
+onRampOffset = OnRamp_Start_Offset * Grid_Size;
 
 if(One_of_Everything){
     for(n = [0 : 1 : len(profileList)-1]){
@@ -146,20 +152,29 @@ module GeneratePart(Select_Profile, Select_Part_Type){
     }
     else if(Select_Part_Type == "Receiver Open-Ended"){
         diff(){
-            cuboid([maxX(profile[0])*2+Receiver_Wall_Thickness*2, maxY(profile[0])+Receiver_Back_Thickness, Length])
-                attach(BACK, FRONT, inside=true, shiftout=0.01, align=TOP, inset=maxX(profile[0])+2.5) rail(Length+0.04, profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size)
-                    if(Rounding != "None")
-                        attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
-                            roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);
+            cuboid([maxX(profile[0])*2+Receiver_Side_Wall_Thickness*2, maxY(profile[0])+Receiver_Back_Thickness, Length])
+                attach(BACK, FRONT, inside=true, shiftout=0.01, align=TOP, inset=maxX(profile[0])+Receiver_Top_Wall_Thickness) 
+                    rail(Length+0.04, profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size){
+                        if(Rounding != "None"){
+                            attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
+                                roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);
+                        }
+                        //onramp
+                        if(onRampEnabled==true) attach(BACK, TOP, inside=true, align=TOP, shiftout=0.02, inset=-maxX(profile[0])+onRampEveryNHoles+onRampOffset) ycopies(n = Length/onRampEveryNHoles+1, spacing = -onRampEveryNHoles, sp=[0,0,0]) cylinder(h = maxY(profile[0])+0.04, r1 = maxX(profile[0])+1.5, r2 = maxX(profile[0]));
+                    }
             }
     }
     else if(Select_Part_Type == "Receiver Passthrough"){
         diff(){
-            cuboid([maxX(profile[0])*2+Receiver_Wall_Thickness*2, maxY(profile[0])+Receiver_Back_Thickness, Length])
-                attach(BACK, FRONT, inside=true, shiftout=0.01) rail(Length+0.04, profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size)
+            cuboid([maxX(profile[0])*2+Receiver_Side_Wall_Thickness*2, maxY(profile[0])+Receiver_Back_Thickness, Length])
+                attach(BACK, FRONT, inside=true, shiftout=0.01) rail(Length+0.04, profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size){
                     if(Rounding != "None")
                         attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
                             roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);
+                //onramp
+                if(onRampEnabled==true) attach(BACK, TOP, inside=true, align=TOP, shiftout=0.02, inset=-maxX(profile[0])+onRampOffset) ycopies(n = Length/onRampEveryNHoles+1, spacing = -onRampEveryNHoles, sp=[0,0,0]) cylinder(h = maxY(profile[0])+0.04, r1 = maxX(profile[0])+1.5, r2 = maxX(profile[0]));
+
+                }
             }
     }
 }
@@ -239,45 +254,4 @@ if(debug) echo(str("Calculated Jr Offset Coords: "), dimensionsToCoords(5, 0.6, 
 //multiconnectJrDeleteProfile = [[0,0], [5.15, 0], [5.15, 0.8121], [4.15, 1.8121], [4.15, 2.15], [0, 2.15]];
 
 
-module multiconnectGenerator(width, height, multiconnectPartType = "Backer", distanceBetweenSlots = 25, onRampEnabled = true, onRampEveryNSlots = 1, onRampOffsetNSlots = 0, slotTolerance = 1, slotVerticalOffset = 2.85, backerThickness = 6.5, slotOrientation = "Vertical", slotDimple = true, dimpleScale = 1, dimpleEveryNSlots = 1, dimpleOffset = 0, dimpleCount = 999, centerMulticonnect=centerMulticonnect, onRampPassthruEnabled = onRampPassthruEnabled, anchor=CENTER, spin=0, orient=UP){
-
-    attachable(anchor, spin, orient, size=[width, backerThickness, height]*slotTolerance){ 
-    
-        
-        
-        multiconnectSlot(width, profile = connectorStandardPath, onRampEnabled = false, spin=[90,0,0])
-            attach([TOP, BOT], BOT) roundedEndEnd(profile = connectorStandardPath);
-        children();  
-    }
-
-
-
-    module multiconnectSlot(length, profile, multiconnectPartType = "Backer", distanceBetweenSlots = 25, onRampEnabled = true, onRampEveryNSlots = 1, onRampOffsetNSlots = 0, slotDimple = true, dimpleScale = 1, dimpleEveryNSlots = 1, dimpleOffset = 0, dimpleCount = 999, onRampPassthruEnabled = false, anchor=CENTER, spin=0, orient=UP){
-        attachable(anchor, spin, orient, size=[maxX(profile)*2,maxY(profile),length]){
-            diff("slotDimple"){
-                multiconnectLinear(length = length, profile = profile, multiconnectPartType = multiconnectPartType, distanceBetweenSlots = distanceBetweenSlots, onRampEnabled = onRampEnabled, onRampEveryNSlots = onRampEveryNSlots, onRampOffsetNSlots = onRampOffsetNSlots, onRampPassthruEnabled = onRampPassthruEnabled);
-                if(slotDimple && dimpleEveryNSlots != 0 && multiconnectPartType == "Backer") {
-                    //calculate the dimples. Dimplecount can override if less than calculated slots
-                    if(debug) echo("Dimples for Backer");
-                    tag("slotDimple") attach(BACK, BOT, align=TOP, inside=true, shiftout=0.01) back(1.5*dimpleScale) 
-                            cylinder(h = 1.5*dimpleScale, r1 = 1.5*dimpleScale, r2 = 0, $fn = 50);
-                    zcopies(n = min(length/distanceBetweenSlots/dimpleEveryNSlots+1, dimpleCount), spacing = -distanceBetweenSlots*dimpleEveryNSlots, sp=[0,0,dimpleOffset*distanceBetweenSlots]) 
-                        tag("slotDimple") attach(BACK, BOT, align=TOP, inside=true, shiftout=0.01) back(1.5*dimpleScale) 
-                            cylinder(h = 1.5*dimpleScale, r1 = 1.5*dimpleScale, r2 = 0, $fn = 50);
-                }
-                if(slotDimple && dimpleEveryNSlots != 0 && multiconnectPartType == "Passthru"){ //passthru
-                    //calculate the dimples. Dimplecount can override if less than calculated slots
-                    if(debug) echo(str("Dimples for Passthru: ", min(length/distanceBetweenSlots/dimpleEveryNSlots+2, dimpleCount), ". Distance between: ", -distanceBetweenSlots*dimpleEveryNSlots));
-                    zcopies(n = min(length/distanceBetweenSlots/dimpleEveryNSlots+2, dimpleCount), spacing = -distanceBetweenSlots*dimpleEveryNSlots, sp=[0,0,centerMulticonnect ? -length/2+25*3/2-12.5+25+dimpleOffset*distanceBetweenSlots: -length/2+25*3/2+25+dimpleOffset*distanceBetweenSlots]) 
-                        tag("slotDimple") attach(BACK, BOT, align=TOP, inside=true, shiftout=0.01) back(1.5*dimpleScale) 
-                            cylinder(h = 1.5*dimpleScale, r1 = 1.5*dimpleScale, r2 = 0, $fn = 50);
-
-                }
-            
-            }
-            children();
-        }
-        //long slot
-    }
-}
 */
