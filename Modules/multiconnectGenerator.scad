@@ -20,10 +20,11 @@ include <BOSL2/std.scad>
 
 /*[Standard Parameters]*/
 //Profile
-//Select_Profile = "Standard Multiconnect Rail"; //[Standard Multiconnect Rail, Standard Multiconnect Delete Tool, Jr Multiconnect Rail, Jr Multiconnect Delete Tool, Mini Multiconnect Rail, Mini Multiconnect Delete Tool, Custom Multiconnect Rail, Custom Multiconnect Delete Tool]
 Select_Profile = "Standard"; //[Standard, Jr., Mini, Custom]
-Select_Part_Type = "Connector Round"; //[Connector Round, Connector Rail, Connector Double sided Round, Connector Double-Sided Rail, Connector Rail Delete Tool, Receiver Open-Ended, Receiver Passthrough]
+Select_Part_Type = "Connector Round"; //[Connector Round, Connector Rail, Connector Double sided Round, Connector Double-Sided Rail, Connector Rail Delete Tool, Receiver Open-Ended, Receiver Passthrough, Backer Open-Ended, Backer Passthrough]
+//Generate one of each part type of the selected profile
 One_of_Each = false;
+//Generate one of each part type of every profile, including custom
 One_of_Everything = false;
 //Generate one of each type of part
 //Length of rail (in mm) (excluding rounded ends)
@@ -44,6 +45,9 @@ Receiver_Top_Wall_Thickness = 2.5;
 OnRamps = "Enabled"; //[Enabled, Disabled]
 OnRamp_Every_n_Holes = 2;
 OnRamp_Start_Offset = 1;
+
+/*[Backer Customization]*/
+Width = 75; 
 
 /*[AdvancedParameters]*/
 //Distance (in mm) between each grid (25 for Multiboard)
@@ -74,7 +78,7 @@ jrSpecs = [5, 0.6, 1, 0.4, 0.15, 0.8];
 miniSpecs = [2.5, 0.6, 1, 0.4, 0.15, 0.8];
 
 profileList = ["Standard", "Jr.", "Mini", "Custom"];
-partList = ["Connector Round", "Connector Rail", "Connector Double sided Round", "Connector Double-Sided Rail", "Connector Rail Delete Tool", "Receiver Open-Ended", "Receiver Passthrough"];
+partList = ["Connector Round", "Connector Double sided Round", "Connector Rail",  "Connector Double-Sided Rail", "Connector Rail Delete Tool", "Receiver Open-Ended", "Receiver Passthrough", "Backer Open-Ended", "Backer Passthrough"];
 
 dimplesEnabled = 
     Dimples == "Enabled" ? true : 
@@ -91,16 +95,23 @@ if(One_of_Everything){
     for(n = [0 : 1 : len(profileList)-1]){
         for(i = [0 : 1 : len(partList)-1]){
             echo(str("Generating Profile: ", profileList[n], "; Part: ", partList[i]));
-            fwd((n)*25) left((i+1)*27) GeneratePart(profileList[n], partList[i]);
+            fwd((n)*25) 
+            left(partList[i] == "Backer Open-Ended" ? Width*2+(i+1)*27 : (i+1)*27) 
+                GeneratePart(profileList[n], partList[i]);
         }
     }
 }
 else if(One_of_Each){
-    for(i = [0 : 1 : len(partList)])
-        left((i+1)*27) GeneratePart(Select_Profile, partList[i]);
+    for(i = [0 : 1 : len(partList)-1])
+        left(
+            partList[i] == "Backer Open-Ended" ? Width/2+(i+1)*27 :
+            partList[i] == "Backer Passthrough" ? Width+27+(i+1)*27 :
+            (i+1)*27
+        ) 
+
+        GeneratePart(Select_Profile, partList[i]);
 }
 else GeneratePart(Select_Profile, Select_Part_Type);
-
 
 //Generate parts
 module GeneratePart(Select_Profile, Select_Part_Type){
@@ -123,7 +134,7 @@ module GeneratePart(Select_Profile, Select_Part_Type){
             attach([TOP, BOT], BOT, overlap=0.01)
                 roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);       
     }
-    else if(Select_Part_Type == "Connector Rail" || Select_Part_Type == "Connector Rail Delete Tool"){
+    else if(Select_Part_Type == "Connector Rail"){
         //echo(str("Generating: ", Select_Part_Type));
         rail(Length, profile[0], onRampEnabled = onRampEnabled, dimpleSize = profile[1], dimplesEnabled = dimplesEnabled, dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size)
             if(Rounding != "None")
@@ -164,6 +175,36 @@ module GeneratePart(Select_Profile, Select_Part_Type){
                     }
             }
     }
+    else if(Select_Part_Type == "Backer Open-Ended"){
+        diff(){
+            cuboid([Width, maxY(profile[0])+Receiver_Back_Thickness, Length])
+                    attach(BACK, FRONT, inside=true, shiftout=0.01, align=TOP, inset=maxX(profile[0])+Receiver_Top_Wall_Thickness) 
+                    xcopies(n=floor(Width/Grid_Size), spacing = Grid_Size) 
+                        rail(Length+0.04, profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size){
+                            if(Rounding != "None"){
+                                attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
+                                    roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);
+                            }
+                            //onramp
+                            if(onRampEnabled==true) attach(BACK, TOP, inside=true, align=TOP, shiftout=0.02, inset=-maxX(profile[0])+onRampEveryNHoles+onRampOffset) ycopies(n = Length/onRampEveryNHoles+1, spacing = -onRampEveryNHoles, sp=[0,0,0]) cylinder(h = maxY(profile[0])+0.04, r1 = maxX(profile[0])+1.5, r2 = maxX(profile[0]));
+                    }
+            }
+    }
+    else if(Select_Part_Type == "Backer Passthrough"){
+        diff(){
+            cuboid([Width, maxY(profile[0])+Receiver_Back_Thickness, Length])
+                attach(BACK, FRONT, inside=true, shiftout=0.01) 
+                xcopies(n=floor(Width/Grid_Size), spacing = Grid_Size) 
+                rail(Length+0.04, profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size){
+                    if(Rounding != "None")
+                        attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
+                            roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);
+                //onramp
+                if(onRampEnabled==true) attach(BACK, TOP, inside=true, align=TOP, shiftout=0.02, inset=-maxX(profile[0])+onRampOffset) ycopies(n = Length/onRampEveryNHoles+1, spacing = -onRampEveryNHoles, sp=[0,0,0]) cylinder(h = maxY(profile[0])+0.04, r1 = maxX(profile[0])+1.5, r2 = maxX(profile[0]));
+
+                }
+            }
+    }
     else if(Select_Part_Type == "Receiver Passthrough"){
         diff(){
             cuboid([maxX(profile[0])*2+Receiver_Side_Wall_Thickness*2, maxY(profile[0])+Receiver_Back_Thickness, Length])
@@ -176,6 +217,15 @@ module GeneratePart(Select_Profile, Select_Part_Type){
 
                 }
             }
+    }
+    else if(Select_Part_Type == "Connector Rail Delete Tool"){
+        //echo(str("Generating: ", Select_Part_Type));
+        rail(Length, profile[0], onRampEnabled = onRampEnabled, dimpleSize = profile[1], dimplesEnabled = dimplesEnabled, dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size){
+            if(Rounding != "None")
+                attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
+                    roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);
+            if(onRampEnabled==true) attach(BACK, TOP, inside=true, align=TOP, shiftout=0.02, inset=-maxX(profile[0])+onRampOffset) ycopies(n = Length/onRampEveryNHoles+1, spacing = -onRampEveryNHoles, sp=[0,0,0]) cylinder(h = maxY(profile[0])+0.04, r1 = maxX(profile[0])+1.5, r2 = maxX(profile[0]));
+        }
     }
 }
 
