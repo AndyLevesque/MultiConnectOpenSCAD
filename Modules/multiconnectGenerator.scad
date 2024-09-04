@@ -20,7 +20,7 @@ include <BOSL2/std.scad>
 
 /*[Standard Parameters]*/
 //Profile
-Select_Profile = "Standard"; //[Standard, Jr., Mini, Custom]
+Select_Profile = "Standard"; //[Standard, Jr., Mini, Multipoint Beta, Custom]
 Select_Part_Type = "Connector Round"; //[Connector Round, Connector Rail, Connector Double sided Round, Connector Double-Sided Rail, Connector Rail Delete Tool, Receiver Open-Ended, Receiver Passthrough, Backer Open-Ended, Backer Passthrough]
 //Generate one of each part type of the selected profile
 One_of_Each = false;
@@ -71,7 +71,7 @@ DimpleSize = 1.5; //.1
 debug = false; 
 
 //BEGIN Start Stand-alone part generator
-profileList = ["Standard", "Jr.", "Mini", "Custom"];
+profileList = ["Standard", "Jr.", "Mini", "Multipoint Beta", "Custom"];
 partList = ["Connector Round", "Connector Double sided Round", "Connector Rail",  "Connector Double-Sided Rail", "Connector Rail Delete Tool", "Receiver Open-Ended", "Receiver Passthrough"]; //removed backers due to performance issues , "Backer Open-Ended", "Backer Passthrough"
 
 
@@ -107,6 +107,7 @@ module GeneratePart(Select_Profile, Select_Part_Type, Dimples, OnRamps){
     standardSpecs = [10, 1, 2.5, 0.5, 0.15, 1.5];
     jrSpecs = [5, 0.6, 1.2, 0.4, 0.16, 0.8];
     miniSpecs = [3.2, 1, 1.2, 0.4, 0.16, 0.8];
+    multipointBeta = [7.9, 0.4, 2.2, 0.4, 0.15, 0.8];
 
 
     dimplesEnabled = 
@@ -133,6 +134,7 @@ module GeneratePart(Select_Profile, Select_Part_Type, Dimples, OnRamps){
         Select_Profile == "Standard" ? [dimensionsToCoords(standardSpecs[0], standardSpecs[1], standardSpecs[2], standardSpecs[3], isOffset ? standardSpecs[4] : 0), standardSpecs[5]] :
         Select_Profile == "Jr." ? [dimensionsToCoords(jrSpecs[0], jrSpecs[1], jrSpecs[2], jrSpecs[3], isOffset ? jrSpecs[4] : 0), jrSpecs[5]] :
         Select_Profile == "Mini" ? [dimensionsToCoords(miniSpecs[0], miniSpecs[1], miniSpecs[2], miniSpecs[3], isOffset ? miniSpecs[4] : 0), miniSpecs[5]] :
+        Select_Profile == "Multipoint Beta" ? [dimensionsToCoords(multipointBeta[0], multipointBeta[1], multipointBeta[2], multipointBeta[3], isOffset ? multipointBeta[4] : 0), multipointBeta[5]] :
         Select_Profile == "Custom" ? [dimensionsToCoords(customSpecs[0], customSpecs[1], customSpecs[2], customSpecs[3], isOffset ? customSpecs[4] : 0), customSpecs[5]] :
         [];
     
