@@ -53,7 +53,6 @@ Width = 75;
 //Distance (in mm) between each grid (25 for Multiboard)
 Grid_Size = 25;
 
-
 /*[Custom MC Builder]*/
 //Radius of connector
 Radius = 10; //.1
@@ -71,25 +70,10 @@ DimpleSize = 1.5; //.1
 /* [Hidden] */
 debug = false; 
 
-//unadjusted cordinates, dimple size, default offset
-customSpecs = [Radius, Depth1, Depth2, Depth3, Offset, DimpleSize];
-standardSpecs = [10, 1, 2.5, 0.5, 0.15, 1.5];
-jrSpecs = [5, 0.6, 1, 0.4, 0.15, 0.8];
-miniSpecs = [2.5, 0.6, 1, 0.4, 0.15, 0.8];
-
+//BEGIN Start Stand-alone part generator
 profileList = ["Standard", "Jr.", "Mini", "Custom"];
-partList = ["Connector Round", "Connector Double sided Round", "Connector Rail",  "Connector Double-Sided Rail", "Connector Rail Delete Tool", "Receiver Open-Ended", "Receiver Passthrough", "Backer Open-Ended", "Backer Passthrough"];
+partList = ["Connector Round", "Connector Double sided Round", "Connector Rail",  "Connector Double-Sided Rail", "Connector Rail Delete Tool", "Receiver Open-Ended", "Receiver Passthrough"]; //removed backers due to performance issues , "Backer Open-Ended", "Backer Passthrough"
 
-dimplesEnabled = 
-    Dimples == "Enabled" ? true : 
-    false;
-
-onRampEnabled = 
-    OnRamps == "Enabled" ? true : 
-    false; 
-
-onRampEveryNHoles = OnRamp_Every_n_Holes * Grid_Size;
-onRampOffset = OnRamp_Start_Offset * Grid_Size;
 
 if(One_of_Everything){
     for(n = [0 : 1 : len(profileList)-1]){
@@ -97,7 +81,7 @@ if(One_of_Everything){
             echo(str("Generating Profile: ", profileList[n], "; Part: ", partList[i]));
             fwd((n)*25) 
             left(partList[i] == "Backer Open-Ended" ? Width*2+(i+1)*27 : (i+1)*27) 
-                GeneratePart(profileList[n], partList[i]);
+                GeneratePart(profileList[n], partList[i], Dimples, OnRamps);
         }
     }
 }
@@ -109,16 +93,40 @@ else if(One_of_Each){
             (i+1)*27
         ) 
 
-        GeneratePart(Select_Profile, partList[i]);
+        GeneratePart(Select_Profile, partList[i], Dimples, OnRamps);
 }
-else GeneratePart(Select_Profile, Select_Part_Type);
+else GeneratePart(Select_Profile, Select_Part_Type, Dimples, OnRamps);
+//END Stand-alone part generator
 
-//Generate parts
-module GeneratePart(Select_Profile, Select_Part_Type){
+//BEGIN Multiconnect Modules and Functions
+module GeneratePart(Select_Profile, Select_Part_Type, Dimples, OnRamps){
     
-    isOffset = Select_Part_Type == "Receiver Open-Ended" ? true : 
+
+    //unadjusted cordinates, dimple size, default offset
+    customSpecs = [Radius, Depth1, Depth2, Depth3, Offset, DimpleSize];
+    standardSpecs = [10, 1, 2.5, 0.5, 0.15, 1.5];
+    jrSpecs = [5, 0.6, 1.2, 0.4, 0.16, 0.8];
+    miniSpecs = [3.2, 1, 1.2, 0.4, 0.16, 0.8];
+
+
+    dimplesEnabled = 
+    Dimples == "Enabled" ? true : 
+    false;
+
+    onRampEnabled = 
+        OnRamps == "Enabled" ? true : 
+        false; 
+
+    onRampEveryNHoles = OnRamp_Every_n_Holes * Grid_Size;
+    onRampOffset = OnRamp_Start_Offset * Grid_Size;
+
+    //if part is intended for a receiver, apply offset
+    isOffset = 
+        Select_Part_Type == "Receiver Open-Ended" ? true : 
         Select_Part_Type == "Receiver Passthrough" ? true :
         Select_Part_Type == "Connector Rail Delete Tool" ? true :
+        Select_Part_Type == "Backer Open-Ended" ? true :
+        Select_Part_Type == "Backer Passthrough" ? true :
         false;
 
     profile = 
@@ -238,11 +246,11 @@ module roundedEnd(profile, dimplesEnabled = true, dimpleSize = 1.5, dimpleScale 
             rotate(a = [90,0,0]) 
                 difference(){
                     //rail
-                    rotate_extrude($fn=50) 
+                    rotate_extrude($fn=25) 
                         polygon(points = profile);
                     //dimples
                     if(dimplesEnabled == true) {
-                        down(0.01) cylinder(h = dimpleSize*dimpleScale, r1 = dimpleSize*dimpleScale, r2 = 0, $fn = 50);
+                        down(0.01) cylinder(h = dimpleSize*dimpleScale, r1 = dimpleSize*dimpleScale, r2 = 0, $fn = 25);
                     }                        
                 }
         children();
@@ -264,7 +272,7 @@ module rail(length, profile, dimplesEnabled = true, dimpleSize = 1.5, dimpleScal
             //dimples
             if(dimplesEnabled) 
                 zcopies(n = ceil(length/distanceBetweenDimples)+1, spacing = distanceBetweenDimples, sp=[0,0,-length+length%distanceBetweenDimples]) 
-                    back(0.01)cylinder(h = dimpleSize*dimpleScale, r1 = dimpleSize*dimpleScale, r2 = 0, $fn = 50, orient=FWD);
+                    back(0.01)cylinder(h = dimpleSize*dimpleScale, r1 = dimpleSize*dimpleScale, r2 = 0, $fn = 25, orient=FWD);
         }
         children();
     }
@@ -284,24 +292,4 @@ function dimensionsToCoords(radius, depth1, depth2, depth3, offsetMM) = [
     [radius-depth2+offsetMM, depth2+depth1+depth3+offsetMM],
     [0,depth2+depth1+depth3+offsetMM]
     ];
-
-
-/*NOTE: old sections of code needing review to either be removed or with features needing to be worked back in
-
-
-if(debug) echo(str("Desired Standard Coords:        [[0,0], [10, 0], [10, 1], [7.5, 3.5], [7.5, 4], [0, 4]]"));
-if(debug) echo(str("Calculated Standard Coords: "), dimensionsToCoords(10, 1, 2.5, 0.5, 0));
-if(debug) echo(str("Desired Standard Offset Coords:        [[0,0], [10.15,0], [10.15,1.2121], [7.65,3.712], [7.65,4.15], [0,4.15]]"));
-if(debug) echo(str("Calculated Standard Offset Coords: "), dimensionsToCoords(10, 1, 2.5, 0.5, 0.15));
-if(debug) echo(str("Desired Jr Offset Coords:        [[0,0], [5.15, 0], [5.15, 0.8121], [4.15, 1.8121], [4.15, 2.15], [0, 2.15]]"));
-if(debug) echo(str("Calculated Jr Offset Coords: "), dimensionsToCoords(5, 0.6, 1, 0.4, 0.15));
-
-
-
-//multiconnectStandardProfile= [[0,0], [10, 0], [10, 1], [7.5, 3.5], [7.5, 4], [0, 4]];
-//multiconnectStandardDeleteProfile = [[0,0],[10.15,0],[10.15,1.2121],[7.65,3.712],[7.65,4.15],[0,4.15]];
-//multiconnectJrProfile = [[0,0], [5, 0], [5, 0.6], [4, 1.6], [4, 2.0], [0, 2.0]];
-//multiconnectJrDeleteProfile = [[0,0], [5.15, 0], [5.15, 0.8121], [4.15, 1.8121], [4.15, 2.15], [0, 2.15]];
-
-
-*/
+//END Multiconnect Modules and Functions
