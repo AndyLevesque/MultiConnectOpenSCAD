@@ -200,7 +200,8 @@ diff(){
             tag("remove") 
                 diff("slideDimple")
                 prismoid(size1=[shelfDepthUnits*25,slideDepth*2+0.25], size2=[shelfDepthUnits*25+1,0], h=slideDepth+0.25){
-                    attach(FRONT, CENTER+FRONT, align=[LEFT, RIGHT], inset=drawerDimpleInset, shiftout = -drawerDimpleRadius+.5) 
+                    //detent
+                    attach(FRONT, CENTER+FRONT, align=[$idx == 0 ? LEFT : RIGHT], inset=drawerDimpleInset, shiftout = -drawerDimpleRadius+.5) 
                         tag("slideDimple") cyl(h= drawerDimpleHeight-1, r = drawerDimpleRadius, $fn=30);
 }
         //bottom cutout
