@@ -222,10 +222,11 @@ diff(){
                         tag("slideDimple") cyl(h= drawerDimpleHeight-1, r = drawerDimpleRadius, $fn=30);
                 }
         //bottom cutout
-        attach([TOP], FRONT, inside=true, shiftout=0.01, align=FRONT, inset=15)  GeneratePart(Select_Profile = "Standard", Select_Part_Type = "Connector Rail Delete Tool", Length = depthInMM, Dimples, Rounding="Both Sides");
+        //attach([TOP], FRONT, inside=true, shiftout=0.01, align=FRONT, inset=15)  GeneratePart(Select_Profile = "Standard", Select_Part_Type = "Connector Rail Delete Tool", Length = depthInMM, Dimples, Rounding="Both Sides");
         //Multiconnect lock slot
-        attach([BOT], FRONT, inside=true, shiftout=0.01, align=FRONT, inset=15)  GeneratePart(Select_Profile = "Standard", Select_Part_Type = "Connector Rail Delete Tool", Length = depthInMM, Rounding = "Both Sides", OnRamps = "Disabled", Dimples = "Disabled");
-        up(3) back(30)attach(RIGHT, BOT, inside = true, shiftout = 0.01, align=BOT+FRONT, spin=180) GeneratePart(Select_Profile = "Mini", Select_Part_Type = "Connector Double-Sided Rail", Length = 12.5, Dimples = "Disabled", Rounding = "None", OnRamps = "Disabled");
+        //attach([BOT], FRONT, inside=true, shiftout=0.01, align=FRONT, inset=15)  GeneratePart(Select_Profile = "Standard", Select_Part_Type = "Connector Rail Delete Tool", Length = depthInMM, Rounding = "Both Sides", OnRamps = "Disabled", Dimples = "Disabled");
+        //    up(3) back(30)attach(RIGHT, BOT, inside = true, shiftout = 0.01, align=BOT+FRONT, spin=180) GeneratePart(Select_Profile = "Mini", Select_Part_Type = "Connector Double-Sided Rail", Length = 12.5, Dimples = "Disabled", Rounding = "None", OnRamps = "Disabled");
+    
     }
 }
 
