@@ -70,7 +70,10 @@ DimpleSize = 1.5; //.1
 /* [Hidden] */
 debug = false; 
 
+//
 //BEGIN Start Stand-alone part generator
+//
+
 profileList = ["Standard", "Jr.", "Mini", "Multipoint Beta", "Custom"];
 partList = ["Connector Round", "Connector Double sided Round", "Connector Rail",  "Connector Double-Sided Rail", "Connector Rail Delete Tool", "Receiver Open-Ended", "Receiver Passthrough"]; //removed backers due to performance issues , "Backer Open-Ended", "Backer Passthrough"
 
@@ -96,9 +99,14 @@ else if(One_of_Each){
         GeneratePart(Select_Profile, partList[i], Dimples, OnRamps);
 }
 else GeneratePart(Select_Profile, Select_Part_Type, Dimples, OnRamps);
-//END Stand-alone part generator
 
+//
+//END Stand-alone part generator
+//
+
+//
 //BEGIN Multiconnect Modules and Functions
+//
 module GeneratePart(Select_Profile, Select_Part_Type, Dimples, OnRamps){
     
 
@@ -239,7 +247,6 @@ module GeneratePart(Select_Profile, Select_Part_Type, Dimples, OnRamps){
     }
 }
 
-//BEGIN MODULES
 module roundedEnd(profile, dimplesEnabled = true, dimpleSize = 1.5, dimpleScale = 1, anchor=CENTER, spin=0, orient=UP){
     attachable(anchor, spin, orient, size=[maxX(profile)*2,maxY(profile),maxX(profile)]){
         //align to anchors
@@ -294,4 +301,6 @@ function dimensionsToCoords(radius, depth1, depth2, depth3, offsetMM) = [
     [radius-depth2+offsetMM, depth2+depth1+depth3+offsetMM],
     [0,depth2+depth1+depth3+offsetMM]
     ];
+//
 //END Multiconnect Modules and Functions
+//

@@ -1,5 +1,6 @@
 include <BOSL2/std.scad>
 include <BOSL2/walls.scad>
+include <BOSL2/rounding.scad>
 /*Created by Andy Levesque
 Credit to @David D on Printables and Jonathan at Keep Making for Multiconnect and Multiboard, respectively
 Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attribution for all parts except the snaps, which fall under the Keep Making license at multiboard.io/license
@@ -9,9 +10,9 @@ Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attributi
 //Depth of shelf (in multiboard units of 25mm each) from front to back 
 shelfDepthUnits = 7;
 //Width of shelf (in multiboard units of 25mm each) from left to right 
-shelfWidthUnits = 4;
-//internal height of shelf (in mm)
-shelfHeight = 20;//5
+shelfWidthUnits = 4;  
+//Internal Height of shelf (1 unit = 7mm)
+shelfHeightUnits = 3; //[3:1:20]
 //thickness (in mm) of the shelf floor
 baseThickness = 1.5; //[0.5:0.25:7.5]
 //number of slots between multiconnect mounts
@@ -71,7 +72,7 @@ widthInMM = shelfWidthUnits*unitsInMM;
 //QuickRelease removes the small indent in the top of the slots that lock the part into place
 dimplesEnabled = true;
 //Dimple scale tweaks the size of the dimple in the slot for printers that need a larger dimple to print correctly
-dimpleScale = 1; //[0.5:.05:1.5]
+Dimple_Scale = 1; //[0.5:.05:1.5]
 //Scale the size of slots in the back
 slotTolerance = 1.00; //[1:0.005:1.075]
 //Move the slot in (positive) or out (negative) - Disabled at the moment
@@ -107,6 +108,12 @@ slideLockTolerance = 0.15;
 slotType = "Backer"; //[Backer, Passthru]
 //ADVANCED: Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
 distanceBetweenSlots = 25;
+Grid_Size = 25;
+OnRamp_Every_n_Holes = 2;
+OnRamp_Start_Offset = 0;
+Rounding = "Both Sides";
+OnRamps = "Enabled";
+Dimples = "Enabled";
 
 ///*[Passthru-Style Slot Customization]*/
 //change slot orientation
@@ -121,12 +128,19 @@ onRampPassthruEnabled = false;
 dimpleEveryNSlots = 2;
 //shift the series of dimples left or right by n units
 dimpleOffset = 0;
+//convert shelf height units to shelf height in mm
+shelfHeight = shelfHeightUnits * 7;
+
+echo(str("Total Shelf Height: ", shelfHeight+baseThickness));
+echo(str("Shelf Slide Inset from Top: ", 6.5-drawerPlateClearance));
+echo(str("Total Slide Height: ", slideDepth*2+0.25));
 
 //drawer
 if(ExportDrawer) diff("remove"){
     up(baseThickness) rect_tube(size=[shelfWidthUnits*25-slideSlop,shelfDepthUnits*25], wall=wallThickness, h=shelfHeight, anchor=BOT){
         //slide sides
-        tag("keep") down(6.5-drawerPlateClearance) attach([LEFT, RIGHT], BOT, align=TOP) 
+        tag("keep")
+            attach([LEFT, RIGHT], BOT, align=TOP, inset=6.5-drawerPlateClearance) 
                 tag("") prismoid(size1=[shelfDepthUnits*25,slideDepth*2+0.25], size2=[shelfDepthUnits*25,0], h=slideDepth+0.25){
                     //drawer dimple
                     attach(FRONT, CENTER+FRONT, align=[LEFT, RIGHT], inset=drawerDimpleInset, shiftout = -drawerDimpleRadius) 
@@ -158,7 +172,7 @@ if(ExportDrawer) diff("remove"){
         }
         if (drawerFrontType == "Detached Dado"){
             //front removal tool
-            up(3) attach(FRONT, FRONT, inside = true, shiftout=0.01) 
+            up(5) attach(FRONT, FRONT, inside = true, shiftout=0.01) 
                 tag("remove")cuboid([widthInMM-wallThickness*2-slideSlop, wallThickness+1,shelfHeight+1]);
             //bin slot
             down(baseThickness/2) attach(FRONT, FRONT, overlap=0.01) 
@@ -192,38 +206,64 @@ if(drawerFrontType == "Detached Dovetail" && ExportDrawerFront){
 //slides
 if(ExportSlides)
 diff(){
+    //if slide fit test
     up(slideFitTest ? shelfHeight+baseThickness-6.5/2-drawerPlateClearance-slideDepth*2+0.5 : 0)
-    xcopies(n = 2, spacing = slideFitTest ? widthInMM+ 25 + slideSlop*2 : widthInMM+slideDepth*2+30)
-    cuboid(size = [25,depthInMM,slideDepth*2], anchor=BOT){
+    //duplicate slides
+    //xcopies(n = 2, spacing = slideFitTest ? widthInMM+ 25 + slideSlop*2 : widthInMM+slideDepth*2+30)
+    //slide cuboid
+    cuboid(size = [25,depthInMM,slideDepth*2+10], anchor=BOT){
         //slide slots
-        attach([LEFT, RIGHT], BOT, align=TOP, inside=true, shiftout=0.01) 
+        attach([LEFT, RIGHT], BOT, align=TOP, inside=true, shiftout=0.01, inset=5) 
             tag("remove") 
                 diff("slideDimple")
                 prismoid(size1=[shelfDepthUnits*25,slideDepth*2+0.25], size2=[shelfDepthUnits*25+1,0], h=slideDepth+0.25){
                     //detent
                     attach(FRONT, CENTER+FRONT, align=[$idx == 0 ? LEFT : RIGHT], inset=drawerDimpleInset, shiftout = -drawerDimpleRadius+.5) 
                         tag("slideDimple") cyl(h= drawerDimpleHeight-1, r = drawerDimpleRadius, $fn=30);
-}
+                }
         //bottom cutout
-        attach(BOT, BOT, inside=true, shiftout=0.01) 
-            tag("remove") prismoid(size1=[slideDepth*2, shelfDepthUnits*25], size2=[0,shelfDepthUnits*25+1], h=slideDepth);
-        //distributed multiconnect slots
-        //ycopies(n=ceil(depthInMM/(slotSpacing*unitsInMM)), spacing = slotSpacing*unitsInMM, sp=[0,25,0]) attach(TOP, BACK, align=FRONT) multiconnectBacker(height = 25, width = 25, slotType = slotType, scale = slotTolerance, onRampEnabled = false, slotDimple = !slotQuickRelease, dimpleScale = dimpleScale, anchor=BOTTOM+BACK, slotOrientation=slotOrientation, spin=[0,180,0]);
-        //long multiconnect slot
-        attach(TOP, BACK) 
-            multiconnectBacker(height = depthInMM, width = 25, slotType = slotType, slotTolerance = slotTolerance, onRampEnabled = true, onRampEveryNSlots = slotSpacing,slotDimple = dimplesEnabled, dimpleScale = dimpleScale, dimpleEveryNSlots = dimpleEveryNSlots, dimpleOffset = dimpleOffset, anchor=BOTTOM+BACK, slotOrientation=slotOrientation, spin=[0,180,0])
-        //slide lock slot
-        tag("remove")attach(FRONT, BOT, align=TOP, inset = 19, shiftout=-5.99) cuboid([26, 2, 6]);
+        attach([TOP], FRONT, inside=true, shiftout=0.01, align=FRONT, inset=15)  GeneratePart(Select_Profile = "Standard", Select_Part_Type = "Connector Rail Delete Tool", Length = depthInMM, Dimples, Rounding="Both Sides");
+        //Multiconnect lock slot
+        attach([BOT], FRONT, inside=true, shiftout=0.01, align=FRONT, inset=15)  GeneratePart(Select_Profile = "Standard", Select_Part_Type = "Connector Rail Delete Tool", Length = depthInMM, Rounding = "Both Sides", OnRamps = "Disabled", Dimples = "Disabled");
+        up(3) back(30)attach(RIGHT, BOT, inside = true, shiftout = 0.01, align=BOT+FRONT, spin=180) GeneratePart(Select_Profile = "Mini", Select_Part_Type = "Connector Double-Sided Rail", Length = 12.5, Dimples = "Disabled", Rounding = "None", OnRamps = "Disabled");
     }
 }
 
+/*
+//slide extension
+if(ExportSlides)
+diff(){
+    //if slide fit test
+    up(slideFitTest ? shelfHeight+baseThickness-6.5/2-drawerPlateClearance-slideDepth*2+0.5 : -40)
+    //duplicate slides
+    //xcopies(n = 2, spacing = slideFitTest ? widthInMM+ 25 + slideSlop*2 : widthInMM+slideDepth*2+30)
+    //slide cuboid
+    cuboid(size = [25,depthInMM,slideDepth*2+10], anchor=BOT){
+        //slide slots
+        attach([LEFT, RIGHT], BOT, align=TOP, inside=true, shiftout=0.01, inset=5) 
+            tag("remove") 
+                diff("slideDimple")
+                prismoid(size1=[shelfDepthUnits*25,slideDepth*2+0.25], size2=[shelfDepthUnits*25+1,0], h=slideDepth+0.25){
+                    //detent
+                    attach(FRONT, CENTER+FRONT, align=[$idx == 0 ? LEFT : RIGHT], inset=drawerDimpleInset, shiftout = -drawerDimpleRadius+.5) 
+                        tag("slideDimple") cyl(h= drawerDimpleHeight-1, r = drawerDimpleRadius, $fn=30);
+                }
+        attach([TOP], FRONT, overlap=0.01, align=FRONT, inset=15, spin=180)  GeneratePart(Select_Profile = "Standard", Select_Part_Type = "Connector Rail", Length = depthInMM-15, Dimples = "Disabled", Rounding = "One Side", spin=[90,90,0]);
+        //bottom cutout
+        attach([BOT], FRONT, inside=true, shiftout=0.01, align=FRONT, inset=15)  GeneratePart(Select_Profile = "Standard", Select_Part_Type = "Connector Rail Delete Tool", Length = depthInMM, Dimples, Rounding = "Both Sides", OnRamps = "Disabled", Dimples = "Disabled");
+        //slide lock v2
+        back(30) attach(RIGHT, BOT, inside = true, shiftout = 0.01, align=TOP+FRONT, spin=180) GeneratePart(Select_Profile = "Mini", Select_Part_Type = "Connector Double-Sided Rail", Length = 12.5, Dimples = "Disabled", Rounding = "None", OnRamps = "Disabled");
+    }
+}
+*/
+/*
 //slide lock tools
 if(ExportSlideTabs)
 xcopies(n = 2, spacing = widthInMM+slideDepth*2+30) fwd(depthInMM/2-12.5) cuboid([6 , 25,  2-slideLockTolerance], anchor=BOT);
-
+*/
 //drawer stop snaps
 if(ExportStopSnaps)
-ycopies(n = 2, spacing= 25) move([widthInMM/2+50,-depthInMM/2+50,0]) snapConnectBacker(offset=1, anchor=BOT)
+ycopies(n = 2, spacing= 25) move([widthInMM/2+50+20,-depthInMM/2+50,0]) snapConnectBacker(offset=1, anchor=BOT)
     attach(TOP, BOT, align=FRONT, shiftout=-0.1) cuboid([6, 4, 4+drawerPlateClearance], chamfer=0.5, edges=TOP);
 
 
@@ -233,6 +273,7 @@ BEGIN MODULES
 */
 
 //BEGIN MODULES
+//old version of multiconnectModule
 module multiconnectBacker(width, height, slotType = "Backer", distanceBetweenSlots = 25, onRampEnabled = true, onRampEveryNSlots = 1, onRampOffsetNSlots = 0, slotTolerance = 1, slotVerticalOffset = 0, backerThickness = 6.5, slotOrientation = "Vertical", slotDimple = true, dimpleScale = 1, dimpleEveryNSlots = 1, dimpleOffset = 0, dimpleCount = 999, centerMulticonnect=centerMulticonnect, onRampPassthruEnabled = onRampPassthruEnabled, anchor=CENTER, spin=0, orient=UP){
     attachable(anchor, spin, orient, size=[width, backerThickness, height]*slotTolerance){ 
     //Backer type
@@ -407,3 +448,204 @@ module snapConnectBacker(offset = 0, holdingTolerance=1, anchor=CENTER, spin=0, 
     }
     
 }
+
+//
+//BEGIN Multiconnect Modules and Functions
+//
+module GeneratePart(Select_Profile, Select_Part_Type, Length, Dimples, OnRamps = "Enabled", Rounding, anchor=CENTER, spin=0, orient=UP){
+    
+
+    //unadjusted cordinates, dimple size, default offset
+    //customSpecs = [Radius, Depth1, Depth2, Depth3, Offset, DimpleSize];
+    standardSpecs = [10, 1, 2.5, 0.5, 0.15, 1.5];
+    jrSpecs = [5, 0.6, 1.2, 0.4, 0.16, 0.8];
+    miniSpecs = [3.2, 1, 1.2, 0.4, 0.16, 0.8];
+    multipointBeta = [7.9, 0.4, 2.2, 0.4, 0.15, 0.8];
+
+
+    dimplesEnabled = 
+    Dimples == "Enabled" ? true : 
+    false;
+
+    onRampEnabled = 
+        OnRamps == "Enabled" ? true : 
+        false; 
+
+    onRampEveryNHoles = OnRamp_Every_n_Holes * Grid_Size;
+    onRampOffset = OnRamp_Start_Offset * Grid_Size;
+
+    //if part is intended for a receiver, apply offset
+    isOffset = 
+        Select_Part_Type == "Receiver Open-Ended" ? true : 
+        Select_Part_Type == "Receiver Passthrough" ? true :
+        Select_Part_Type == "Connector Rail Delete Tool" ? true :
+        Select_Part_Type == "Backer Open-Ended" ? true :
+        Select_Part_Type == "Backer Passthrough" ? true :
+        false;
+
+    profile = 
+        Select_Profile == "Standard" ? [dimensionsToCoords(standardSpecs[0], standardSpecs[1], standardSpecs[2], standardSpecs[3], isOffset ? standardSpecs[4] : 0), standardSpecs[5]] :
+        Select_Profile == "Jr." ? [dimensionsToCoords(jrSpecs[0], jrSpecs[1], jrSpecs[2], jrSpecs[3], isOffset ? jrSpecs[4] : 0), jrSpecs[5]] :
+        Select_Profile == "Mini" ? [dimensionsToCoords(miniSpecs[0], miniSpecs[1], miniSpecs[2], miniSpecs[3], isOffset ? miniSpecs[4] : 0), miniSpecs[5]] :
+        Select_Profile == "Multipoint Beta" ? [dimensionsToCoords(multipointBeta[0], multipointBeta[1], multipointBeta[2], multipointBeta[3], isOffset ? multipointBeta[4] : 0), multipointBeta[5]] :
+        Select_Profile == "Custom" ? [dimensionsToCoords(customSpecs[0], customSpecs[1], customSpecs[2], customSpecs[3], isOffset ? customSpecs[4] : 0), customSpecs[5]] :
+        [];
+    
+    if(Select_Part_Type == "Connector Round"){
+        //echo(str("Generating: ", Select_Part_Type));
+        rail(0,profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size, spin=[90,0,0], anchor=FRONT)
+            attach([TOP, BOT], BOT, overlap=0.01)
+                roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);       
+    }
+    else if(Select_Part_Type == "Connector Rail"){
+        //echo(str("Generating: ", Select_Part_Type));
+        rail(Length, profile[0], onRampEnabled = onRampEnabled, dimpleSize = profile[1], dimplesEnabled = dimplesEnabled, dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size)
+            if(Rounding != "None")
+                attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
+                    roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);
+    }
+    else if(Select_Part_Type == "Connector Double sided Round"){
+        //echo(str("Generating: ", Select_Part_Type));
+        rail(0,profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size, spin=[90,0,0], anchor=FRONT)
+                        attach([TOP, BOT], BOT, overlap=0.01)
+                            roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale)
+                            attach(FRONT, FRONT, overlap=0.01)
+                                roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);
+    }
+    else if(Select_Part_Type == "Connector Double-Sided Rail"){
+        rail(Length,profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size, spin=180){
+            if(Rounding != "None")
+                attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
+                    roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);
+                attach(FRONT, FRONT, overlap=0.01)
+                    rail(Length,profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size)
+                    if(Rounding != "None")
+                        attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
+                            roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);
+                }
+    }
+    else if(Select_Part_Type == "Receiver Open-Ended"){
+        diff(){
+            cuboid([maxX(profile[0])*2+Receiver_Side_Wall_Thickness*2, maxY(profile[0])+Receiver_Back_Thickness, Length])
+                attach(BACK, FRONT, inside=true, shiftout=0.01, align=TOP, inset=maxX(profile[0])+Receiver_Top_Wall_Thickness) 
+                    rail(Length+0.04, profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size){
+                        if(Rounding != "None"){
+                            attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
+                                roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);
+                        }
+                        //onramp
+                        if(onRampEnabled==true) attach(BACK, TOP, inside=true, align=TOP, shiftout=0.02, inset=-maxX(profile[0])+onRampEveryNHoles+onRampOffset) ycopies(n = Length/onRampEveryNHoles+1, spacing = -onRampEveryNHoles, sp=[0,0,0]) cylinder(h = maxY(profile[0])+0.04, r1 = maxX(profile[0])+1.5, r2 = maxX(profile[0]));
+                    }
+            }
+    }
+    else if(Select_Part_Type == "Backer Open-Ended"){
+        diff(){
+            cuboid([Width, maxY(profile[0])+Receiver_Back_Thickness, Length])
+                    attach(BACK, FRONT, inside=true, shiftout=0.01, align=TOP, inset=maxX(profile[0])+Receiver_Top_Wall_Thickness) 
+                    xcopies(n=floor(Width/Grid_Size), spacing = Grid_Size) 
+                        rail(Length+0.04, profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size){
+                            if(Rounding != "None"){
+                                attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
+                                    roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);
+                            }
+                            //onramp
+                            if(onRampEnabled==true) attach(BACK, TOP, inside=true, align=TOP, shiftout=0.02, inset=-maxX(profile[0])+onRampEveryNHoles+onRampOffset) ycopies(n = Length/onRampEveryNHoles+1, spacing = -onRampEveryNHoles, sp=[0,0,0]) cylinder(h = maxY(profile[0])+0.04, r1 = maxX(profile[0])+1.5, r2 = maxX(profile[0]));
+                    }
+            }
+    }
+    else if(Select_Part_Type == "Backer Passthrough"){
+        diff(){
+            cuboid([Width, maxY(profile[0])+Receiver_Back_Thickness, Length])
+                attach(BACK, FRONT, inside=true, shiftout=0.01) 
+                xcopies(n=floor(Width/Grid_Size), spacing = Grid_Size) 
+                rail(Length+0.04, profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size){
+                    if(Rounding != "None")
+                        attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
+                            roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);
+                //onramp
+                if(onRampEnabled==true) attach(BACK, TOP, inside=true, align=TOP, shiftout=0.02, inset=-maxX(profile[0])+onRampOffset) ycopies(n = Length/onRampEveryNHoles+1, spacing = -onRampEveryNHoles, sp=[0,0,0]) cylinder(h = maxY(profile[0])+0.04, r1 = maxX(profile[0])+1.5, r2 = maxX(profile[0]));
+
+                }
+            }
+    }
+    else if(Select_Part_Type == "Receiver Passthrough"){
+        diff(){
+            cuboid([maxX(profile[0])*2+Receiver_Side_Wall_Thickness*2, maxY(profile[0])+Receiver_Back_Thickness, Length])
+                attach(BACK, FRONT, inside=true, shiftout=0.01) rail(Length+0.04, profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size){
+                    if(Rounding != "None")
+                        attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
+                            roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);
+                //onramp
+                if(onRampEnabled==true) attach(BACK, TOP, inside=true, align=TOP, shiftout=0.02, inset=-maxX(profile[0])+onRampOffset) ycopies(n = Length/onRampEveryNHoles+1, spacing = -onRampEveryNHoles, sp=[0,0,0]) cylinder(h = maxY(profile[0])+0.04, r1 = maxX(profile[0])+1.5, r2 = maxX(profile[0]));
+
+                }
+            }
+    }
+    else if(Select_Part_Type == "Connector Rail Delete Tool"){
+        //echo(str("Generating: ", Select_Part_Type));
+        rail(Length, profile[0], onRampEnabled = onRampEnabled, dimpleSize = profile[1], dimplesEnabled = dimplesEnabled, dimpleScale = Dimple_Scale, distanceBetweenDimples = Grid_Size){
+            if(Rounding != "None")
+                attach(Rounding ==  "Both Sides" ? [TOP, BOT] : TOP, BOT, overlap=0.01)
+                    roundedEnd(profile[0], dimplesEnabled = dimplesEnabled, dimpleSize = profile[1], dimpleScale = Dimple_Scale);
+            if(onRampEnabled==true) attach(BACK, TOP, inside=true, align=TOP, shiftout=0.02, inset=-maxX(profile[0])+onRampOffset) ycopies(n = Length/onRampEveryNHoles+1, spacing = -onRampEveryNHoles, sp=[0,0,0]) cylinder(h = maxY(profile[0])+0.04, r1 = maxX(profile[0])+1.5, r2 = maxX(profile[0]));
+        }
+    }
+}
+
+module roundedEnd(profile, dimplesEnabled = true, dimpleSize = 1.5, dimpleScale = 1, anchor=CENTER, spin=0, orient=UP){
+    attachable(anchor, spin, orient, size=[maxX(profile)*2,maxY(profile),maxX(profile)]){
+        //align to anchors
+        down(maxX(profile)/2) back(maxY(profile)/2)
+            top_half()
+            rotate(a = [90,0,0]) 
+                difference(){
+                    //rail
+                    rotate_extrude($fn=25) 
+                        polygon(points = profile);
+                    //dimples
+                    if(dimplesEnabled == true) {
+                        down(0.01) cylinder(h = dimpleSize*dimpleScale, r1 = dimpleSize*dimpleScale, r2 = 0, $fn = 25);
+                    }                        
+                }
+        children();
+    }
+}
+
+module rail(length, profile, dimplesEnabled = true, dimpleSize = 1.5, dimpleScale = 1, distanceBetweenDimples = 25, onRampEnabled = true, onRampDistanceBetween = 50, anchor=CENTER, spin=0, orient=UP){
+    attachable(anchor, spin, orient, size=[maxX(profile)*2,maxY(profile),length]){
+        up(length/2) back(maxY(profile)/2) 
+        difference(){
+            //rail
+            rotate(a = [180,0,0]) 
+                linear_extrude(height = length) 
+                    union(){
+                        polygon(points = profile);
+                            mirror([1,0,0])
+                                polygon(points = profile);
+                    }
+            //dimples
+            if(dimplesEnabled) 
+                zcopies(n = ceil(length/distanceBetweenDimples)+1, spacing = distanceBetweenDimples, sp=[0,0,-length+length%distanceBetweenDimples]) 
+                    back(0.01)cylinder(h = dimpleSize*dimpleScale, r1 = dimpleSize*dimpleScale, r2 = 0, $fn = 25, orient=FWD);
+        }
+        children();
+    }
+}
+
+//calculate the max x and y points. Useful in calculating size of an object when the path are all positive variables originating from [0,0]
+function maxX(path) = max([for (p = path) p[0]]);
+function maxY(path) = max([for (p = path) p[1]]);
+
+//this function takes the measurements of a multiconnect-style dovetail and converts them to profile coordinates. 
+//When generating the male connector, set offsetMM to zero. Otherwise standard is 0.15 offset for delete tool
+function dimensionsToCoords(radius, depth1, depth2, depth3, offsetMM) = [
+    [0,0],
+    [radius+offsetMM, 0],
+    [radius+offsetMM,offsetMM == 0 ? depth1 : depth1+sin(45)*offsetMM*2],
+    [radius-depth2+offsetMM, offsetMM == 0 ? depth2+depth1 : depth2+depth1+sin(45)*offsetMM*2],
+    [radius-depth2+offsetMM, depth2+depth1+depth3+offsetMM],
+    [0,depth2+depth1+depth3+offsetMM]
+    ];
+//
+//END Multiconnect Modules and Functions
+//
