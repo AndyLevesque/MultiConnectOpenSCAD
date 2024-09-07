@@ -407,7 +407,3 @@ module snapConnectBacker(offset = 0, holdingTolerance=1, anchor=CENTER, spin=0, 
     }
     
 }
-
-//take a total length and divisible by and calculate the remainder
-//For example, if the total length is 81 and units are 25 each, then the excess is 5
-function excess(total, divisibleBy) = round(total - floor(total/divisibleBy)*divisibleBy);
