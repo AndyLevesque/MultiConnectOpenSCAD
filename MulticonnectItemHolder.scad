@@ -130,22 +130,22 @@ module basket() {
         //frontCaptureDeleteTool for item holders
             if (frontCutout == true)
                 translate([frontLateralCapture,internalDepth-1,frontLowerCapture])
-                    color("red") cube([internalWidth-frontLateralCapture*2,wallThickness+2,internalHeight-frontLowerCapture-frontUpperCapture+0.01]);
+                    cube([internalWidth-frontLateralCapture*2,wallThickness+2,internalHeight-frontLowerCapture-frontUpperCapture+0.01]);
             if (bottomCutout == true)
                 translate(v = [bottomSideCapture,bottomBackCapture,-baseThickness-1]) 
-                    color("orange") cube([internalWidth-bottomSideCapture*2,internalDepth-bottomFrontCapture-bottomBackCapture,baseThickness+2]);
+                    cube([internalWidth-bottomSideCapture*2,internalDepth-bottomFrontCapture-bottomBackCapture,baseThickness+2]);
                     //frontCaptureDeleteTool for item holders
             if (rightCutout == true)
                 translate([-wallThickness-1,rightLateralCapture,rightLowerCapture])
-                    color("green") cube([wallThickness+2,internalDepth-rightLateralCapture*2,internalHeight-rightLowerCapture-rightUpperCapture+0.01]);
+                    cube([wallThickness+2,internalDepth-rightLateralCapture*2,internalHeight-rightLowerCapture-rightUpperCapture+0.01]);
             if (leftCutout == true)
                 translate([internalWidth-1,leftLateralCapture,leftLowerCapture])
-                    color("blue") cube([wallThickness+2,internalDepth-leftLateralCapture*2,internalHeight-leftLowerCapture-leftUpperCapture+0.01]);
+                    cube([wallThickness+2,internalDepth-leftLateralCapture*2,internalHeight-leftLowerCapture-leftUpperCapture+0.01]);
             if (cordCutout == true) {
                 translate(v = [internalWidth/2+cordCutoutLateralOffset,internalDepth/2+cordCutoutDepthOffset,-baseThickness-1]) {
                     union(){
-                        color("purple") cylinder(h = baseThickness + frontLowerCapture + 2, r = cordCutoutDiameter/2);
-                        translate(v = [-cordCutoutDiameter/2,0,0]) color("pink") cube([cordCutoutDiameter,internalWidth/2+wallThickness+1,baseThickness + frontLowerCapture + 2]);
+                        cylinder(h = baseThickness + frontLowerCapture + 2, r = cordCutoutDiameter/2);
+                        translate(v = [-cordCutoutDiameter/2,0,0]) cube([cordCutoutDiameter,internalWidth/2+wallThickness+1,baseThickness + frontLowerCapture + 2]);
                     }
                 }
             }
@@ -167,7 +167,7 @@ module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
             //Note: I kept doing math until it looked right. It's possible this can be simplified.
             for (slotNum = [0:1:slotCount-1]) {
                 translate(v = [distanceBetweenSlots/2+(backWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.35+slotDepthMicroadjustment,backHeight-13]) {
-                    color(c = "red")  slotTool(backHeight);
+                    slotTool(backHeight);
                 }
             }
         }
@@ -197,7 +197,7 @@ module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
                     for(y = [1:onRampEveryXSlots:totalHeight/distanceBetweenSlots])
                         translate(v = [0,-5,-y*distanceBetweenSlots]) 
                             rotate(a = [-90,0,0]) 
-                                color(c = "orange") cylinder(h = 5, r1 = 12, r2 = 10.15);
+                                cylinder(h = 5, r1 = 12, r2 = 10.15);
             }
             //dimple
             if (slotQuickRelease == false)

@@ -59,7 +59,7 @@ module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
             //Note: I kept doing math until it looked right. It's possible this can be simplified.
             for (slotNum = [0:1:slotCount-1]) {
                 translate(v = [distanceBetweenSlots/2+(backWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.35+slotDepthMicroadjustment,backHeight-13]) {
-                    color(c = "red")  slotTool(backHeight);
+                    slotTool(backHeight);
                 }
             }
         }
@@ -89,7 +89,7 @@ module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
                     for(y = [1:onRampEveryXSlots:totalHeight/distanceBetweenSlots])
                         translate(v = [0,-5,-y*distanceBetweenSlots]) 
                             rotate(a = [-90,0,0]) 
-                                color(c = "orange") cylinder(h = 5, r1 = 12, r2 = 10.15);
+                                cylinder(h = 5, r1 = 12, r2 = 10.15);
             }
             //dimple
             if (slotQuickRelease == false)

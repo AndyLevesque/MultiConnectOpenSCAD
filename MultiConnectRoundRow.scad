@@ -124,13 +124,11 @@ difference() {
                         //delete tools
                         rotate([-itemAngle,0,0]) {
                             translate(v = [itemDiameter/2+distanceBetweenEach + (itemX*itemDiameter+distanceBetweenEach*itemX),itemDiameter/2+distanceBetweenEach,baseThickness]) {
-                                color(c = "red") 
                                     cylinder(h = holeDepth+1, r = itemDiameter/2, $fn = 50);
                                 //chamfer
                                 if(enableChamfer)
                                     translate(v = [0,0,holeDepth-holeChamfer]) 
-                                        color(c = "orange")
-                                            cylinder(h = itemDiameter, r1 = itemDiameter/2, r2 = itemDiameter*2, $fn = 50); 
+                                        cylinder(h = itemDiameter, r1 = itemDiameter/2, r2 = itemDiameter*2, $fn = 50); 
                             }
                         }
                 }
@@ -151,7 +149,7 @@ module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
             //Note: I kept doing math until it looked right. It's possible this can be simplified.
             for (slotNum = [0:1:slotCount-1]) {
                 translate(v = [distanceBetweenSlots/2+(backWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.35+slotDepthMicroadjustment,backHeight-13]) {
-                    color(c = "red")  slotTool(backHeight);
+                    slotTool(backHeight);
                 }
             }
         }

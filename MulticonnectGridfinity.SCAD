@@ -16,6 +16,7 @@ unitsDeep = 2;
 rimThickness = 1.5;
 baseThickness = 1.5;
 backHeight = 15+10*unitsDeep;
+removeBase = true;
 
 /*[Slot Customization]*/
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
@@ -35,7 +36,7 @@ onRampEveryXSlots = 1;
 
 
 /*[Hidden]*/
-
+adjustedBaseThickness = removeBase ? 0 : baseThickness;
 totalWidth = unitsWide*42+rimThickness*2;
 totalDepth = unitsDeep*42+rimThickness;
 
@@ -44,20 +45,20 @@ translate(v = [-totalWidth/2,-totalDepth/2])
 union(){
     translate(v = [rimThickness,0,0]) 
         gridfinity_grid(xCount = unitsWide, yCount = unitsDeep);
-    translate(v = [0,0,-baseThickness]) 
+    translate(v = [0,0,-adjustedBaseThickness]) 
         multiconnectBack(backWidth = totalWidth, backHeight = backHeight, distanceBetweenSlots = distanceBetweenSlots);
     //shelf
     difference(){
-            translate(v = [0,0,-baseThickness]) 
-                cube([totalWidth,totalDepth,4.65+baseThickness]);
+            translate(v = [0,0,-adjustedBaseThickness+0.01]) 
+                cube([totalWidth,totalDepth,4.65+adjustedBaseThickness]);
             translate(v = [rimThickness,0,0]) 
                 cube([totalWidth-rimThickness*2,totalDepth-rimThickness,6]);
     }
     //bracket
-    exposedBackHeight = backHeight-baseThickness-4.65;
-    translate(v = [rimThickness,0,backHeight-baseThickness])
+    exposedBackHeight = backHeight-adjustedBaseThickness-4.65;
+    translate(v = [rimThickness,0,backHeight-adjustedBaseThickness])
         shelfBracket(bracketHeight = exposedBackHeight, bracketDepth = exposedBackHeight,rimThickness = rimThickness);
-    translate(v = [totalWidth,0,backHeight-baseThickness])
+    translate(v = [totalWidth,0,backHeight-adjustedBaseThickness])
         shelfBracket(bracketHeight = exposedBackHeight, bracketDepth = exposedBackHeight,rimThickness = rimThickness);
 }
 
@@ -86,7 +87,6 @@ module gridfinity_base() {
             //primary profile
             translate(v = [4,38,5.65]) 
                 rotate(a = [180,0,0]) 
-                    color(c = "red") 
                     minkowski() {
                         rotate_extrude($fn=50) 
                                 polygon(points = [[0,0],[4,0],[3.3,0.7],[3.3,2.5],[1.15,4.65],[0,4.65]]);
@@ -94,14 +94,12 @@ module gridfinity_base() {
                     }
             //bottom extension bottom tool
             translate(v = [4,4,-2]) 
-                color(c = "blue") 
                     minkowski() {
                         linear_extrude(height = 1) circle(r = 4-2.85, $fn=50);
                         cube(size = [34,34,6]);
             }
             //top extension
-                translate(v = [4,4,5]) 
-                color(c = "green") 
+                translate(v = [4,4,5])
                     minkowski() {
                         linear_extrude(height = 1) circle(r = 4, $fn=50);
                         cube(size = [34,34,2]);
@@ -123,7 +121,7 @@ module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
             //Note: I kept doing math until it looked right. It's possible this can be simplified.
             for (slotNum = [0:1:slotCount-1]) {
                 translate(v = [distanceBetweenSlots/2+(backWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.35+slotDepthMicroadjustment,backHeight-13]) {
-                    color(c = "red")  slotTool(backHeight);
+                    slotTool(backHeight);
                 }
             }
         }
@@ -153,7 +151,7 @@ module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
                     for(y = [1:onRampEveryXSlots:totalHeight/distanceBetweenSlots])
                         translate(v = [0,-5,-y*distanceBetweenSlots]) 
                             rotate(a = [-90,0,0]) 
-                                color(c = "orange") cylinder(h = 5, r1 = 12, r2 = 10.15);
+                                cylinder(h = 5, r1 = 12, r2 = 10.15);
             }
             //dimple
             if (slotQuickRelease == false)
