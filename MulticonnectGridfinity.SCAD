@@ -1,4 +1,4 @@
-/*Created by Andy Levesque
+/*Created by BlackjackDuck (Andy)
 Credit to 
     @David D on Printables for Multiboard
     Jonathan at Keep Making for Multiconnect
@@ -14,9 +14,13 @@ TODO:
 unitsWide = 2;
 unitsDeep = 2;
 rimThickness = 1.5;
+additionalRimHeight = 2;
 baseThickness = 1.5;
-backHeight = 15+10*unitsDeep;
+overrideBackHeight = false;
+customBackHeight = 60;
+backHeight = overrideBackHeight ? customBackHeight : 15+15*unitsDeep;
 removeBase = true;
+bracketDepthPercentage = 50; //[0:1:100]
 
 /*[Slot Customization]*/
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
@@ -39,6 +43,7 @@ onRampEveryXSlots = 1;
 adjustedBaseThickness = removeBase ? 0 : baseThickness;
 totalWidth = unitsWide*42+rimThickness*2;
 totalDepth = unitsDeep*42+rimThickness;
+bracketDepth = totalDepth*bracketDepthPercentage/100;
 
 //begin build
 translate(v = [-totalWidth/2,-totalDepth/2]) 
@@ -50,16 +55,16 @@ union(){
     //shelf
     difference(){
             translate(v = [0,0,-adjustedBaseThickness+0.01]) 
-                cube([totalWidth,totalDepth,4.65+adjustedBaseThickness]);
+                cube([totalWidth,totalDepth,4.65+adjustedBaseThickness+additionalRimHeight]);
             translate(v = [rimThickness,0,0]) 
-                cube([totalWidth-rimThickness*2,totalDepth-rimThickness,6]);
+                cube([totalWidth-rimThickness*2-0.02,totalDepth-rimThickness-0.02,6+additionalRimHeight]);
     }
     //bracket
     exposedBackHeight = backHeight-adjustedBaseThickness-4.65;
     translate(v = [rimThickness,0,backHeight-adjustedBaseThickness])
-        shelfBracket(bracketHeight = exposedBackHeight, bracketDepth = exposedBackHeight,rimThickness = rimThickness);
+        shelfBracket(bracketHeight = exposedBackHeight, bracketDepth = bracketDepth,rimThickness = rimThickness);
     translate(v = [totalWidth,0,backHeight-adjustedBaseThickness])
-        shelfBracket(bracketHeight = exposedBackHeight, bracketDepth = exposedBackHeight,rimThickness = rimThickness);
+        shelfBracket(bracketHeight = exposedBackHeight, bracketDepth = bracketDepth,rimThickness = rimThickness);
 }
 
 module gridfinity_grid(xCount, yCount) {
