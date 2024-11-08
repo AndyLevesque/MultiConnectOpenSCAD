@@ -12,6 +12,7 @@ include <BOSL2/rounding.scad>
 
 /*[Chose Parts]*/
 Straight = true;
+L_Channel = true;
 C_Curve = true;
 Cross_Intersection = true;
 T_Intersection = true;
@@ -21,12 +22,16 @@ T_Intersection = true;
 Channel_Width_in_Units = 1;
 //height inside the channel (in mm)
 Channel_Internal_Height = 12; //[12:6:72]
+//View the parts as they attach. Note that you must disable this before exporting for printing. 
+Show_Attached = false;
 
 /*[Straight Channels]*/
-Number_of_Straight_Channels = 2;
+Straight_Copies = 1;
 //length of channel in units (default unit is 25mm)
 Channel_Length_Units = 5; 
 
+/*[L Channels]*/
+L_Channel_Length_in_Units = 2;
 
 /*[Curved Channels]*/
 Curve_Radius_in_Units = 2;
@@ -42,6 +47,12 @@ baseHeight = 9.63;
 topHeight = 10.968;
 interlockOverlap = 3.09; //distance that the top and base overlap each other
 interlockFromFloor = 6.533; //distance from the bottom of the base to the bottom of the top when interlocked
+partSeparation = 10;
+
+//Part Size Calculations
+straight_channel_Y = Grid_Size * Channel_Length_Units;
+radius_channel_Y = Grid_Size + channelWidth + (Curve_Radius_in_Units*channelWidth/2 - channelWidth/2)/2 - channelWidth/2;
+l_channel_Y = L_Channel_Length_in_Units*Grid_Size + Channel_Width_in_Units * Grid_Size / 2;
 
 /*
 
@@ -49,30 +60,56 @@ interlockFromFloor = 6.533; //distance from the bottom of the base to the bottom
 
 */
 
+if(L_Channel){
+    back(straight_channel_Y/2 + l_channel_Y/2 + partSeparation)
+    left(Show_Attached ? 0 : l_channel_Y / 2 + partSeparation/2)
+        lChannelBase(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, anchor=BOT);
+    //up(interlockFromFloor)
+    back(straight_channel_Y/2 + l_channel_Y/2 + partSeparation)
+    right(Show_Attached ? 0 : l_channel_Y / 2 + partSeparation/2)
+        lChannelTop(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient=Show_Attached ? TOP : BOT);
+}
+
+
 if(Straight){
-xcopies(n=Number_of_Straight_Channels, spacing = channelWidth+5)
-straightChannelBase(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, anchor=BOT);
-up(interlockFromFloor) straightChannelTop(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=BOT);
+    xcopies(n=Straight_Copies, spacing = Show_Attached ? channelWidth+5 : channelWidth*2 + partSeparation){
+        left(Show_Attached ? 0 : channelWidth/2)
+            straightChannelBase(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, anchor=BOT);
+        right(Show_Attached ? 0 : channelWidth/2 + 5)
+        up(Show_Attached ? interlockFromFloor : 0)
+            straightChannelTop(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient=Show_Attached ? TOP : BOT);
+    }
 }
 
 if(C_Curve){
-right(Curve_Radius_in_Units * Grid_Size + channelWidth + 5) 
-    curvedChannelBase(radiusMM = Curve_Radius_in_Units*Grid_Size, widthMM = channelWidth);
-
-right(Curve_Radius_in_Units * Grid_Size + channelWidth + 5) 
-    up(interlockFromFloor)
-    curvedChannelTop(radiusMM = Curve_Radius_in_Units*Grid_Size, widthMM = channelWidth, heightMM = Channel_Internal_Height);
+    back(straight_channel_Y / 2 + radius_channel_Y + l_channel_Y + partSeparation)
+    left(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
+        curvedChannelBase(radiusMM = Curve_Radius_in_Units*channelWidth/2, widthMM = channelWidth, anchor=BOT);
+    back(straight_channel_Y / 2 + radius_channel_Y + l_channel_Y + partSeparation)
+    right(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
+    up(Show_Attached ? interlockFromFloor : 0)
+        curvedChannelTop(radiusMM = Curve_Radius_in_Units*channelWidth/2, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor = Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
 }
 
 if(Cross_Intersection){
-//cross intersection
-left(80) crossIntersectionBase(widthMM = channelWidth, anchor=BOT);
-left(80) up(interlockFromFloor) crossIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=BOT);
+    //cross intersection
+    fwd(Channel_Length_Units*Grid_Size/2 + Grid_Size * 3 / 2 + partSeparation) 
+    left(Show_Attached ? 0 : Grid_Size * 3 / 2+5)
+        crossIntersectionBase(widthMM = channelWidth, anchor=BOT);
+    fwd(Channel_Length_Units*Grid_Size/2 + Grid_Size * 3 / 2 + partSeparation) 
+    right(Show_Attached ? 0 : Grid_Size * 3 / 2+5)
+    up(Show_Attached ? interlockFromFloor : 0) 
+        crossIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
 }
 
 if(T_Intersection){
-left(80) fwd(80)tIntersectionBase(widthMM = channelWidth, anchor=BOT);
-left(80) fwd(80) up(interlockFromFloor)tIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=BOT);
+    fwd(Channel_Length_Units*Grid_Size/2 + Grid_Size * 5 + partSeparation)  
+    left(Show_Attached ? 0 : Grid_Size * 3 / 2+5)
+        tIntersectionBase(widthMM = channelWidth, anchor=BOT);
+    fwd(Channel_Length_Units*Grid_Size/2 + Grid_Size * 5 + partSeparation)  
+    right(Show_Attached ? 0 : Grid_Size * 3 / 2+5)
+    up(Show_Attached ? interlockFromFloor : 0) 
+        tIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
 }
 
 /*
@@ -115,16 +152,40 @@ module straightChannelTopDeleteTool(lengthMM, widthMM, heightMM = 12, anchor, sp
     }
 }
 
-module curvedChannelBase(radiusMM, widthMM){
-    zrot(90) path_sweep(baseProfile(widthMM = widthMM), arc(r=radiusMM, angle = 90, n=Curve_Resolution)); 
+module lChannelBase(lengthMM = 50, widthMM = 25, anchor, spin, orient){
+    attachable(anchor, spin, orient, size=[lengthMM + widthMM/2, lengthMM + widthMM/2, baseHeight]){
+        left(lengthMM/2 + widthMM/4) fwd(lengthMM/2 - widthMM/4) down(baseHeight/2)
+        path_sweep2d(baseProfile(widthMM = widthMM), [[0,0],[lengthMM,0],[lengthMM,lengthMM]]); 
+    children();
+    }
+}
+module lChannelTop(lengthMM = 50, widthMM = 25, heightMM = 12, anchor, spin, orient){
+    attachable(anchor, spin, orient, size=[lengthMM + widthMM/2, lengthMM + widthMM/2, topHeight + (heightMM-12)]){
+        left(lengthMM/2 + widthMM/4) fwd(lengthMM/2 - widthMM/4) down(topHeight/2 + (heightMM - 12)/2)
+        path_sweep2d(topProfile(widthMM = widthMM, heightMM = heightMM), [[0,0],[lengthMM,0],[lengthMM,lengthMM]]); 
+    children();
+    }
 }
 
-module curvedChannelTop(radiusMM, widthMM, heightMM = 12){
-    zrot(90) path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), arc(r=radiusMM, angle = 90, n=Curve_Resolution)); 
+module curvedChannelBase(radiusMM, widthMM, anchor, spin, orient){
+    attachable(anchor, spin, orient, size=[Grid_Size + channelWidth + (radiusMM - channelWidth/2), Grid_Size + channelWidth + (radiusMM - channelWidth/2), baseHeight]){ //Curve_Radius_in_Units*channelWidth/2
+        fwd((Grid_Size + channelWidth + (radiusMM - channelWidth/2))/2 - channelWidth/2) 
+        left((Grid_Size + channelWidth + (radiusMM - channelWidth/2))/2) 
+        down(baseHeight/2)
+            path_sweep(baseProfile(widthMM = widthMM), turtle(["move", Grid_Size, "arcleft", radiusMM, 90, "move", Grid_Size])); 
+        children();
+    }
 }
 
-
-
+module curvedChannelTop(radiusMM, widthMM, heightMM = 12, anchor, spin, orient){
+    attachable(anchor, spin, orient, size=[Grid_Size + channelWidth + (radiusMM - channelWidth/2), Grid_Size + channelWidth + (radiusMM - channelWidth/2), topHeight]){
+        fwd((Grid_Size + channelWidth + (radiusMM - channelWidth/2))/2 - channelWidth/2) 
+        left((Grid_Size + channelWidth + (radiusMM - channelWidth/2))/2)  
+        down(topHeight/2 + (heightMM - 12)/2)
+        path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["move", Grid_Size, "arcleft", radiusMM, 90, "move", Grid_Size])); 
+        children();
+    }
+}
 
 module crossIntersectionBase(widthMM, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[Grid_Size*3, Grid_Size*3, baseHeight]){
