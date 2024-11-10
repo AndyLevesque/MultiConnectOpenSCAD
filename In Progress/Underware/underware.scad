@@ -9,6 +9,7 @@ Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attributi
 
 include <BOSL2/std.scad>
 include <BOSL2/rounding.scad>
+include <BOSL2/threading.scad>
 
 /*[Chose Parts]*/
 Straight = true;
@@ -41,6 +42,30 @@ Curve_Radius_in_Units = 2;
 Grid_Size = 25;
 Curve_Resolution = 25;
 
+/*[Small Screw]*/
+//Distance (in mm) between threads
+Pitch_Sm = 3;
+//Diameter (in mm) at the outer threads
+Outer_Diameter_Sm = 6.747;
+//Angle of the one side of the thread
+Flank_Angle_Sm = 60;
+//Depth (in mm) of the thread
+Thread_Depth_Sm = 0.5;
+//Diameter of the hole down the middle of the bolt
+Inner_Hole_Diameter_Sm = 2.5;
+
+/*[Large Screw]*/
+//Distance (in mm) between threads
+Pitch_Lg = 2.5;
+//Diameter (in mm) at the outer threads
+Outer_Diameter_Lg = 22.245;
+//Angle of the one side of the thread
+Flank_Angle_Lg = 45;
+//Depth (in mm) of the thread
+Thread_Depth_Lg = 0.75;
+//Diameter of the hole down the middle of the bolt
+Inner_Hole_Diameter_Lg = 10;
+
 /*[Hidden]*/
 channelWidth = Channel_Width_in_Units * Grid_Size;
 baseHeight = 9.63;
@@ -59,6 +84,26 @@ l_channel_Y = L_Channel_Length_in_Units*Grid_Size + Channel_Width_in_Units * Gri
 ***BEGIN DISPLAYS***
 
 */
+
+//Small MB Screw first Try
+//cyl(d=12,h=2.5, $fn=6, anchor=BOT)
+//    attach(TOP, BOT) trapezoidal_threaded_rod(d=6.75, l=10, pitch=3, flank_angle = 90-29.05, thread_depth = 0.5, $fn=50, bevel2 = true);
+
+
+//Small MB Screw based on step file
+diff()
+right(channelWidth*2)
+cyl(d=12,h=2.5, $fn=6, anchor=BOT){
+    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=10, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true);
+    tag("remove")attach(BOT, BOT, inside=true, shiftout=0.01) cyl(h=16.01, d= Inner_Hole_Diameter_Sm, $fn=25 );
+}
+
+//Large MB Screw based on step file
+diff()
+left(channelWidth*2)cyl(d=30,h=2.5, $fn=6, anchor=BOT){
+    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Lg, l=10, pitch=Pitch_Lg, flank_angle = Flank_Angle_Lg, thread_depth = Thread_Depth_Lg, $fn=50, bevel2 = true);
+    tag("remove")attach(BOT, BOT, inside=true, shiftout=0.01) cyl(h=16.01, d= Inner_Hole_Diameter_Lg, $fn=25 );
+}
 
 if(L_Channel){
     back(straight_channel_Y/2 + l_channel_Y/2 + partSeparation)
@@ -123,7 +168,8 @@ if(T_Intersection){
 module straightChannelBase(lengthMM, widthMM, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[widthMM, lengthMM, baseHeight]){
         fwd(lengthMM/2) down(maxY(baseProfileHalf)/2)
-        zrot(90) path_sweep(baseProfile(widthMM = widthMM), turtle(["xmove", lengthMM])); 
+        diff("holes")zrot(90) path_sweep(baseProfile(widthMM = widthMM), turtle(["xmove", lengthMM])) 
+        #tag("holes")  xcopies(n = lengthMM / Grid_Size, spacing = Grid_Size, sp = [12.5,0]) cyl(h=8, d=5, $fn=25);
     children();
     }
 }
