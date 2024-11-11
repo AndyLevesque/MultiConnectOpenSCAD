@@ -15,8 +15,10 @@ include <BOSL2/threading.scad>
 Straight = true;
 L_Channel = true;
 C_Curve = true;
-Cross_Intersection = true;
+X_Intersection = true;
 T_Intersection = true;
+Small_Screw = true;
+Large_Screw = true;
 
 /*[All Channels]*/
 //width of channel in units (default unit is 25mm)
@@ -25,6 +27,9 @@ Channel_Width_in_Units = 1;
 Channel_Internal_Height = 12; //[12:6:72]
 //View the parts as they attach. Note that you must disable this before exporting for printing. 
 Show_Attached = false;
+
+/*[Mounting Options]*/
+Mount_Method = "Screw"; //[Screw]
 
 /*[Straight Channels]*/
 Straight_Copies = 1;
@@ -41,6 +46,7 @@ Curve_Radius_in_Units = 2;
 //Units of measurement (in mm) for hole and length spacing. Multiboard is 25mm.
 Grid_Size = 25;
 Curve_Resolution = 25;
+Global_Color = "SlateBlue";
 
 /*[Small Screw]*/
 //Distance (in mm) between threads
@@ -51,8 +57,10 @@ Outer_Diameter_Sm = 6.747;
 Flank_Angle_Sm = 60;
 //Depth (in mm) of the thread
 Thread_Depth_Sm = 0.5;
-//Diameter of the hole down the middle of the bolt
-Inner_Hole_Diameter_Sm = 2.5;
+//Diameter of the hole down the middle of the screw
+Inner_Hole_Diameter_Sm = 3.3;
+//length of the threaded portion of small screw
+Thread_Length_Sm = 9;
 
 /*[Large Screw]*/
 //Distance (in mm) between threads
@@ -78,7 +86,8 @@ partSeparation = 10;
 straight_channel_Y = Grid_Size * Channel_Length_Units;
 radius_channel_Y = Grid_Size + channelWidth + (Curve_Radius_in_Units*channelWidth/2 - channelWidth/2)/2 - channelWidth/2;
 l_channel_Y = L_Channel_Length_in_Units*Grid_Size + Channel_Width_in_Units * Grid_Size / 2;
-
+x_channel_X = channelWidth+Grid_Size*2;
+x_channel_Y = channelWidth+Grid_Size*2;
 /*
 
 ***BEGIN DISPLAYS***
@@ -89,27 +98,35 @@ l_channel_Y = L_Channel_Length_in_Units*Grid_Size + Channel_Width_in_Units * Gri
 //cyl(d=12,h=2.5, $fn=6, anchor=BOT)
 //    attach(TOP, BOT) trapezoidal_threaded_rod(d=6.75, l=10, pitch=3, flank_angle = 90-29.05, thread_depth = 0.5, $fn=50, bevel2 = true);
 
+//!tIntersectionBase(widthMM = channelWidth) show_anchors();
 
 //Small MB Screw based on step file
+if(Small_Screw)
+color(Global_Color)
 diff()
 right(channelWidth*2)
-cyl(d=12,h=2.5, $fn=6, anchor=BOT){
-    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=10, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true);
-    tag("remove")attach(BOT, BOT, inside=true, shiftout=0.01) cyl(h=16.01, d= Inner_Hole_Diameter_Sm, $fn=25 );
+cyl(d=12,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
+    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Thread_Length_Sm, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
+    tag("remove")attach(BOT, BOT, inside=true, shiftout=0.01) cyl(h=16.01, d= Inner_Hole_Diameter_Sm, $fn=25, chamfer1=-1);
 }
 
 //Large MB Screw based on step file
+if(Large_Screw)
+color(Global_Color)
 diff()
-left(channelWidth*2)cyl(d=30,h=2.5, $fn=6, anchor=BOT){
-    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Lg, l=10, pitch=Pitch_Lg, flank_angle = Flank_Angle_Lg, thread_depth = Thread_Depth_Lg, $fn=50, bevel2 = true);
+left(channelWidth*2)
+cyl(d=30,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
+    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Lg, l=10, pitch=Pitch_Lg, flank_angle = Flank_Angle_Lg, thread_depth = Thread_Depth_Lg, $fn=50, bevel2 = true, blunt_start=false);
     tag("remove")attach(BOT, BOT, inside=true, shiftout=0.01) cyl(h=16.01, d= Inner_Hole_Diameter_Lg, $fn=25 );
 }
 
 if(L_Channel){
+color(Global_Color)
     back(straight_channel_Y/2 + l_channel_Y/2 + partSeparation)
     left(Show_Attached ? 0 : l_channel_Y / 2 + partSeparation/2)
         lChannelBase(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, anchor=BOT);
-    //up(interlockFromFloor)
+color(Global_Color)
+    up(Show_Attached ? interlockFromFloor : 0)
     back(straight_channel_Y/2 + l_channel_Y/2 + partSeparation)
     right(Show_Attached ? 0 : l_channel_Y / 2 + partSeparation/2)
         lChannelTop(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient=Show_Attached ? TOP : BOT);
@@ -117,9 +134,11 @@ if(L_Channel){
 
 
 if(Straight){
+color(Global_Color)
     xcopies(n=Straight_Copies, spacing = Show_Attached ? channelWidth+5 : channelWidth*2 + partSeparation){
         left(Show_Attached ? 0 : channelWidth/2)
             straightChannelBase(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, anchor=BOT);
+color(Global_Color)
         right(Show_Attached ? 0 : channelWidth/2 + 5)
         up(Show_Attached ? interlockFromFloor : 0)
             straightChannelTop(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient=Show_Attached ? TOP : BOT);
@@ -127,30 +146,36 @@ if(Straight){
 }
 
 if(C_Curve){
+color(Global_Color)
     back(straight_channel_Y / 2 + radius_channel_Y + l_channel_Y + partSeparation)
     left(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
         curvedChannelBase(radiusMM = Curve_Radius_in_Units*channelWidth/2, widthMM = channelWidth, anchor=BOT);
+color(Global_Color)
     back(straight_channel_Y / 2 + radius_channel_Y + l_channel_Y + partSeparation)
     right(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
     up(Show_Attached ? interlockFromFloor : 0)
         curvedChannelTop(radiusMM = Curve_Radius_in_Units*channelWidth/2, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor = Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
 }
 
-if(Cross_Intersection){
+if(X_Intersection){
     //cross intersection
+color(Global_Color)
     fwd(Channel_Length_Units*Grid_Size/2 + Grid_Size * 3 / 2 + partSeparation) 
-    left(Show_Attached ? 0 : Grid_Size * 3 / 2+5)
+    left(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
         crossIntersectionBase(widthMM = channelWidth, anchor=BOT);
+color(Global_Color)
     fwd(Channel_Length_Units*Grid_Size/2 + Grid_Size * 3 / 2 + partSeparation) 
-    right(Show_Attached ? 0 : Grid_Size * 3 / 2+5)
+    right(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
     up(Show_Attached ? interlockFromFloor : 0) 
         crossIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
 }
 
 if(T_Intersection){
+color(Global_Color)
     fwd(Channel_Length_Units*Grid_Size/2 + Grid_Size * 5 + partSeparation)  
     left(Show_Attached ? 0 : Grid_Size * 3 / 2+5)
         tIntersectionBase(widthMM = channelWidth, anchor=BOT);
+color(Global_Color)
     fwd(Channel_Length_Units*Grid_Size/2 + Grid_Size * 5 + partSeparation)  
     right(Show_Attached ? 0 : Grid_Size * 3 / 2+5)
     up(Show_Attached ? interlockFromFloor : 0) 
@@ -165,11 +190,24 @@ if(T_Intersection){
 
 */
 
+//STRAIGHT CHANNELS
 module straightChannelBase(lengthMM, widthMM, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[widthMM, lengthMM, baseHeight]){
         fwd(lengthMM/2) down(maxY(baseProfileHalf)/2)
-        diff("holes")zrot(90) path_sweep(baseProfile(widthMM = widthMM), turtle(["xmove", lengthMM])) 
-        #tag("holes")  xcopies(n = lengthMM / Grid_Size, spacing = Grid_Size, sp = [12.5,0]) cyl(h=8, d=5, $fn=25);
+        diff("holes")
+        zrot(90) path_sweep(baseProfile(widthMM = widthMM), turtle(["xmove", lengthMM]))
+        tag("holes")  xcopies(n = lengthMM / Grid_Size, spacing = Grid_Size, sp = [Grid_Size/2,0]) 
+            cyl(h=8, d=7, $fn=25);
+    children();
+    }
+}
+
+
+
+module straightChannelTop(lengthMM, widthMM, heightMM = 12, anchor, spin, orient){
+    attachable(anchor, spin, orient, size=[widthMM, lengthMM, topHeight + (heightMM-12)]){
+        fwd(lengthMM/2) down(10.968/2 + (heightMM - 12)/2)
+        zrot(90) path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["xmove", lengthMM])); 
     children();
     }
 }
@@ -182,22 +220,15 @@ module straightChannelBaseDeleteTool(lengthMM, widthMM, anchor, spin, orient){
     }
 }
 
-module straightChannelTop(lengthMM, widthMM, heightMM = 12, anchor, spin, orient){
-    attachable(anchor, spin, orient, size=[widthMM, lengthMM, topHeight + (heightMM-12)]){
-        fwd(lengthMM/2) down(10.968/2 + (heightMM - 12)/2)
-        zrot(90) path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["xmove", lengthMM])); 
-    children();
-    }
-}
-
 module straightChannelTopDeleteTool(lengthMM, widthMM, heightMM = 12, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[widthMM, lengthMM, topHeight + (heightMM-12)]){
-        fwd(lengthMM/2) down(10.968/2 + (heightMM - 12)/2)
+        fwd(lengthMM/2) down(topHeight/2 + (heightMM - 12)/2)
         zrot(90) path_sweep(topDeleteProfile(widthMM = widthMM, heightMM = heightMM), turtle(["xmove", lengthMM])); 
     children(); 
     }
 }
 
+//L CHANNELS
 module lChannelBase(lengthMM = 50, widthMM = 25, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[lengthMM + widthMM/2, lengthMM + widthMM/2, baseHeight]){
         left(lengthMM/2 + widthMM/4) fwd(lengthMM/2 - widthMM/4) down(baseHeight/2)
@@ -213,6 +244,7 @@ module lChannelTop(lengthMM = 50, widthMM = 25, heightMM = 12, anchor, spin, ori
     }
 }
 
+//CURVED CHANNELS
 module curvedChannelBase(radiusMM, widthMM, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[Grid_Size + channelWidth + (radiusMM - channelWidth/2), Grid_Size + channelWidth + (radiusMM - channelWidth/2), baseHeight]){ //Curve_Radius_in_Units*channelWidth/2
         fwd((Grid_Size + channelWidth + (radiusMM - channelWidth/2))/2 - channelWidth/2) 
@@ -233,32 +265,46 @@ module curvedChannelTop(radiusMM, widthMM, heightMM = 12, anchor, spin, orient){
     }
 }
 
+//X CHANNELS
 module crossIntersectionBase(widthMM, anchor, spin, orient){
-    attachable(anchor, spin, orient, size=[Grid_Size*3, Grid_Size*3, baseHeight]){
-        diff()
-        zrot_copies(n=4) straightChannelBase(lengthMM = Grid_Size*3, widthMM = channelWidth)
-            attach(BOT, BOT, inside=true, overlap=0.01) straightChannelBaseDeleteTool(widthMM = channelWidth+0.02, lengthMM = Grid_Size+channelWidth);
+    attachable(anchor, spin, orient, size=[channelWidth+Grid_Size*2, channelWidth+Grid_Size*2, baseHeight]){
+        diff("channelClear holes"){
+        down(baseHeight/2)left((channelWidth/2+Grid_Size)) path_sweep(baseProfile(widthMM = widthMM), turtle(["xmove", channelWidth+Grid_Size*2]));
+        down(baseHeight/2)fwd(channelWidth/2+Grid_Size) zrot(90)path_sweep(baseProfile(widthMM = widthMM), turtle(["xmove", channelWidth+Grid_Size*2]));
+        //zrot_copies(n=4) straightChannelBase(lengthMM = Grid_Size*3, widthMM = channelWidth) //old approach with unwanted straight channel inheritance
+        tag("channelClear") zrot_copies(n=4) straightChannelBaseDeleteTool(widthMM = channelWidth+0.02, lengthMM = Grid_Size+channelWidth); 
+        tag("holes") down(4)grid_copies(spacing=Grid_Size, inside=rect([x_channel_X-1,x_channel_Y-1])) cyl(h=8, d=7, $fn=25);
+        }
         children();
     }
 }
 
 module crossIntersectionTop(widthMM, heightMM = 12, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[Grid_Size*3, Grid_Size*3, topHeight + (heightMM-12)]){
-    diff()
-    zrot_copies(n=4) straightChannelTop(lengthMM = Grid_Size*3, widthMM = channelWidth, heightMM = heightMM)
-        attach(BOT, BOT, inside=true, overlap=0.01) straightChannelTopDeleteTool(widthMM = channelWidth+0.02, lengthMM = Grid_Size+channelWidth, heightMM = heightMM);
+    down((topHeight + (heightMM-12))/2)
+    diff("channelClear"){
+        left((channelWidth/2+Grid_Size)) path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["xmove", channelWidth+Grid_Size*2]));
+        fwd(channelWidth/2+Grid_Size) zrot(90) path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["xmove", channelWidth+Grid_Size*2]));
+        tag("channelClear") zrot_copies(n=4) straightChannelTopDeleteTool(widthMM = channelWidth+0.02, lengthMM = Grid_Size+channelWidth, heightMM = heightMM, anchor=BOT); 
+    }
     children();
     }
 }
 
+//T CHANNELS
 module tIntersectionBase(widthMM, anchor, spin, orient){
-    attachable(anchor, spin, orient, size=[Grid_Size*2, Grid_Size*3, baseHeight]){
-        right(Grid_Size/2)
-        diff()
-        straightChannelBase(lengthMM = Grid_Size*3, widthMM = channelWidth){
-            attach(BOT, BOT, inside=true, overlap=0.01) straightChannelBaseDeleteTool(widthMM = channelWidth+0.02, lengthMM = Grid_Size+channelWidth);
-            attach(LEFT,FRONT, overlap=5) straightChannelBase(lengthMM = Grid_Size+5, widthMM = channelWidth)
-                attach(BOT, BOT, inside=true, overlap=0.01) straightChannelBaseDeleteTool(widthMM = channelWidth+0.02, lengthMM = Grid_Size+channelWidth);;
+    attachable(anchor, spin, orient, size=[channelWidth+Grid_Size, channelWidth+Grid_Size*2, baseHeight]){
+        down(baseHeight/2) left(channelWidth/2)
+        union(){
+        diff("channelClear holes")
+        //side channel
+        path_sweep(baseProfile(widthMM = widthMM), turtle(["move", channelWidth/2 + Grid_Size])){
+            tag("channelClear") zrot(90) fwd(channelWidth/2) straightChannelBaseDeleteTool(widthMM = channelWidth+0.02, lengthMM = channelWidth/2 + Grid_Size, anchor=BOT);
+        //long channel
+        zrot(90) left(channelWidth/2+Grid_Size)path_sweep(baseProfile(widthMM = widthMM), turtle(["move", channelWidth+Grid_Size*2]));
+        tag("channelClear") straightChannelBaseDeleteTool(widthMM = channelWidth+0.02, lengthMM = channelWidth+Grid_Size*2, anchor=BOT);
+        tag("holes") grid_copies(n=2+Channel_Width_in_Units, spacing=Grid_Size) cyl(h=8, d=7, $fn=25);
+        }
         }
         children();
     }
