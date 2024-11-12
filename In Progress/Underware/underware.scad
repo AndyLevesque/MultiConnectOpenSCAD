@@ -196,8 +196,7 @@ module straightChannelBase(lengthMM, widthMM, anchor, spin, orient){
         fwd(lengthMM/2) down(maxY(baseProfileHalf)/2)
         diff("holes")
         zrot(90) path_sweep(baseProfile(widthMM = widthMM), turtle(["xmove", lengthMM]))
-        tag("holes")  xcopies(n = lengthMM / Grid_Size, spacing = Grid_Size, sp = [Grid_Size/2,0]) 
-            cyl(h=8, d=7, $fn=25);
+        tag("holes")  right(lengthMM/2)grid_copies(spacing=Grid_Size, inside=rect([lengthMM-1,widthMM-1])) cyl(h=8, d=7, $fn=25);
     children();
     }
 }
