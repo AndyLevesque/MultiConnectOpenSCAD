@@ -258,10 +258,16 @@ module lChannelTop(lengthMM = 50, widthMM = 25, heightMM = 12, anchor, spin, ori
 //CURVED CHANNELS
 module curvedChannelBase(radiusMM, widthMM, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[Grid_Size + channelWidth + (radiusMM - channelWidth/2), Grid_Size + channelWidth + (radiusMM - channelWidth/2), baseHeight]){ //Curve_Radius_in_Units*channelWidth/2
+        let(adjustedWidth = Grid_Size + channelWidth + (radiusMM - channelWidth/2))
         fwd((Grid_Size + channelWidth + (radiusMM - channelWidth/2))/2 - channelWidth/2) 
         left((Grid_Size + channelWidth + (radiusMM - channelWidth/2))/2) 
         down(baseHeight/2)
-            path_sweep(baseProfile(widthMM = widthMM), turtle(["move", Grid_Size, "arcleft", radiusMM, 90, "move", Grid_Size])); 
+            diff("holes"){
+                path_sweep(baseProfile(widthMM = widthMM), turtle(["move", Grid_Size, "arcleft", radiusMM, 90, "move", Grid_Size])) {
+                    tag("holes") ycopies(spacing = Grid_Size, n = Channel_Width_in_Units) right(Grid_Size/2) down(0.01) cyl(h=8, d=7, $fn=25, anchor=BOT);
+                    tag("holes") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) right(Grid_Size + channelWidth/2 + (radiusMM - channelWidth/2)) back(channelWidth/2 + Grid_Size/2 + (radiusMM - channelWidth/2)) down(0.01) cyl(h=8, d=7, $fn=25, anchor=BOT);
+                }
+            }
         children();
     }
 }
