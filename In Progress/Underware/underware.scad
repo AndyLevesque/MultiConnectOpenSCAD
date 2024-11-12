@@ -46,7 +46,7 @@ Curve_Radius_in_Units = 2;
 //Units of measurement (in mm) for hole and length spacing. Multiboard is 25mm.
 Grid_Size = 25;
 Curve_Resolution = 25;
-Global_Color = "SlateBlue";
+Global_Color = "SlateBlue"; //SlateBlue
 
 /*[Small Screw]*/
 //Distance (in mm) between threads
@@ -98,7 +98,7 @@ x_channel_Y = channelWidth+Grid_Size*2;
 //cyl(d=12,h=2.5, $fn=6, anchor=BOT)
 //    attach(TOP, BOT) trapezoidal_threaded_rod(d=6.75, l=10, pitch=3, flank_angle = 90-29.05, thread_depth = 0.5, $fn=50, bevel2 = true);
 
-//!tIntersectionBase(widthMM = channelWidth) show_anchors();
+//!tIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height) show_anchors();
 
 //Small MB Screw based on step file
 if(Small_Screw)
@@ -160,11 +160,11 @@ color(Global_Color)
 if(X_Intersection){
     //cross intersection
 color(Global_Color)
-    fwd(Channel_Length_Units*Grid_Size/2 + Grid_Size * 3 / 2 + partSeparation) 
+    fwd(straight_channel_Y / 2 + x_channel_Y/2 + partSeparation) 
     left(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
         crossIntersectionBase(widthMM = channelWidth, anchor=BOT);
 color(Global_Color)
-    fwd(Channel_Length_Units*Grid_Size/2 + Grid_Size * 3 / 2 + partSeparation) 
+    fwd(straight_channel_Y / 2 + x_channel_Y/2 + partSeparation) 
     right(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
     up(Show_Attached ? interlockFromFloor : 0) 
         crossIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
@@ -172,12 +172,12 @@ color(Global_Color)
 
 if(T_Intersection){
 color(Global_Color)
-    fwd(Channel_Length_Units*Grid_Size/2 + Grid_Size * 5 + partSeparation)  
-    left(Show_Attached ? 0 : Grid_Size * 3 / 2+5)
+    fwd(straight_channel_Y / 2 + x_channel_Y*1.75 + partSeparation)  
+    left(Show_Attached ? 0 : x_channel_X / 4 + partSeparation)
         tIntersectionBase(widthMM = channelWidth, anchor=BOT);
 color(Global_Color)
-    fwd(Channel_Length_Units*Grid_Size/2 + Grid_Size * 5 + partSeparation)  
-    right(Show_Attached ? 0 : Grid_Size * 3 / 2+5)
+    fwd(straight_channel_Y / 2 + x_channel_Y*1.75 + partSeparation)  
+    right(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
     up(Show_Attached ? interlockFromFloor : 0) 
         tIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
 }
@@ -312,12 +312,15 @@ module tIntersectionBase(widthMM, anchor, spin, orient){
 
 module tIntersectionTop(widthMM, heightMM, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[Grid_Size*2, Grid_Size*3, topHeight + (heightMM-12)]){
-        right(Grid_Size/2)
-        diff()
-        straightChannelTop(lengthMM = Grid_Size*3, widthMM = channelWidth, heightMM = heightMM){
-            attach(BOT, BOT, inside=true, overlap=0.01) straightChannelTopDeleteTool(widthMM = channelWidth+0.02, lengthMM = Grid_Size+channelWidth, heightMM = heightMM);
-            attach(LEFT,FRONT, overlap=5) straightChannelTop(lengthMM = Grid_Size+5, widthMM = channelWidth, heightMM = heightMM)
-                attach(BOT, BOT, inside=true, overlap=0.01) straightChannelTopDeleteTool(widthMM = channelWidth+0.02, lengthMM = Grid_Size+channelWidth, heightMM = heightMM);;
+        down((topHeight + (heightMM-12))/2)
+        diff("channelClear")
+        //side channel
+        path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["move", channelWidth/2 + Grid_Size])){
+            tag("channelClear") zrot(90) fwd(channelWidth/2) straightChannelTopDeleteTool(widthMM = channelWidth+0.02, lengthMM = channelWidth/2 + Grid_Size, heightMM = heightMM, anchor=BOT);
+        //long channel
+        zrot(90) left(channelWidth/2+Grid_Size)path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["move", channelWidth+Grid_Size*2]));
+            tag("channelClear") straightChannelTopDeleteTool(widthMM = channelWidth+0.02, lengthMM = channelWidth+Grid_Size*2, heightMM = heightMM, anchor=BOT);
+
         }
         children();
     }
