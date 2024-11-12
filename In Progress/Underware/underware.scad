@@ -37,7 +37,7 @@ Straight_Copies = 1;
 Channel_Length_Units = 5; 
 
 /*[L Channels]*/
-L_Channel_Length_in_Units = 2;
+L_Channel_Length_in_Units = 1;
 
 /*[Curved Channels]*/
 Curve_Radius_in_Units = 2;
@@ -85,7 +85,7 @@ partSeparation = 10;
 //Part Size Calculations
 straight_channel_Y = Grid_Size * Channel_Length_Units;
 radius_channel_Y = Grid_Size + channelWidth + (Curve_Radius_in_Units*channelWidth/2 - channelWidth/2)/2 - channelWidth/2;
-l_channel_Y = L_Channel_Length_in_Units*Grid_Size + Channel_Width_in_Units * Grid_Size / 2;
+l_channel_Y = channelWidth*1.5 + Grid_Size * L_Channel_Length_in_Units;
 x_channel_X = channelWidth+Grid_Size*2;
 x_channel_Y = channelWidth+Grid_Size*2;
 /*
@@ -97,8 +97,11 @@ x_channel_Y = channelWidth+Grid_Size*2;
 //Small MB Screw first Try
 //cyl(d=12,h=2.5, $fn=6, anchor=BOT)
 //    attach(TOP, BOT) trapezoidal_threaded_rod(d=6.75, l=10, pitch=3, flank_angle = 90-29.05, thread_depth = 0.5, $fn=50, bevel2 = true);
-
+//!tIntersectionBase(widthMM = channelWidth) show_anchors();
 //!tIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height) show_anchors();
+//!lChannelBase(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size) show_anchors();
+//!lChannelTop(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height) show_anchors();
+
 
 //Small MB Screw based on step file
 if(Small_Screw)
@@ -123,13 +126,13 @@ cyl(d=30,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
 if(L_Channel){
 color(Global_Color)
     back(straight_channel_Y/2 + l_channel_Y/2 + partSeparation)
-    left(Show_Attached ? 0 : l_channel_Y / 2 + partSeparation/2)
-        lChannelBase(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, anchor=BOT);
+    left(Show_Attached ? 0 : partSeparation)
+        lChannelBase(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, anchor=Show_Attached ? BOT : BOT+RIGHT);
 color(Global_Color)
     up(Show_Attached ? interlockFromFloor : 0)
     back(straight_channel_Y/2 + l_channel_Y/2 + partSeparation)
-    right(Show_Attached ? 0 : l_channel_Y / 2 + partSeparation/2)
-        lChannelTop(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient=Show_Attached ? TOP : BOT);
+    right(Show_Attached ? 0 : partSeparation)
+        lChannelTop(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height, anchor= Show_Attached ? BOT : TOP+RIGHT, orient=Show_Attached ? TOP : BOT);
 }
 
 
@@ -173,13 +176,13 @@ color(Global_Color)
 if(T_Intersection){
 color(Global_Color)
     fwd(straight_channel_Y / 2 + x_channel_Y*1.75 + partSeparation)  
-    left(Show_Attached ? 0 : x_channel_X / 4 + partSeparation)
-        tIntersectionBase(widthMM = channelWidth, anchor=BOT);
+    left(Show_Attached ? 0 : partSeparation)
+        tIntersectionBase(widthMM = channelWidth, anchor=Show_Attached ? BOT : BOT+RIGHT);
 color(Global_Color)
     fwd(straight_channel_Y / 2 + x_channel_Y*1.75 + partSeparation)  
-    right(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
+    right(Show_Attached ? 0 : partSeparation)
     up(Show_Attached ? interlockFromFloor : 0) 
-        tIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
+        tIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP+RIGHT, orient= Show_Attached ? TOP : BOT);
 }
 
 /*
@@ -229,16 +232,22 @@ module straightChannelTopDeleteTool(lengthMM, widthMM, heightMM = 12, anchor, sp
 
 //L CHANNELS
 module lChannelBase(lengthMM = 50, widthMM = 25, anchor, spin, orient){
-    attachable(anchor, spin, orient, size=[lengthMM + widthMM/2, lengthMM + widthMM/2, baseHeight]){
-        left(lengthMM/2 + widthMM/4) fwd(lengthMM/2 - widthMM/4) down(baseHeight/2)
-        path_sweep2d(baseProfile(widthMM = widthMM), [[0,0],[lengthMM,0],[lengthMM,lengthMM]]); 
+    //echo(str("L Channel Width: ",widthMM));
+    //echo(str("L Channel Extension: ",lengthMM));
+    attachable(anchor, spin, orient, size=[widthMM+lengthMM, widthMM+lengthMM, baseHeight]){
+        let(calculatedPath = widthMM/2+lengthMM)
+        left(widthMM/2+lengthMM/2) fwd(lengthMM/2)
+        down(baseHeight/2)
+        path_sweep2d(baseProfile(widthMM = widthMM), turtle(["move", calculatedPath, "turn", 90, "move",calculatedPath] )); 
     children();
     }
 }
 module lChannelTop(lengthMM = 50, widthMM = 25, heightMM = 12, anchor, spin, orient){
-    attachable(anchor, spin, orient, size=[lengthMM + widthMM/2, lengthMM + widthMM/2, topHeight + (heightMM-12)]){
-        left(lengthMM/2 + widthMM/4) fwd(lengthMM/2 - widthMM/4) down(topHeight/2 + (heightMM - 12)/2)
-        path_sweep2d(topProfile(widthMM = widthMM, heightMM = heightMM), [[0,0],[lengthMM,0],[lengthMM,lengthMM]]); 
+    attachable(anchor, spin, orient, size=[widthMM+lengthMM, widthMM+lengthMM, topHeight + (heightMM-12)]){
+        let(calculatedPath = widthMM/2+lengthMM)
+        left(widthMM/2+lengthMM/2) fwd(lengthMM/2) 
+        down(topHeight/2 + (heightMM - 12)/2)
+        path_sweep2d(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["move", calculatedPath, "turn", 90, "move",calculatedPath] )); 
     children();
     }
 }
@@ -293,7 +302,8 @@ module crossIntersectionTop(widthMM, heightMM = 12, anchor, spin, orient){
 //T CHANNELS
 module tIntersectionBase(widthMM, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[channelWidth+Grid_Size, channelWidth+Grid_Size*2, baseHeight]){
-        down(baseHeight/2) left(channelWidth/2)
+        down(baseHeight/2) 
+        left(Grid_Size/2)
         union(){
         diff("channelClear holes")
         //side channel
@@ -310,8 +320,8 @@ module tIntersectionBase(widthMM, anchor, spin, orient){
 }
 
 module tIntersectionTop(widthMM, heightMM, anchor, spin, orient){
-    attachable(anchor, spin, orient, size=[Grid_Size*2, Grid_Size*3, topHeight + (heightMM-12)]){
-        down((topHeight + (heightMM-12))/2)
+    attachable(anchor, spin, orient, size=[channelWidth+Grid_Size, channelWidth+Grid_Size*2, topHeight + (heightMM-12)]){
+        down((topHeight + (heightMM-12))/2) left(Grid_Size/2)
         diff("channelClear")
         //side channel
         path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["move", channelWidth/2 + Grid_Size])){
