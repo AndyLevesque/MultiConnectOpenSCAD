@@ -238,7 +238,10 @@ module lChannelBase(lengthMM = 50, widthMM = 25, anchor, spin, orient){
         let(calculatedPath = widthMM/2+lengthMM)
         left(widthMM/2+lengthMM/2) fwd(lengthMM/2)
         down(baseHeight/2)
-        path_sweep2d(baseProfile(widthMM = widthMM), turtle(["move", calculatedPath, "turn", 90, "move",calculatedPath] )); 
+        diff("holes"){
+            path_sweep2d(baseProfile(widthMM = widthMM), turtle(["move", calculatedPath, "turn", 90, "move",calculatedPath] )); 
+            tag("holes") right(widthMM/2+lengthMM/2) back(lengthMM/2) grid_copies(spacing=Grid_Size, inside=rect([widthMM+lengthMM-1,widthMM+lengthMM-1])) cyl(h=8, d=7, $fn=25);
+        }
     children();
     }
 }
