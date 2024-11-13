@@ -11,15 +11,7 @@ include <BOSL2/std.scad>
 include <BOSL2/rounding.scad>
 include <BOSL2/threading.scad>
 
-/*[Chose Parts]*/
-Straight = true;
-L_Channel = true;
-C_Curve = true;
-X_Intersection = true;
-T_Intersection = true;
-//Threaded_Snap_Connector = true;
-//Small_Screw = false;
-//Large_Screw = false;
+
 
 /*[Mounting Options]*/
 Mounting_Method = "Threaded Snap Connector (Recommended)"; //[Direct Screw]
@@ -52,9 +44,24 @@ Grid_Size = 25;
 Curve_Resolution = 25;
 Global_Color = "SlateBlue"; //SlateBlue
 
+/*[Chose Parts]*/
+Straight = true;
+L_Channel = false;
+C_Curve = false;
+X_Intersection = false;
+T_Intersection = false;
+//Threaded_Snap_Connector = true;
+//Small_Screw = false;
+//Large_Screw = false;
 
-
-
+/*[Label]*/
+Add_Label = false;
+Text = "Hands on Katie";  // Text to be displayed
+Text_x_coordinate = 0;  // Adjusting the x position of the text
+Font = "Raleway"; // [Asap, Bangers, Changa One, Chewy, Harmony OS Sans,Inter,Inter Tight,Lora,Merriweather Sans,Montserrat,Noto Emoji,Noto Sans,Noto Sans Adlam,Noto Sans Adlam Unjoined,Noto Sans Arabic,Noto Sans Arabic UI,Noto Sans Armenian,Noto Sans Balinese,Noto Sans Bamum,Noto Sans Bassa Vah,Noto Sans Bengali,Noto Sans Bengali UI,Noto Sans Canadian Aboriginal,Noto Sans Cham,Noto Sans Cherokee,Noto Sans Devanagari,Noto Sans Display,Noto Sans Ethiopic,Noto Sans Georgian,Noto Sans Gujarati,Noto Sans Gunjala Gondi,Noto Sans Gurmukhi,Noto Sans Gurmukhi UI,Noto Sans HK,Noto Sans Hanifi Rohingya,Noto Sans Hebrew,Noto Sans JP,Noto Sans Javanese,Noto Sans KR,Noto Sans Kannada,Noto Sans Kannada UI,Noto Sans Kawi,Noto Sans Kayah Li,Noto Sans Khmer,Noto Sans Khmer UI,Noto Sans Lao,Noto Sans Lao Looped,Noto Sans Lao UI,Noto Sans Lisu,Noto Sans Malayalam,Noto Sans Malayalam UI,Noto Sans Medefaidrin,Noto Sans Meetei Mayek,Noto Sans Mono,Noto Sans Myanmar,Noto Sans NKo Unjoined,Noto Sans Nag Mundari,Noto Sans New Tai Lue,Noto Sans Ol Chiki,Noto Sans Oriya,Noto Sans SC,Noto Sans Sinhala,Noto Sans Sinhala UI,Noto Sans Sora Sompeng,Noto Sans Sundanese,Noto Sans Symbols,Noto Sans Syriac,Noto Sans Syriac Eastern,Noto Sans TC,Noto Sans Tai Tham,Noto Sans Tamil,Noto Sans Tamil UI,Noto Sans Tangsa,Noto Sans Telugu,Noto Sans Telugu UI,Noto Sans Thaana,Noto Sans Thai,Noto Sans Thai UI,Noto Sans Vithkuqi,Nunito,Nunito Sans,Open Sans,Open Sans Condensed,Oswald,Playfair Display,Plus Jakarta Sans,Raleway,Roboto,Roboto Condensed,Roboto Flex,Roboto Mono,Roboto Serif,Roboto Slab,Rubik,Source Sans 3,Ubuntu Sans,Ubuntu Sans Mono,Work Sans]
+Font_Style = "Regular"; // [Regular,Bold,Medium,SemiBold,Light,ExtraBold,Black,ExtraLight,Thin,Bold Italic,Italic,Light Italic,Medium Italic]
+Text_size = 10;    // Font size
+surname_font = str(Font , ":style=", Font_Style);
 
 /*[Hidden]*/
 channelWidth = Channel_Width_in_Units * Grid_Size;
@@ -68,14 +75,9 @@ Snap_Offset = 3;
 Snap_Holding_Tolerance = 1; //[0.5:0.05:1.5]
 Snap_Thread_Height = 3.6;
 
-///*[Label]*/
-Add_Label = false;
-Text = "Hands on Katie";  // Text to be displayed
-Text_x_coordinate = 0;  // Adjusting the x position of the text
-Font = "Noto Sans SC"; // [HarmonyOS Sans, Inter, Inter Tight, Lora, Merriweather Sans, Montserrat, Noto Sans, Noto Sans SC:Noto Sans China, Noto Sans KR, Noto Emoji, Nunito, Nunito Sans, Open Sans, Open Sans Condensed, Oswald, Playfair Display, Plus Jakarta Sans, Raleway, Roboto, Roboto Condensed, Roboto Flex, Roboto Mono, Roboto Serif, Roboto Slab, Rubik, Source Sans 3, Ubuntu Sans, Ubuntu Sans Mono, Work Sans]
-Font_Style = "Regular"; // [Regular,Black,Bold,ExtraBol,ExtraLight,Light,Medium,SemiBold,Thin,Italic,Black Italic,Bold Italic,ExtraBold Italic,ExtraLight Italic,Light Italic,Medium Italic,SemiBold Italic,Thin Italic]
-Text_size = 8;    // Font size
-surname_font = str(Font , ":style=", Font_Style);
+
+
+
 
 ///*[Small Screw]*/
 //Distance (in mm) between threads
@@ -116,36 +118,7 @@ x_channel_Y = channelWidth+Grid_Size*2;
 */
 //!straightChannelTop(lengthMM = 150, widthMM = 25);
 
-/*
 
-MOUNTING PARTS
-
-*/
-
-if(Mounting_Method == "Threaded Snap Connector (Recommended)")
-    recolor(Global_Color)
-    right(channelWidth+ 25)
-    make_ThreadedSnap();
-
-//Small MB Screw based on step file
-if(Mounting_Method == "Direct Screw")
-color_this(Global_Color)
-diff()
-right(channelWidth+25) fwd(30)
-cyl(d=12,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
-    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Thread_Length_Sm, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
-    tag("remove")attach(BOT, BOT, inside=true, shiftout=0.01) cyl(h=16.01, d= Inner_Hole_Diameter_Sm, $fn=25, chamfer1=-1);
-}
-
-//Large MB Screw based on step file (not used yet)
-if(Mounting_Method == "Large Bolt")
-color_this(Global_Color)
-diff()
-right(channelWidth+25) back(30)
-cyl(d=30,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
-    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Lg, l=10, pitch=Pitch_Lg, flank_angle = Flank_Angle_Lg, thread_depth = Thread_Depth_Lg, $fn=50, bevel2 = true, blunt_start=false);
-    tag("remove")attach(BOT, BOT, inside=true, shiftout=0.01) cyl(h=16.01, d= Inner_Hole_Diameter_Lg, $fn=25 );
-}
 
 /*
 
@@ -174,10 +147,10 @@ color_this(Global_Color)
 color_this(Global_Color)
         right(Show_Attached ? 0 : channelWidth/2 + 5)
         up(Show_Attached ? interlockFromFloor : Add_Label ? 0.01 : 0)
+            diff("text")
             straightChannelTop(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient=Show_Attached ? TOP : BOT)
-                
-                if(Add_Label) recolor("Pink") zrot(-90) attach(TOP) //linear_extrude(height = 0.02)
-                text3d(Text, size = Text_size, h=0.01, font = surname_font, atype="ycenter", anchor=CENTER);
+                if(Add_Label) tag("text") recolor("Pink") zrot(-90) attach(TOP) //linear_extrude(height = 0.02)
+                text3d(Text, size = Text_size, h=0.05, font = surname_font, atype="ycenter", anchor=CENTER);
     }
 }
 
@@ -216,6 +189,38 @@ color_this(Global_Color)
     right(Show_Attached ? 0 : partSeparation)
     up(Show_Attached ? interlockFromFloor : 0) 
         tIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP+RIGHT, orient= Show_Attached ? TOP : BOT);
+}
+
+
+/*
+
+MOUNTING PARTS
+
+*/
+
+if(Mounting_Method == "Threaded Snap Connector (Recommended)")
+    recolor(Global_Color)
+    right(channelWidth+ 25)
+    make_ThreadedSnap(anchor=BOT);
+
+//Small MB Screw based on step file
+if(Mounting_Method == "Direct Screw")
+color_this(Global_Color)
+diff()
+right(channelWidth+25) fwd(30)
+cyl(d=12,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
+    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Thread_Length_Sm, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
+    tag("remove")attach(BOT, BOT, inside=true, shiftout=0.01) cyl(h=16.01, d= Inner_Hole_Diameter_Sm, $fn=25, chamfer1=-1);
+}
+
+//Large MB Screw based on step file (not used yet)
+if(Mounting_Method == "Large Bolt")
+color_this(Global_Color)
+diff()
+right(channelWidth+25) back(30)
+cyl(d=30,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
+    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Lg, l=10, pitch=Pitch_Lg, flank_angle = Flank_Angle_Lg, thread_depth = Thread_Depth_Lg, $fn=50, bevel2 = true, blunt_start=false);
+    tag("remove")attach(BOT, BOT, inside=true, shiftout=0.01) cyl(h=16.01, d= Inner_Hole_Diameter_Lg, $fn=25 );
 }
 
 /*
@@ -386,10 +391,12 @@ module tIntersectionTop(widthMM, heightMM, anchor, spin, orient){
     }
 }
 
-module make_ThreadedSnap (anchor=CENTER,spin=0,orient=UP){
-    snapConnectBacker(offset = 3, holdingTolerance = Snap_Holding_Tolerance) {
+module make_ThreadedSnap (offset = 3, anchor=BOT,spin=0,orient=UP){
+    attachable(anchor, spin, orient, size=[11.4465*2, 11.4465*2, 6.17+offset]){
+    snapConnectBacker(offset = offset, holdingTolerance = Snap_Holding_Tolerance) {
         attach(TOP, BOT, overlap=0.01) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Snap_Thread_Height, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=anchor,spin=spin,orient=orient);
-        children();
+    }
+    children();
     }
 }
 
