@@ -17,10 +17,15 @@ L_Channel = true;
 C_Curve = true;
 X_Intersection = true;
 T_Intersection = true;
-Small_Screw = true;
-Large_Screw = true;
+//Threaded_Snap_Connector = true;
+//Small_Screw = false;
+//Large_Screw = false;
+
+/*[Mounting Options]*/
+Mounting_Method = "Threaded Snap Connector (Recommended)"; //[Threaded Snap Connector, Direct Screw]
 
 /*[All Channels]*/
+
 //width of channel in units (default unit is 25mm)
 Channel_Width_in_Units = 1;
 //height inside the channel (in mm)
@@ -28,8 +33,7 @@ Channel_Internal_Height = 12; //[12:6:72]
 //View the parts as they attach. Note that you must disable this before exporting for printing. 
 Show_Attached = false;
 
-/*[Mounting Options]*/
-Mount_Method = "Screw"; //[Screw]
+
 
 /*[Straight Channels]*/
 Straight_Copies = 1;
@@ -81,6 +85,10 @@ topHeight = 10.968;
 interlockOverlap = 3.09; //distance that the top and base overlap each other
 interlockFromFloor = 6.533; //distance from the bottom of the base to the bottom of the top when interlocked
 partSeparation = 10;
+//mm that the snap protrudes from the board
+Snap_Offset = 3;
+Snap_Holding_Tolerance = 1; //[0.5:0.05:1.5]
+Snap_Thread_Height = 3.6;
 
 //Part Size Calculations
 straight_channel_Y = Grid_Size * Channel_Length_Units;
@@ -94,34 +102,47 @@ x_channel_Y = channelWidth+Grid_Size*2;
 
 */
 
-//Small MB Screw first Try
-//cyl(d=12,h=2.5, $fn=6, anchor=BOT)
-//    attach(TOP, BOT) trapezoidal_threaded_rod(d=6.75, l=10, pitch=3, flank_angle = 90-29.05, thread_depth = 0.5, $fn=50, bevel2 = true);
-//!tIntersectionBase(widthMM = channelWidth) show_anchors();
-//!tIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height) show_anchors();
-//!lChannelBase(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size) show_anchors();
-//!lChannelTop(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height) show_anchors();
+//snapConnectBacker(offset = 3, holdingTolerance = Snap_Holding_Tolerance)
+//    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Snap_Thread_Height, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
 
+
+
+/*
+
+MOUNTING PARTS
+
+*/
+
+if(Mounting_Method == "Threaded Snap Connector (Recommended)")
+    color(Global_Color)
+    right(channelWidth+ 25)
+    make_ThreadedSnap();
 
 //Small MB Screw based on step file
-if(Small_Screw)
+if(Mounting_Method == "Direct Screw")
 color(Global_Color)
 diff()
-right(channelWidth*2)
+right(channelWidth+25) fwd(30)
 cyl(d=12,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
     attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Thread_Length_Sm, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
     tag("remove")attach(BOT, BOT, inside=true, shiftout=0.01) cyl(h=16.01, d= Inner_Hole_Diameter_Sm, $fn=25, chamfer1=-1);
 }
 
-//Large MB Screw based on step file
-if(Large_Screw)
+//Large MB Screw based on step file (not used yet)
+if(Mounting_Method == "Large Bolt")
 color(Global_Color)
 diff()
-left(channelWidth*2)
+right(channelWidth+25) back(30)
 cyl(d=30,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
     attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Lg, l=10, pitch=Pitch_Lg, flank_angle = Flank_Angle_Lg, thread_depth = Thread_Depth_Lg, $fn=50, bevel2 = true, blunt_start=false);
     tag("remove")attach(BOT, BOT, inside=true, shiftout=0.01) cyl(h=16.01, d= Inner_Hole_Diameter_Lg, $fn=25 );
 }
+
+/*
+
+CHANNELS
+
+*/
 
 if(L_Channel){
 color(Global_Color)
@@ -190,7 +211,6 @@ color(Global_Color)
 
 ***BEGIN MODULES***
 
-
 */
 
 //STRAIGHT CHANNELS
@@ -199,7 +219,9 @@ module straightChannelBase(lengthMM, widthMM, anchor, spin, orient){
         fwd(lengthMM/2) down(maxY(baseProfileHalf)/2)
         diff("holes")
         zrot(90) path_sweep(baseProfile(widthMM = widthMM), turtle(["xmove", lengthMM]))
-        tag("holes")  right(lengthMM/2)grid_copies(spacing=Grid_Size, inside=rect([lengthMM-1,widthMM-1])) cyl(h=8, d=7, $fn=25);
+        tag("holes")  right(lengthMM/2) grid_copies(spacing=Grid_Size, inside=rect([lengthMM-1,widthMM-1])) 
+            if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+            else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
     children();
     }
 }
@@ -232,15 +254,15 @@ module straightChannelTopDeleteTool(lengthMM, widthMM, heightMM = 12, anchor, sp
 
 //L CHANNELS
 module lChannelBase(lengthMM = 50, widthMM = 25, anchor, spin, orient){
-    //echo(str("L Channel Width: ",widthMM));
-    //echo(str("L Channel Extension: ",lengthMM));
     attachable(anchor, spin, orient, size=[widthMM+lengthMM, widthMM+lengthMM, baseHeight]){
         let(calculatedPath = widthMM/2+lengthMM)
         left(widthMM/2+lengthMM/2) fwd(lengthMM/2)
         down(baseHeight/2)
         diff("holes"){
             path_sweep2d(baseProfile(widthMM = widthMM), turtle(["move", calculatedPath, "turn", 90, "move",calculatedPath] )); 
-            tag("holes") right(widthMM/2+lengthMM/2) back(lengthMM/2) grid_copies(spacing=Grid_Size, inside=rect([widthMM+lengthMM-1,widthMM+lengthMM-1])) cyl(h=8, d=7, $fn=25);
+            tag("holes") right(widthMM/2+lengthMM/2) back(lengthMM/2) grid_copies(spacing=Grid_Size, inside=rect([widthMM+lengthMM-1,widthMM+lengthMM-1])) 
+                if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+                else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
         }
     children();
     }
@@ -264,8 +286,12 @@ module curvedChannelBase(radiusMM, widthMM, anchor, spin, orient){
         down(baseHeight/2)
             diff("holes"){
                 path_sweep(baseProfile(widthMM = widthMM), turtle(["move", Grid_Size, "arcleft", radiusMM, 90, "move", Grid_Size])) {
-                    tag("holes") ycopies(spacing = Grid_Size, n = Channel_Width_in_Units) right(Grid_Size/2) down(0.01) cyl(h=8, d=7, $fn=25, anchor=BOT);
-                    tag("holes") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) right(Grid_Size + channelWidth/2 + (radiusMM - channelWidth/2)) back(channelWidth/2 + Grid_Size/2 + (radiusMM - channelWidth/2)) down(0.01) cyl(h=8, d=7, $fn=25, anchor=BOT);
+                    tag("holes") ycopies(spacing = Grid_Size, n = Channel_Width_in_Units) right(Grid_Size/2) down(0.01) 
+                        if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+                        else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
+                    tag("holes") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) right(Grid_Size + channelWidth/2 + (radiusMM - channelWidth/2)) back(channelWidth/2 + Grid_Size/2 + (radiusMM - channelWidth/2)) down(0.01) 
+                        if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+                        else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
                 }
             }
         children();
@@ -290,7 +316,9 @@ module crossIntersectionBase(widthMM, anchor, spin, orient){
         down(baseHeight/2)fwd(channelWidth/2+Grid_Size) zrot(90)path_sweep(baseProfile(widthMM = widthMM), turtle(["xmove", channelWidth+Grid_Size*2]));
         //zrot_copies(n=4) straightChannelBase(lengthMM = Grid_Size*3, widthMM = channelWidth) //old approach with unwanted straight channel inheritance
         tag("channelClear") zrot_copies(n=4) straightChannelBaseDeleteTool(widthMM = channelWidth+0.02, lengthMM = Grid_Size+channelWidth); 
-        tag("holes") down(4)grid_copies(spacing=Grid_Size, inside=rect([x_channel_X-1,x_channel_Y-1])) cyl(h=8, d=7, $fn=25);
+        tag("holes") down(4)grid_copies(spacing=Grid_Size, inside=rect([x_channel_X-1,x_channel_Y-1])) 
+            if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+            else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
         }
         children();
     }
@@ -321,7 +349,9 @@ module tIntersectionBase(widthMM, anchor, spin, orient){
         //long channel
         zrot(90) left(channelWidth/2+Grid_Size)path_sweep(baseProfile(widthMM = widthMM), turtle(["move", channelWidth+Grid_Size*2]));
         tag("channelClear") straightChannelBaseDeleteTool(widthMM = channelWidth+0.02, lengthMM = channelWidth+Grid_Size*2, anchor=BOT);
-        tag("holes") grid_copies(n=2+Channel_Width_in_Units, spacing=Grid_Size) cyl(h=8, d=7, $fn=25);
+        tag("holes") grid_copies(n=2+Channel_Width_in_Units, spacing=Grid_Size) 
+            if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+            else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
         }
         }
         children();
@@ -340,6 +370,13 @@ module tIntersectionTop(widthMM, heightMM, anchor, spin, orient){
             tag("channelClear") straightChannelTopDeleteTool(widthMM = channelWidth+0.02, lengthMM = channelWidth+Grid_Size*2, heightMM = heightMM, anchor=BOT);
 
         }
+        children();
+    }
+}
+
+module make_ThreadedSnap (anchor=CENTER,spin=0,orient=UP){
+    snapConnectBacker(offset = 3, holdingTolerance = Snap_Holding_Tolerance) {
+        attach(TOP, BOT, overlap=0.01) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Snap_Thread_Height, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=anchor,spin=spin,orient=orient);
         children();
     }
 }
@@ -447,3 +484,66 @@ function topDeleteProfileHalf(heightMM = 12)=
 //calculate the max x and y points. Useful in calculating size of an object when the path are all positive variables originating from [0,0]
 function maxX(path) = max([for (p = path) p[0]]) + abs(min([for (p = path) p[0]]));
 function maxY(path) = max([for (p = path) p[1]]) + abs(min([for (p = path) p[1]]));
+
+
+/*
+
+BEGIN SNAP CONNECTOR
+
+*/
+
+module snapConnectBacker(offset = 0, holdingTolerance=1, anchor=CENTER, spin=0, orient=UP){
+    attachable(anchor, spin, orient, size=[11.4465*2, 11.4465*2, 6.17+offset]){ 
+    //bumpout profile
+    bumpout = turtle([
+        "ymove", -2.237,
+        "turn", 40,
+        "move", 0.557,
+        "arcleft", 0.5, 50,
+        "ymove", 0.252
+        ]   );
+
+    down(6.2/2+offset/2)
+    union(){
+    diff("remove")
+        //base
+            oct_prism(h = 4.23, r = 11.4465, anchor=BOT) {
+                //first bevel
+                attach(TOP, BOT, shiftout=-0.01) oct_prism(h = 1.97, r1 = 11.4465, r2 = 12.5125, $fn =8, anchor=BOT)
+                    //top - used as offset. Independen snap height is 2.2
+                    attach(TOP, BOT, shiftout=-0.01) oct_prism(h = offset, r = 12.9885, anchor=BOTTOM);
+                        //top bevel - not used when applied as backer
+                        //position(TOP) oct_prism(h = 0.4, r1 = 12.9985, r2 = 12.555, anchor=BOTTOM);
+            
+            //end base
+            //bumpouts
+            attach([RIGHT, LEFT, FWD, BACK],LEFT, shiftout=-0.01)  color("green") down(0.87) fwd(1)scale([1,1,holdingTolerance])offset_sweep(path = bumpout, height=3, spin=[0,270,0]);
+            //delete tools
+            //Bottom and side cutout - 2 cubes that form an L (cut from bottom and from outside) and then rotated around the side
+            tag("remove") 
+                 align(BOTTOM, [RIGHT, BACK, LEFT, FWD], inside=true, shiftout=0.01, inset = 1.6) 
+                    color("lightblue") cuboid([0.8,7.161,3.4], spin=90*$idx)
+                        align(RIGHT, [TOP]) cuboid([0.8,7.161,1], anchor=BACK);
+            }
+    }
+    children();
+    }
+
+    //octo_prism - module that creates an oct_prism with anchors positioned on the faces instead of the edges (as per cyl default for 8 sides)
+    module oct_prism(h, r=0, r1=0, r2=0, anchor=CENTER, spin=0, orient=UP) {
+        attachable(anchor, spin, orient, size=[max(r*2, r1*2, r2*2), max(r*2, r1*2, r2*2), h]){ 
+            down(h/2)
+            if (r != 0) {
+                // If r is provided, create a regular octagonal prism with radius r
+                rotate (22.5) cylinder(h=h, r1=r, r2=r, $fn=8) rotate (-22.5);
+            } else if (r1 != 0 && r2 != 0) {
+                // If r1 and r2 are provided, create an octagonal prism with different top and bottom radii
+                rotate (22.5) cylinder(h=h, r1=r1, r2=r2, $fn=8) rotate (-22.5);
+            } else {
+                echo("Error: You must provide either r or both r1 and r2.");
+            }  
+            children(); 
+        }
+    }
+    
+}
