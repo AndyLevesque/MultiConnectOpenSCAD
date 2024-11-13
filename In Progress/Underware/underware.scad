@@ -123,7 +123,7 @@ MOUNTING PARTS
 */
 
 if(Mounting_Method == "Threaded Snap Connector (Recommended)")
-    color_this(Global_Color)
+    recolor(Global_Color)
     right(channelWidth+ 25)
     make_ThreadedSnap();
 
