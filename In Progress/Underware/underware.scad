@@ -52,15 +52,9 @@ Grid_Size = 25;
 Curve_Resolution = 25;
 Global_Color = "SlateBlue"; //SlateBlue
 
-/*[Label]*/
-Add_Label = true;
-Text = "Hands on Katie";  // Text to be displayed
-Text_x_coordinate = 0;  // Adjusting the x position of the text
-Font = "Noto Sans SC"; // [HarmonyOS Sans, Inter, Inter Tight, Lora, Merriweather Sans, Montserrat, Noto Sans, Noto Sans SC:Noto Sans China, Noto Sans KR, Noto Emoji, Nunito, Nunito Sans, Open Sans, Open Sans Condensed, Oswald, Playfair Display, Plus Jakarta Sans, Raleway, Roboto, Roboto Condensed, Roboto Flex, Roboto Mono, Roboto Serif, Roboto Slab, Rubik, Source Sans 3, Ubuntu Sans, Ubuntu Sans Mono, Work Sans]
-Font_Style = "Regular"; // [Regular,Black,Bold,ExtraBol,ExtraLight,Light,Medium,SemiBold,Thin,Italic,Black Italic,Bold Italic,ExtraBold Italic,ExtraLight Italic,Light Italic,Medium Italic,SemiBold Italic,Thin Italic]
-Text_size = 8;    // Font size
 
-surname_font = str(Font , ":style=", Font_Style);
+
+
 
 /*[Hidden]*/
 channelWidth = Channel_Width_in_Units * Grid_Size;
@@ -74,7 +68,14 @@ Snap_Offset = 3;
 Snap_Holding_Tolerance = 1; //[0.5:0.05:1.5]
 Snap_Thread_Height = 3.6;
 
-
+///*[Label]*/
+Add_Label = false;
+Text = "Hands on Katie";  // Text to be displayed
+Text_x_coordinate = 0;  // Adjusting the x position of the text
+Font = "Noto Sans SC"; // [HarmonyOS Sans, Inter, Inter Tight, Lora, Merriweather Sans, Montserrat, Noto Sans, Noto Sans SC:Noto Sans China, Noto Sans KR, Noto Emoji, Nunito, Nunito Sans, Open Sans, Open Sans Condensed, Oswald, Playfair Display, Plus Jakarta Sans, Raleway, Roboto, Roboto Condensed, Roboto Flex, Roboto Mono, Roboto Serif, Roboto Slab, Rubik, Source Sans 3, Ubuntu Sans, Ubuntu Sans Mono, Work Sans]
+Font_Style = "Regular"; // [Regular,Black,Bold,ExtraBol,ExtraLight,Light,Medium,SemiBold,Thin,Italic,Black Italic,Bold Italic,ExtraBold Italic,ExtraLight Italic,Light Italic,Medium Italic,SemiBold Italic,Thin Italic]
+Text_size = 8;    // Font size
+surname_font = str(Font , ":style=", Font_Style);
 
 ///*[Small Screw]*/
 //Distance (in mm) between threads
@@ -113,7 +114,7 @@ x_channel_Y = channelWidth+Grid_Size*2;
 ***BEGIN DISPLAYS***
 
 */
-!straightChannelTop(lengthMM = 150, widthMM = 25);
+//!straightChannelTop(lengthMM = 150, widthMM = 25);
 
 /*
 
@@ -122,13 +123,13 @@ MOUNTING PARTS
 */
 
 if(Mounting_Method == "Threaded Snap Connector (Recommended)")
-    color(Global_Color)
+    color_this(Global_Color)
     right(channelWidth+ 25)
     make_ThreadedSnap();
 
 //Small MB Screw based on step file
 if(Mounting_Method == "Direct Screw")
-color(Global_Color)
+color_this(Global_Color)
 diff()
 right(channelWidth+25) fwd(30)
 cyl(d=12,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
@@ -138,7 +139,7 @@ cyl(d=12,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
 
 //Large MB Screw based on step file (not used yet)
 if(Mounting_Method == "Large Bolt")
-color(Global_Color)
+color_this(Global_Color)
 diff()
 right(channelWidth+25) back(30)
 cyl(d=30,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
@@ -153,11 +154,11 @@ CHANNELS
 */
 
 if(L_Channel){
-color(Global_Color)
+color_this(Global_Color)
     back(straight_channel_Y/2 + l_channel_Y/2 + partSeparation)
     left(Show_Attached ? 0 : partSeparation)
         lChannelBase(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, anchor=Show_Attached ? BOT : BOT+RIGHT);
-color(Global_Color)
+color_this(Global_Color)
     up(Show_Attached ? interlockFromFloor : 0)
     back(straight_channel_Y/2 + l_channel_Y/2 + partSeparation)
     right(Show_Attached ? 0 : partSeparation)
@@ -166,23 +167,26 @@ color(Global_Color)
 
 
 if(Straight){
-color(Global_Color)
+color_this(Global_Color)
     xcopies(n=Straight_Copies, spacing = Show_Attached ? channelWidth+5 : channelWidth*2 + partSeparation){
         left(Show_Attached ? 0 : channelWidth/2)
             straightChannelBase(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, anchor=BOT);
-color(Global_Color)
+color_this(Global_Color)
         right(Show_Attached ? 0 : channelWidth/2 + 5)
-        up(Show_Attached ? interlockFromFloor : 0)
-            straightChannelTop(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient=Show_Attached ? TOP : BOT);
+        up(Show_Attached ? interlockFromFloor : Add_Label ? 0.01 : 0)
+            straightChannelTop(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient=Show_Attached ? TOP : BOT)
+                
+                if(Add_Label) recolor("Pink") zrot(-90) attach(TOP) //linear_extrude(height = 0.02)
+                text3d(Text, size = Text_size, h=0.01, font = surname_font, atype="ycenter", anchor=CENTER);
     }
 }
 
 if(C_Curve){
-color(Global_Color)
+color_this(Global_Color)
     back(straight_channel_Y / 2 + radius_channel_Y + l_channel_Y + partSeparation)
     left(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
         curvedChannelBase(radiusMM = Curve_Radius_in_Units*channelWidth/2, widthMM = channelWidth, anchor=BOT);
-color(Global_Color)
+color_this(Global_Color)
     back(straight_channel_Y / 2 + radius_channel_Y + l_channel_Y + partSeparation)
     right(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
     up(Show_Attached ? interlockFromFloor : 0)
@@ -191,11 +195,11 @@ color(Global_Color)
 
 if(X_Intersection){
     //cross intersection
-color(Global_Color)
+color_this(Global_Color)
     fwd(straight_channel_Y / 2 + x_channel_Y/2 + partSeparation) 
     left(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
         crossIntersectionBase(widthMM = channelWidth, anchor=BOT);
-color(Global_Color)
+color_this(Global_Color)
     fwd(straight_channel_Y / 2 + x_channel_Y/2 + partSeparation) 
     right(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
     up(Show_Attached ? interlockFromFloor : 0) 
@@ -203,11 +207,11 @@ color(Global_Color)
 }
 
 if(T_Intersection){
-color(Global_Color)
+color_this(Global_Color)
     fwd(straight_channel_Y / 2 + x_channel_Y*1.75 + partSeparation)  
     left(Show_Attached ? 0 : partSeparation)
         tIntersectionBase(widthMM = channelWidth, anchor=Show_Attached ? BOT : BOT+RIGHT);
-color(Global_Color)
+color_this(Global_Color)
     fwd(straight_channel_Y / 2 + x_channel_Y*1.75 + partSeparation)  
     right(Show_Attached ? 0 : partSeparation)
     up(Show_Attached ? interlockFromFloor : 0) 
@@ -239,11 +243,7 @@ module straightChannelBase(lengthMM, widthMM, anchor, spin, orient){
 module straightChannelTop(lengthMM, widthMM, heightMM = 12, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[widthMM, lengthMM, topHeight + (heightMM-12)]){
         fwd(lengthMM/2) down(10.968/2 + (heightMM - 12)/2)
-        zrot(90) path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["xmove", lengthMM])) 
-        if(Add_Label) 
-            color("Pink")
-            fwd(Text_size/2)attach(TOP, BOT)linear_extrude(height = 0.01)
-                text(Text, size = Text_size, font = surname_font, halign = "center", valign = "center");
+        zrot(90) path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["xmove", lengthMM]));
     children();
     }
 }
