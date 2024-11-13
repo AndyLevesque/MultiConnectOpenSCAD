@@ -22,7 +22,7 @@ T_Intersection = true;
 //Large_Screw = false;
 
 /*[Mounting Options]*/
-Mounting_Method = "Threaded Snap Connector (Recommended)"; //[Threaded Snap Connector, Direct Screw]
+Mounting_Method = "Threaded Snap Connector (Recommended)"; //[Direct Screw]
 
 /*[All Channels]*/
 
@@ -52,31 +52,15 @@ Grid_Size = 25;
 Curve_Resolution = 25;
 Global_Color = "SlateBlue"; //SlateBlue
 
-/*[Small Screw]*/
-//Distance (in mm) between threads
-Pitch_Sm = 3;
-//Diameter (in mm) at the outer threads
-Outer_Diameter_Sm = 6.747;
-//Angle of the one side of the thread
-Flank_Angle_Sm = 60;
-//Depth (in mm) of the thread
-Thread_Depth_Sm = 0.5;
-//Diameter of the hole down the middle of the screw
-Inner_Hole_Diameter_Sm = 3.3;
-//length of the threaded portion of small screw
-Thread_Length_Sm = 9;
+/*[Label]*/
+Add_Label = true;
+Text = "Hands on Katie";  // Text to be displayed
+Text_x_coordinate = 0;  // Adjusting the x position of the text
+Font = "Noto Sans SC"; // [HarmonyOS Sans, Inter, Inter Tight, Lora, Merriweather Sans, Montserrat, Noto Sans, Noto Sans SC:Noto Sans China, Noto Sans KR, Noto Emoji, Nunito, Nunito Sans, Open Sans, Open Sans Condensed, Oswald, Playfair Display, Plus Jakarta Sans, Raleway, Roboto, Roboto Condensed, Roboto Flex, Roboto Mono, Roboto Serif, Roboto Slab, Rubik, Source Sans 3, Ubuntu Sans, Ubuntu Sans Mono, Work Sans]
+Font_Style = "Regular"; // [Regular,Black,Bold,ExtraBol,ExtraLight,Light,Medium,SemiBold,Thin,Italic,Black Italic,Bold Italic,ExtraBold Italic,ExtraLight Italic,Light Italic,Medium Italic,SemiBold Italic,Thin Italic]
+Text_size = 8;    // Font size
 
-/*[Large Screw]*/
-//Distance (in mm) between threads
-Pitch_Lg = 2.5;
-//Diameter (in mm) at the outer threads
-Outer_Diameter_Lg = 22.245;
-//Angle of the one side of the thread
-Flank_Angle_Lg = 45;
-//Depth (in mm) of the thread
-Thread_Depth_Lg = 0.75;
-//Diameter of the hole down the middle of the bolt
-Inner_Hole_Diameter_Lg = 10;
+surname_font = str(Font , ":style=", Font_Style);
 
 /*[Hidden]*/
 channelWidth = Channel_Width_in_Units * Grid_Size;
@@ -90,6 +74,34 @@ Snap_Offset = 3;
 Snap_Holding_Tolerance = 1; //[0.5:0.05:1.5]
 Snap_Thread_Height = 3.6;
 
+
+
+///*[Small Screw]*/
+//Distance (in mm) between threads
+Pitch_Sm = 3;
+//Diameter (in mm) at the outer threads
+Outer_Diameter_Sm = 6.747;
+//Angle of the one side of the thread
+Flank_Angle_Sm = 60;
+//Depth (in mm) of the thread
+Thread_Depth_Sm = 0.5;
+//Diameter of the hole down the middle of the screw
+Inner_Hole_Diameter_Sm = 3.3;
+//length of the threaded portion of small screw
+Thread_Length_Sm = 9;
+
+///*[Large Screw]*/
+//Distance (in mm) between threads
+Pitch_Lg = 2.5;
+//Diameter (in mm) at the outer threads
+Outer_Diameter_Lg = 22.245;
+//Angle of the one side of the thread
+Flank_Angle_Lg = 45;
+//Depth (in mm) of the thread
+Thread_Depth_Lg = 0.75;
+//Diameter of the hole down the middle of the bolt
+Inner_Hole_Diameter_Lg = 10;
+
 //Part Size Calculations
 straight_channel_Y = Grid_Size * Channel_Length_Units;
 radius_channel_Y = Grid_Size + channelWidth + (Curve_Radius_in_Units*channelWidth/2 - channelWidth/2)/2 - channelWidth/2;
@@ -101,11 +113,7 @@ x_channel_Y = channelWidth+Grid_Size*2;
 ***BEGIN DISPLAYS***
 
 */
-
-//snapConnectBacker(offset = 3, holdingTolerance = Snap_Holding_Tolerance)
-//    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Snap_Thread_Height, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
-
-
+!straightChannelTop(lengthMM = 150, widthMM = 25);
 
 /*
 
@@ -231,7 +239,11 @@ module straightChannelBase(lengthMM, widthMM, anchor, spin, orient){
 module straightChannelTop(lengthMM, widthMM, heightMM = 12, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[widthMM, lengthMM, topHeight + (heightMM-12)]){
         fwd(lengthMM/2) down(10.968/2 + (heightMM - 12)/2)
-        zrot(90) path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["xmove", lengthMM])); 
+        zrot(90) path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["xmove", lengthMM])) 
+        if(Add_Label) 
+            color("Pink")
+            fwd(Text_size/2)attach(TOP, BOT)linear_extrude(height = 0.01)
+                text(Text, size = Text_size, font = surname_font, halign = "center", valign = "center");
     children();
     }
 }
