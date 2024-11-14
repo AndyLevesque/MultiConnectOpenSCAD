@@ -45,11 +45,11 @@ Curve_Resolution = 25;
 Global_Color = "SlateBlue"; //SlateBlue
 
 /*[Chose Parts]*/
-Straight = false;
-L_Channel = false;
+Straight = true;
+L_Channel = true;
 C_Curve = true;
-X_Intersection = false;
-T_Intersection = false;
+X_Intersection = true;
+T_Intersection = true;
 //Threaded_Snap_Connector = true;
 //Small_Screw = false;
 //Large_Screw = false;
@@ -162,7 +162,7 @@ if(C_Curve){
 color_this(Global_Color)
     back(straight_channel_Y / 2 + radius_channel_Y + l_channel_Y + partSeparation)
     left(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
-        curvedChannelBase(radiusMM = c_channel_arc, widthMM = channelWidth, anchor=BOT) show_anchors();
+        curvedChannelBase(radiusMM = c_channel_arc, widthMM = channelWidth, anchor=BOT);
 color_this(Global_Color)
     back(straight_channel_Y / 2 + radius_channel_Y + l_channel_Y + partSeparation)
     right(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
