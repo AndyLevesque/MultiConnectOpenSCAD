@@ -45,9 +45,9 @@ Curve_Resolution = 25;
 Global_Color = "SlateBlue"; //SlateBlue
 
 /*[Chose Parts]*/
-Straight = true;
+Straight = false;
 L_Channel = false;
-C_Curve = false;
+C_Curve = true;
 X_Intersection = false;
 T_Intersection = false;
 //Threaded_Snap_Connector = true;
@@ -111,6 +111,10 @@ radius_channel_Y = Grid_Size + channelWidth + (Curve_Radius_in_Units*channelWidt
 l_channel_Y = channelWidth*1.5 + Grid_Size * L_Channel_Length_in_Units;
 x_channel_X = channelWidth+Grid_Size*2;
 x_channel_Y = channelWidth+Grid_Size*2;
+c_channel_arc = Grid_Size*(Channel_Width_in_Units/2 + Curve_Radius_in_Units-1);
+//solved via https://chatgpt.com/share/6736552f-ce1c-8010-ab4c-36a095eee6b5
+
+echo(str("C Channel Arc: ", c_channel_arc))
 /*
 
 ***BEGIN DISPLAYS***
@@ -158,12 +162,12 @@ if(C_Curve){
 color_this(Global_Color)
     back(straight_channel_Y / 2 + radius_channel_Y + l_channel_Y + partSeparation)
     left(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
-        curvedChannelBase(radiusMM = Curve_Radius_in_Units*channelWidth-channelWidth/2, widthMM = channelWidth, anchor=BOT);
+        curvedChannelBase(radiusMM = c_channel_arc, widthMM = channelWidth, anchor=BOT) show_anchors();
 color_this(Global_Color)
     back(straight_channel_Y / 2 + radius_channel_Y + l_channel_Y + partSeparation)
     right(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
     up(Show_Attached ? interlockFromFloor : 0)
-        curvedChannelTop(radiusMM = Curve_Radius_in_Units*channelWidth-channelWidth/2, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor = Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
+        curvedChannelTop(radiusMM = c_channel_arc, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor = Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
 }//1*25-12.5
 
 if(X_Intersection){
@@ -309,7 +313,7 @@ module curvedChannelBase(radiusMM, widthMM, anchor, spin, orient){
                     tag("holes") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) right(Grid_Size + channelWidth/2 + (radiusMM - channelWidth/2)) back(channelWidth/2 + Grid_Size/2 + (radiusMM - channelWidth/2)) down(0.01) 
                         if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
                         else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
-                    //tag("holes") right(12.5) back(12.5*Channel_Width_in_Units-12.5)#grid_copies(spacing=Grid_Size, inside=rect([200,200]))cyl(h=8, d=7, $fn=25);//temporary 
+                    //#tag("holes") right(12.5) back(12.5*Channel_Width_in_Units-12.5)#grid_copies(spacing=Grid_Size, inside=rect([200,200]))cyl(h=8, d=7, $fn=25);//temporary 
                 }
             }
         children();
