@@ -4,7 +4,7 @@ Credit to
     @David D on Printables for Multiconnect
     Jonathan at Keep Making for MulticonnMultiboard
     
-Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attribution
+Licensed Creative Commons 4.0 Attribution Non-Commercial Share-Alike (CC-BY-NC-SA)
 */
 
 include <BOSL2/std.scad>
