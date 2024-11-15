@@ -41,11 +41,11 @@ Channel_Internal_Height = 12; //[12:6:72]
 Show_Attached = false;
 
 /*[Straight Channels]*/
-Straight_Copies = 1;
 //length of channel in units (default unit is 25mm)
 Channel_Length_Units = 5; 
 
 /*[L Channels]*/
+//Number of grids extending from the corner grid
 L_Channel_Length_in_Units = 1;
 
 /*[C Channels]*/
@@ -163,7 +163,6 @@ color_this(Global_Color)
 
 if(Show_Part == "Straight Channel"){
 color_this(Global_Color)
-    xcopies(n=Straight_Copies, spacing = Show_Attached ? channelWidth+5 : channelWidth*2 + partSeparation){
         left(Show_Attached ? 0 : channelWidth/2)
             straightChannelBase(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, anchor=BOT);
 color_this(Global_Color)
@@ -173,7 +172,6 @@ color_this(Global_Color)
             straightChannelTop(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient=Show_Attached ? TOP : BOT)
                 if(Add_Label) tag("text") recolor("Pink") zrot(-90) attach(TOP) //linear_extrude(height = 0.02)
                 text3d(Text, size = Text_size, h=0.05, font = surname_font, atype="ycenter", anchor=CENTER);
-    }
 }
 
 if(Show_Part == "C Curve Channel"){
