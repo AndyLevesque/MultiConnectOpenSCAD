@@ -343,18 +343,15 @@ module curvedChannelTop(radiusMM, widthMM, heightMM = 12, anchor, spin, orient){
 
 //DIAGONAL CHANNELS
 module diagonalChannelBase(unitsOver = 1, unitsUp=3, outputDirection = "Forward", straightDistance = Grid_Size, widthMM, anchor, spin, orient){
-    attachable(anchor, spin, orient, size=[50,50, baseHeight]){ //Curve_Radius_in_Units*channelWidth/2
-        //let(adjustedWidth = Grid_Size + channelWidth + (unitShift*Grid_Size - channelWidth/2))
-        //fwd((Grid_Size + channelWidth + (unitShift*Grid_Size - channelWidth/2))/2 - channelWidth/2) 
-        //left((Grid_Size + channelWidth + (unitShift*Grid_Size - channelWidth/2))/2) 
+    attachable(anchor, spin, orient, size=[50,50, baseHeight]){
         down(baseHeight/2)
             diff("holes"){
                 path_sweep2d(baseProfile(widthMM = widthMM), 
                     path= outputDirection == "Forward" ? [
                         [0,0], //start
                         [0,Straight_Distance*sign(unitsUp)+0.1], //distance forward or back. 0.05 is a subtle cheat that allows for a perfect side shift without a bad polygon
-                        [unitsOver*Grid_Size,unitsUp*Grid_Size-Straight_Distance*sign(unitsUp)-0.1], //movement to position before last straight
-                        [unitsOver*Grid_Size,unitsUp*Grid_Size] //last position either out the angle or straight out
+                        [unitsOver*Grid_Size,unitsUp*Grid_Size+Grid_Size*sign(unitsUp)-Straight_Distance*sign(unitsUp)-0.1], //movement to position before last straight
+                        [unitsOver*Grid_Size,unitsUp*Grid_Size+Grid_Size*sign(unitsUp)] //last position either out the angle or straight out
                     ] :
                     [ //90 degree path
                         [0,0], //start
@@ -368,7 +365,7 @@ module diagonalChannelBase(unitsOver = 1, unitsUp=3, outputDirection = "Forward"
                         else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
                     //outside holes forward option
                     tag("holes") 
-                        if(outputDirection == "Forward") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(Units_Up*Grid_Size-Grid_Size/2*sign(unitsUp)) right(unitsOver*Grid_Size)down(0.01) 
+                        if(outputDirection == "Forward") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(Units_Up*Grid_Size+Grid_Size*sign(unitsUp)-Grid_Size/2*sign(unitsUp)) right(unitsOver*Grid_Size)down(0.01) 
                         if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
                         else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
                     //outside holes turn option
@@ -376,9 +373,6 @@ module diagonalChannelBase(unitsOver = 1, unitsUp=3, outputDirection = "Forward"
                         if(outputDirection == "Turn") ycopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(Units_Up*Grid_Size+Grid_Size/2*sign(unitsUp)) right(unitsOver*Grid_Size)down(0.01) 
                         if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
                         else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
-                    //#tag("holes") back(12.5) back(12.5*Channel_Width_in_Units-12.5)#grid_copies(spacing=Grid_Size, inside=rect([200,200]))cyl(h=8, d=7, $fn=25);//temporary 
-
-                
                 }
             }
         children();
@@ -387,17 +381,14 @@ module diagonalChannelBase(unitsOver = 1, unitsUp=3, outputDirection = "Forward"
 
 module diagonalChannelTop(unitsOver = 1, unitsUp=3, outputDirection = "Forward", straightDistance = Grid_Size, widthMM, heightMM = 12, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[50,50, topHeight]){ //Curve_Radius_in_Units*channelWidth/2
-        //let(adjustedWidth = Grid_Size + channelWidth + (unitShift*Grid_Size - channelWidth/2))
-        //fwd((Grid_Size + channelWidth + (unitShift*Grid_Size - channelWidth/2))/2 - channelWidth/2) 
-        //left((Grid_Size + channelWidth + (unitShift*Grid_Size - channelWidth/2))/2) 
         down(topHeight/2)
             diff("holes"){
                 path_sweep2d(topProfile(widthMM = widthMM, heightMM = heightMM), 
                     path= outputDirection == "Forward" ? [
                         [0,0], //start
                         [0,Straight_Distance*sign(unitsUp)+0.1], //distance forward or back. 0.05 is a subtle cheat that allows for a perfect side shift without a bad polygon
-                        [unitsOver*Grid_Size,unitsUp*Grid_Size-Straight_Distance*sign(unitsUp)-0.1], //movement to position before last straight
-                        [unitsOver*Grid_Size,unitsUp*Grid_Size] //last position either out the angle or straight out
+                        [unitsOver*Grid_Size,unitsUp*Grid_Size+Grid_Size*sign(unitsUp)-Straight_Distance*sign(unitsUp)-0.1], //movement to position before last straight
+                        [unitsOver*Grid_Size,unitsUp*Grid_Size+Grid_Size*sign(unitsUp)] //last position either out the angle or straight out
                     ] :
                     [ //90 degree path
                         [0,0], //start
@@ -405,24 +396,7 @@ module diagonalChannelTop(unitsOver = 1, unitsUp=3, outputDirection = "Forward",
                         [unitsOver*Grid_Size+Grid_Size/2*sign(unitsOver)-straightDistance*sign(unitsOver),unitsUp*Grid_Size+Grid_Size/2*sign(unitsUp)], //movement to position before last straight
                         [unitsOver*Grid_Size+Grid_Size/2*sign(unitsOver),unitsUp*Grid_Size+Grid_Size/2*sign(unitsUp)] //last position either out the angle or straight out
                     ]
-                    ) {
-                    tag("holes") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(Grid_Size/2*sign(unitsUp)) down(0.01) 
-                        if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
-                        else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
-                    //outside holes forward option
-                    tag("holes") 
-                        if(outputDirection == "Forward") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(Units_Up*Grid_Size-Grid_Size/2*sign(unitsUp)) right(unitsOver*Grid_Size)down(0.01) 
-                        if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
-                        else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
-                    //outside holes turn option
-                    tag("holes") 
-                        if(outputDirection == "Turn") ycopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(Units_Up*Grid_Size+Grid_Size/2*sign(unitsUp)) right(unitsOver*Grid_Size)down(0.01) 
-                        if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
-                        else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
-                    //#tag("holes") back(12.5) back(12.5*Channel_Width_in_Units-12.5)#grid_copies(spacing=Grid_Size, inside=rect([200,200]))cyl(h=8, d=7, $fn=25);//temporary 
-
-                
-                }
+                    ) ;
             }
         children();
     }
