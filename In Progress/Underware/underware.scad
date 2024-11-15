@@ -2,7 +2,7 @@
 Credit to 
     Katie (and her community) at Hands on Katie on Youtube and Patreon
     @David D on Printables for Multiconnect
-    Jonathan at Keep Making for MulticonnMultiboard
+    Jonathan at Keep Making for Multiboard
     
 Licensed Creative Commons 4.0 Attribution Non-Commercial Share-Alike (CC-BY-NC-SA)
 */
@@ -16,16 +16,20 @@ include <BOSL2/threading.scad>
 /*[Mounting Options]*/
 Mounting_Method = "Threaded Snap Connector (Recommended)"; //[Direct Screw]
 
-/*[Chose Parts]*/
+/*[Chose Part]*/
+Show_Part = "Straight Channel"; // [Straight Channel, L Channel, C Curve Channel, X Intersection, T Intersection, Diagonal Channel, Snap Connector]
+
+/*
 Straight = true;
 L_Channel = false;
 C_Curve = false;
 X_Intersection = false;
 T_Intersection = false;
-Diagonal_Channel = false;
-Threaded_Snap_Connector = true;
+Diagonal_Channel = false; 
+
 //Small_Screw = false;
 //Large_Screw = false;
+*/
 
 /*[All Channels]*/
 
@@ -59,6 +63,7 @@ Straight_Distance = 25;//[12.5:12.5:100]
 Grid_Size = 25;
 Curve_Resolution = 25;
 Global_Color = "SlateBlue"; //SlateBlue
+Debug_Show_Grid = false;
 
 
 
@@ -84,7 +89,7 @@ Snap_Holding_Tolerance = 1; //[0.5:0.05:1.5]
 Snap_Thread_Height = 3.6;
 
 
-
+Threaded_Snap_Connector = false;
 
 
 ///*[Small Screw]*/
@@ -128,10 +133,16 @@ echo(str("C Channel Arc: ", c_channel_arc))
 ***BEGIN DISPLAYS***
 
 */
+
+if(Debug_Show_Grid)
+#back(12.5) back(12.5*Channel_Width_in_Units-12.5) grid_copies(spacing=Grid_Size, inside=rect([200,200]))cyl(h=8, d=7, $fn=25);//temporary 
+
 //!straightChannelTop(lengthMM = 150, widthMM = 25);
-if(Diagonal_Channel){
-    left(Units_Over*Grid_Size/2+channelWidth/2+partSeparation)diagonalChannelBase(unitsOver = Units_Over, unitsUp = Units_Up, outputDirection = Output_Direction, straightDistance = Straight_Distance, widthMM = Channel_Width_in_Units * Grid_Size);
-    right(Units_Over*Grid_Size/2+channelWidth/2+partSeparation)diagonalChannelTop(unitsOver = Units_Over, unitsUp = Units_Up, outputDirection = Output_Direction, straightDistance = Straight_Distance, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height);
+if(Show_Part == "Diagonal Channel"){
+    color_this(Global_Color) 
+        diagonalChannelBase(unitsOver = Units_Over, unitsUp = Units_Up, outputDirection = Output_Direction, straightDistance = Straight_Distance, widthMM = Channel_Width_in_Units * Grid_Size, anchor = BOT);
+    color_this(Global_Color) left(channelWidth*sign(Units_Over)+partSeparation*sign(Units_Over)) 
+        diagonalChannelTop(unitsOver = Units_Over, unitsUp = Units_Up, outputDirection = Output_Direction, straightDistance = Straight_Distance, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height, anchor = TOP, orient = Show_Attached ? TOP :  BOT);
 }
 /*
 
@@ -139,20 +150,18 @@ CHANNELS
 
 */
 
-if(L_Channel){
+if(Show_Part == "L Channel"){
 color_this(Global_Color)
-    back(straight_channel_Y/2 + l_channel_Y/2 + partSeparation)
     left(Show_Attached ? 0 : partSeparation)
         lChannelBase(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, anchor=Show_Attached ? BOT : BOT+RIGHT);
 color_this(Global_Color)
     up(Show_Attached ? interlockFromFloor : 0)
-    back(straight_channel_Y/2 + l_channel_Y/2 + partSeparation)
     right(Show_Attached ? 0 : partSeparation)
         lChannelTop(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height, anchor= Show_Attached ? BOT : TOP+RIGHT, orient=Show_Attached ? TOP : BOT);
 }
 
 
-if(Straight){
+if(Show_Part == "Straight Channel"){
 color_this(Global_Color)
     xcopies(n=Straight_Copies, spacing = Show_Attached ? channelWidth+5 : channelWidth*2 + partSeparation){
         left(Show_Attached ? 0 : channelWidth/2)
@@ -167,38 +176,32 @@ color_this(Global_Color)
     }
 }
 
-if(C_Curve){
+if(Show_Part == "C Curve Channel"){
 color_this(Global_Color)
-    back(straight_channel_Y / 2 + radius_channel_Y + l_channel_Y + partSeparation)
     left(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
         curvedChannelBase(radiusMM = c_channel_arc, widthMM = channelWidth, anchor=BOT);
 color_this(Global_Color)
-    back(straight_channel_Y / 2 + radius_channel_Y + l_channel_Y + partSeparation)
     right(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
     up(Show_Attached ? interlockFromFloor : 0)
         curvedChannelTop(radiusMM = c_channel_arc, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor = Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
 }//1*25-12.5
 
-if(X_Intersection){
+if(Show_Part == "X Intersection"){
     //cross intersection
 color_this(Global_Color)
-    fwd(straight_channel_Y / 2 + x_channel_Y/2 + partSeparation) 
     left(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
         crossIntersectionBase(widthMM = channelWidth, anchor=BOT);
 color_this(Global_Color)
-    fwd(straight_channel_Y / 2 + x_channel_Y/2 + partSeparation) 
     right(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
     up(Show_Attached ? interlockFromFloor : 0) 
         crossIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
 }
 
-if(T_Intersection){
+if(Show_Part == "T Intersection"){
 color_this(Global_Color)
-    fwd(straight_channel_Y / 2 + x_channel_Y*1.75 + partSeparation)  
     left(Show_Attached ? 0 : partSeparation)
         tIntersectionBase(widthMM = channelWidth, anchor=Show_Attached ? BOT : BOT+RIGHT);
 color_this(Global_Color)
-    fwd(straight_channel_Y / 2 + x_channel_Y*1.75 + partSeparation)  
     right(Show_Attached ? 0 : partSeparation)
     up(Show_Attached ? interlockFromFloor : 0) 
         tIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP+RIGHT, orient= Show_Attached ? TOP : BOT);
@@ -211,9 +214,8 @@ MOUNTING PARTS
 
 */
 
-if(Threaded_Snap_Connector)
+if(Show_Part == "Snap Connector")
     recolor(Global_Color)
-    right(channelWidth+ 25)
     make_ThreadedSnap(anchor=BOT);
 
 //Small MB Screw based on step file
