@@ -220,7 +220,7 @@ if(Show_Part == "Snap Connector")
 
 //Small MB Screw based on step file
 if(Mounting_Method == "Direct Screw")
-color_this(Global_Color)
+recolor(Global_Color)
 diff()
 right(channelWidth+25) fwd(30)
 cyl(d=12,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
