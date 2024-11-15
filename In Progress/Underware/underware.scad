@@ -17,7 +17,7 @@ include <BOSL2/threading.scad>
 Mounting_Method = "Threaded Snap Connector (Recommended)"; //[Direct Screw]
 
 /*[Chose Parts]*/
-Straight = false;
+Straight = true;
 L_Channel = false;
 C_Curve = false;
 X_Intersection = false;
@@ -44,13 +44,13 @@ Channel_Length_Units = 5;
 /*[L Channels]*/
 L_Channel_Length_in_Units = 1;
 
-/*[Diagonal Channels]*/
+/*[C Channels]*/
 Curve_Radius_in_Units = 2;
 
-/*[Shift Channels]*/
+/*[Diagonal Channels]*/
 Units_Over = 2; //[-10:1:10]
-Units_Up = 3; //[-10:1:10]
-Output_Direction = "Forward"; //["Turn"]
+Units_Up = 2; //[-10:1:10]
+Output_Direction = "Turn"; //[Forward, Turn]
 //Distance that the parts are straight in on the ends (before the angle)
 Straight_Distance = 25;//[12.5:12.5:100]
 
