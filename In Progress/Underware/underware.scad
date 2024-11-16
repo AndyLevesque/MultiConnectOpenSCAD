@@ -181,7 +181,7 @@ color_this(Global_Color)
 color_this(Global_Color)
     right(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
     up(Show_Attached ? interlockFromFloor : 0)
-        curvedChannelTop(radiusMM = c_channel_arc, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor = Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
+        curvedChannelTop(radiusMM = c_channel_arc, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor = Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT) show_anchors();
 }//1*25-12.5
 
 if(Show_Part == "X Intersection"){
@@ -330,7 +330,7 @@ module curvedChannelBase(radiusMM, widthMM, anchor, spin, orient){
 }
 
 module curvedChannelTop(radiusMM, widthMM, heightMM = 12, anchor, spin, orient){
-    attachable(anchor, spin, orient, size=[Grid_Size + channelWidth + (radiusMM - channelWidth/2), Grid_Size + channelWidth + (radiusMM - channelWidth/2), topHeight]){
+    attachable(anchor, spin, orient, size=[Grid_Size + channelWidth + (radiusMM - channelWidth/2), Grid_Size + channelWidth + (radiusMM - channelWidth/2), topHeight + (heightMM-12)]){
         fwd((Grid_Size + channelWidth + (radiusMM - channelWidth/2))/2 - channelWidth/2) 
         left((Grid_Size + channelWidth + (radiusMM - channelWidth/2))/2)  
         down(topHeight/2 + (heightMM - 12)/2)
