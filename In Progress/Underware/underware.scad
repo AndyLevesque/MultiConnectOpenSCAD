@@ -18,7 +18,7 @@ Mounting_Method = "Threaded Snap Connector (Recommended)"; //[Direct Screw]
 
 /*[Chose Part]*/
 Show_Part = "Straight Channel"; // [Straight Channel, L Channel, C Curve Channel, X Intersection, T Intersection, Diagonal Channel, Snap Connector]
-
+Base_Top_or_Both = "Both"; // [Base, Top, Both]
 /*[All Channels]*/
 
 //width of channel in units (default unit is 25mm)
@@ -136,33 +136,35 @@ if(Debug_Show_Grid)
 #back(12.5) back(12.5*Channel_Width_in_Units-12.5) grid_copies(spacing=Grid_Size, inside=rect([200,200]))cyl(h=8, d=7, $fn=25);//temporary 
 
 //!straightChannelTop(lengthMM = 150, widthMM = 25);
-if(Show_Part == "Diagonal Channel"){
+if(Show_Part == "Diagonal Channel" && Base_Top_or_Both != "Top")
     color_this(Global_Color) 
         diagonalChannelBase(unitsOver = Units_Over, unitsUp = Units_Up, outputDirection = Output_Direction, straightDistance = Straight_Distance, widthMM = Channel_Width_in_Units * Grid_Size, anchor = BOT);
+if(Show_Part == "Diagonal Channel" && Base_Top_or_Both != "Base")
     color_this(Global_Color) left(channelWidth*sign(Units_Over)+partSeparation*sign(Units_Over)) 
         diagonalChannelTop(unitsOver = Units_Over, unitsUp = Units_Up, outputDirection = Output_Direction, straightDistance = Straight_Distance, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height, anchor = TOP, orient = Show_Attached ? TOP :  BOT);
-}
 /*
 
 CHANNELS
 
 */
 
-if(Show_Part == "L Channel"){
+if(Show_Part == "L Channel" && Base_Top_or_Both != "Top")
 color_this(Global_Color)
     left(Show_Attached ? 0 : partSeparation)
         lChannelBase(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, anchor=Show_Attached ? BOT : BOT+RIGHT);
+if(Show_Part == "L Channel" && Base_Top_or_Both != "Base")
 color_this(Global_Color)
     up(Show_Attached ? interlockFromFloor : 0)
     right(Show_Attached ? 0 : partSeparation)
         lChannelTop(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height, anchor= Show_Attached ? BOT : TOP+RIGHT, orient=Show_Attached ? TOP : BOT);
-}
 
 
-if(Show_Part == "Straight Channel"){
+
+if(Show_Part == "Straight Channel" && Base_Top_or_Both != "Top")
 color_this(Global_Color)
         left(Show_Attached ? 0 : channelWidth/2)
             straightChannelBase(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, anchor=BOT);
+if(Show_Part == "Straight Channel" && Base_Top_or_Both != "Base")
 color_this(Global_Color)
         right(Show_Attached ? 0 : channelWidth/2 + 5)
         up(Show_Attached ? interlockFromFloor : Add_Label ? 0.01 : 0)
@@ -170,38 +172,40 @@ color_this(Global_Color)
             straightChannelTop(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient=Show_Attached ? TOP : BOT)
                 if(Add_Label) tag("text") recolor(Text_Color) zrot(-90) attach(TOP) //linear_extrude(height = 0.02)
                 right(Text_x_coordinate)text3d(Text, size = Text_size, h=0.05, font = surname_font, atype="ycenter", anchor=CENTER);
-}
 
-if(Show_Part == "C Curve Channel"){
+
+if(Show_Part == "C Curve Channel" && Base_Top_or_Both != "Top")
 color_this(Global_Color)
     left(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
         curvedChannelBase(radiusMM = c_channel_arc, widthMM = channelWidth, anchor=BOT);
+if(Show_Part == "C Curve Channel" && Base_Top_or_Both != "Base")
 color_this(Global_Color)
     right(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
     up(Show_Attached ? interlockFromFloor : 0)
         curvedChannelTop(radiusMM = c_channel_arc, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor = Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
-}//1*25-12.5
 
-if(Show_Part == "X Intersection"){
+if(Show_Part == "X Intersection" && Base_Top_or_Both != "Top")
     //cross intersection
 color_this(Global_Color)
     left(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
         crossIntersectionBase(widthMM = channelWidth, anchor=BOT);
+if(Show_Part == "X Intersection" && Base_Top_or_Both != "Base")
 color_this(Global_Color)
     right(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
     up(Show_Attached ? interlockFromFloor : 0) 
         crossIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
-}
 
-if(Show_Part == "T Intersection"){
+
+if(Show_Part == "T Intersection"&& Base_Top_or_Both != "Top")
 color_this(Global_Color)
     left(Show_Attached ? 0 : partSeparation)
         tIntersectionBase(widthMM = channelWidth, anchor=Show_Attached ? BOT : BOT+RIGHT);
+if(Show_Part == "T Intersection"&& Base_Top_or_Both != "Base")
 color_this(Global_Color)
     right(Show_Attached ? 0 : partSeparation)
     up(Show_Attached ? interlockFromFloor : 0) 
         tIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP+RIGHT, orient= Show_Attached ? TOP : BOT);
-}
+
 
 
 /*
@@ -376,8 +380,8 @@ module diagonalChannelBase(unitsOver = 1, unitsUp=3, outputDirection = "Forward"
 }
 
 module diagonalChannelTop(unitsOver = 1, unitsUp=3, outputDirection = "Forward", straightDistance = Grid_Size, widthMM, heightMM = 12, anchor, spin, orient){
-    attachable(anchor, spin, orient, size=[50,50, topHeight]){ //Curve_Radius_in_Units*channelWidth/2
-        down(topHeight/2)
+    attachable(anchor, spin, orient, size=[50,50, topHeight + (heightMM-12)]){ //Curve_Radius_in_Units*channelWidth/2
+        down(topHeight/2 + (heightMM - 12)/2)
             diff("holes"){
                 path_sweep2d(topProfile(widthMM = widthMM, heightMM = heightMM), 
                     path= outputDirection == "Forward" ? [
