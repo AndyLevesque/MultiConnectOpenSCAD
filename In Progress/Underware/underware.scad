@@ -19,18 +19,6 @@ Mounting_Method = "Threaded Snap Connector (Recommended)"; //[Direct Screw]
 /*[Chose Part]*/
 Show_Part = "Straight Channel"; // [Straight Channel, L Channel, C Curve Channel, X Intersection, T Intersection, Diagonal Channel, Snap Connector]
 
-/*
-Straight = true;
-L_Channel = false;
-C_Curve = false;
-X_Intersection = false;
-T_Intersection = false;
-Diagonal_Channel = false; 
-
-//Small_Screw = false;
-//Large_Screw = false;
-*/
-
 /*[All Channels]*/
 
 //width of channel in units (default unit is 25mm)
@@ -49,31 +37,40 @@ Channel_Length_Units = 5;
 L_Channel_Length_in_Units = 1;
 
 /*[C Channels]*/
+//Grid units to curve. 2 = up 2 and over 2 grids.
 Curve_Radius_in_Units = 2;
 
 /*[Diagonal Channels]*/
+//Grid units to move up
 Units_Over = 2; //[-10:1:10]
+//Grid units to move over
 Units_Up = 2; //[-10:1:10]
+//Output the same direction (Forward) or at 90 degrees in direction of shift (Turn).
 Output_Direction = "Turn"; //[Forward, Turn]
 //Distance that the parts are straight in on the ends (before the angle)
 Straight_Distance = 25;//[12.5:12.5:100]
 
 /*[Advanced Options]*/
-//Units of measurement (in mm) for hole and length spacing. Multiboard is 25mm.
+//Units of measurement (in mm) for hole and length spacing. Multiboard is 25mm. Untested
 Grid_Size = 25;
+//Resolution of arcs. Higher results in finer detail in the turns.
 Curve_Resolution = 25;
-Global_Color = "SlateBlue"; //SlateBlue
-Debug_Show_Grid = false;
-
-
+//Color of part (color names found at https://en.wikipedia.org/wiki/Web_colors)
+Global_Color = "SlateBlue";
 
 /*[Label]*/
+//Create label using multicolor on straight channel
 Add_Label = false;
+//Text to appear on label
 Text = "Hands on Katie";  // Text to be displayed
 Text_x_coordinate = 0;  // Adjusting the x position of the text
+//Font must be installed on local machine if using local OpenSCAD
 Font = "Raleway"; // [Asap, Bangers, Changa One, Chewy, Harmony OS Sans,Inter,Inter Tight,Lora,Merriweather Sans,Montserrat,Noto Emoji,Noto Sans,Noto Sans Adlam,Noto Sans Adlam Unjoined,Noto Sans Arabic,Noto Sans Arabic UI,Noto Sans Armenian,Noto Sans Balinese,Noto Sans Bamum,Noto Sans Bassa Vah,Noto Sans Bengali,Noto Sans Bengali UI,Noto Sans Canadian Aboriginal,Noto Sans Cham,Noto Sans Cherokee,Noto Sans Devanagari,Noto Sans Display,Noto Sans Ethiopic,Noto Sans Georgian,Noto Sans Gujarati,Noto Sans Gunjala Gondi,Noto Sans Gurmukhi,Noto Sans Gurmukhi UI,Noto Sans HK,Noto Sans Hanifi Rohingya,Noto Sans Hebrew,Noto Sans JP,Noto Sans Javanese,Noto Sans KR,Noto Sans Kannada,Noto Sans Kannada UI,Noto Sans Kawi,Noto Sans Kayah Li,Noto Sans Khmer,Noto Sans Khmer UI,Noto Sans Lao,Noto Sans Lao Looped,Noto Sans Lao UI,Noto Sans Lisu,Noto Sans Malayalam,Noto Sans Malayalam UI,Noto Sans Medefaidrin,Noto Sans Meetei Mayek,Noto Sans Mono,Noto Sans Myanmar,Noto Sans NKo Unjoined,Noto Sans Nag Mundari,Noto Sans New Tai Lue,Noto Sans Ol Chiki,Noto Sans Oriya,Noto Sans SC,Noto Sans Sinhala,Noto Sans Sinhala UI,Noto Sans Sora Sompeng,Noto Sans Sundanese,Noto Sans Symbols,Noto Sans Syriac,Noto Sans Syriac Eastern,Noto Sans TC,Noto Sans Tai Tham,Noto Sans Tamil,Noto Sans Tamil UI,Noto Sans Tangsa,Noto Sans Telugu,Noto Sans Telugu UI,Noto Sans Thaana,Noto Sans Thai,Noto Sans Thai UI,Noto Sans Vithkuqi,Nunito,Nunito Sans,Open Sans,Open Sans Condensed,Oswald,Playfair Display,Plus Jakarta Sans,Raleway,Roboto,Roboto Condensed,Roboto Flex,Roboto Mono,Roboto Serif,Roboto Slab,Rubik,Source Sans 3,Ubuntu Sans,Ubuntu Sans Mono,Work Sans]
+//Styling of selecte font. Note that not all fonts support all styles. 
 Font_Style = "Regular"; // [Regular,Bold,Medium,SemiBold,Light,ExtraBold,Black,ExtraLight,Thin,Bold Italic,Italic,Light Italic,Medium Italic]
 Text_size = 10;    // Font size
+//Color of label text (color names found at https://en.wikipedia.org/wiki/Web_colors)
+Text_Color = "Pink";
 surname_font = str(Font , ":style=", Font_Style);
 
 /*[Hidden]*/
@@ -87,6 +84,7 @@ partSeparation = 10;
 Snap_Offset = 3;
 Snap_Holding_Tolerance = 1; //[0.5:0.05:1.5]
 Snap_Thread_Height = 3.6;
+Debug_Show_Grid = false;
 
 
 Threaded_Snap_Connector = false;
@@ -170,8 +168,8 @@ color_this(Global_Color)
         up(Show_Attached ? interlockFromFloor : Add_Label ? 0.01 : 0)
             diff("text")
             straightChannelTop(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient=Show_Attached ? TOP : BOT)
-                if(Add_Label) tag("text") recolor("Pink") zrot(-90) attach(TOP) //linear_extrude(height = 0.02)
-                text3d(Text, size = Text_size, h=0.05, font = surname_font, atype="ycenter", anchor=CENTER);
+                if(Add_Label) tag("text") recolor(Text_Color) zrot(-90) attach(TOP) //linear_extrude(height = 0.02)
+                right(Text_x_coordinate)text3d(Text, size = Text_size, h=0.05, font = surname_font, atype="ycenter", anchor=CENTER);
 }
 
 if(Show_Part == "C Curve Channel"){
