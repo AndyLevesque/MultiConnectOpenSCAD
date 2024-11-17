@@ -31,6 +31,14 @@ Show_Attached = false;
 /*[Straight Channels]*/
 //length of channel in units (default unit is 25mm)
 Channel_Length_Units = 5; 
+Number_of_Cord_Cutouts = 2;
+//Cutouts on left side, right side, or both (note that it can be flipped so left and right is moot)
+Cord_Side_Cutouts = "Both Sides"; //[Left Side, Right Side, Both Sides, None]
+//Width of each cord cutout (in mm)
+Cord_Cutout_Width = 12;
+Distance_Between_Cutouts = 25;
+//Distance (in mm) to shift all cutouts forward (positive) or back (negative)
+Shift_Cutouts_Forward_or_Back = 0;
 
 /*[L Channels]*/
 //Number of grids extending from the corner grid
@@ -132,10 +140,14 @@ echo(str("C Channel Arc: ", c_channel_arc))
 
 */
 
+//!straightChannelTop(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, heightMM = Channel_Internal_Height);
+    //#straightChannelTopDeleteTool(lengthMM = Cord_Side_Cutouts == "Both Sides" ? channelWidth + 10 : channelWidth/2, widthMM = Grid_Size, heightMM = Channel_Internal_Height, spin=90);
+
+
+
 if(Debug_Show_Grid)
 #back(12.5) back(12.5*Channel_Width_in_Units-12.5) grid_copies(spacing=Grid_Size, inside=rect([200,200]))cyl(h=8, d=7, $fn=25);//temporary 
 
-//!straightChannelTop(lengthMM = 150, widthMM = 25);
 if(Show_Part == "Diagonal Channel" && Base_Top_or_Both != "Top")
     color_this(Global_Color) 
         diagonalChannelBase(unitsOver = Units_Over, unitsUp = Units_Up, outputDirection = Output_Direction, straightDistance = Straight_Distance, widthMM = Channel_Width_in_Units * Grid_Size, anchor = BOT);
@@ -186,7 +198,7 @@ color_this(Global_Color)
 
 if(Show_Part == "X Intersection" && Base_Top_or_Both != "Top")
     //cross intersection
-color_this(Global_Color)
+color_this(Global_Color) 
     left(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
         crossIntersectionBase(widthMM = channelWidth, anchor=BOT);
 if(Show_Part == "X Intersection" && Base_Top_or_Both != "Base")
@@ -263,7 +275,16 @@ module straightChannelBase(lengthMM, widthMM, anchor, spin, orient){
 module straightChannelTop(lengthMM, widthMM, heightMM = 12, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[widthMM, lengthMM, topHeight + (heightMM-12)]){
         fwd(lengthMM/2) down(10.968/2 + (heightMM - 12)/2)
-        zrot(90) path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["xmove", lengthMM]));
+        diff("Cable_Cutouts")
+        zrot(90) path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["xmove", lengthMM]))
+            tag("Cable_Cutouts") down(5+0.01) up(10.968/2 + (heightMM - 12)/2) right(lengthMM/2)
+                xcopies(n=Number_of_Cord_Cutouts, spacing= Distance_Between_Cutouts) 
+                    up(2.49)
+                    fwd(Cord_Side_Cutouts == "Left Side" ? channelWidth/2 :
+                        Cord_Side_Cutouts == "Right Side" ? -channelWidth/2 : 
+                        0)
+                    left(-Shift_Cutouts_Forward_or_Back)
+                        cuboid([Cord_Cutout_Width, Cord_Side_Cutouts == "Both Sides" ? channelWidth + 5 : channelWidth/2, Channel_Internal_Height-2], chamfer = 2, edges=[TOP+LEFT, TOP+RIGHT]);
     children();
     }
 }
