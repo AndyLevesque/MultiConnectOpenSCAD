@@ -1,8 +1,12 @@
 /*Created by Hands on Katie and BlackjackDuck (Andy)
 Credit to 
-    Katie (and her community) at Hands on Katie on Youtube and Patreon
+    First and foremost - Katie and her community at Hands on Katie on Youtube, Patreon, and Discord
     @David D on Printables for Multiconnect
     Jonathan at Keep Making for Multiboard
+    @cosmicdust on MakerWorld and @freakadings_1408562 on Printables for the idea of diagonals (forward and turn)
+    @siyrahfall+1155967 on Printables for the idea of top exit holes
+    @Lyric on Printables for the flush connector idea
+
     
 Licensed Creative Commons 4.0 Attribution Non-Commercial Share-Alike (CC-BY-NC-SA)
 */
@@ -65,6 +69,8 @@ Grid_Size = 25;
 Curve_Resolution = 25;
 //Color of part (color names found at https://en.wikipedia.org/wiki/Web_colors)
 Global_Color = "SlateBlue";
+//Height (in mm) the snap connector rests above the board. 3mm is standard. 0mm results in a flush fit. 
+Snap_Connector_Height = 3;
 
 /*[Label]*/
 //Create label using multicolor on straight channel
@@ -140,9 +146,14 @@ echo(str("C Channel Arc: ", c_channel_arc))
 
 */
 
-//!straightChannelTop(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, heightMM = Channel_Internal_Height);
-    //#straightChannelTopDeleteTool(lengthMM = Cord_Side_Cutouts == "Both Sides" ? channelWidth + 10 : channelWidth/2, widthMM = Grid_Size, heightMM = Channel_Internal_Height, spin=90);
-
+/* Sample upward corner piece
+!diff("ChannelDeletes")
+path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Channel_Length_Units*Grid_Size]), anchor=TOP, orient=BOT){
+    tag("ChannelDeletes")path_sweep(topDeleteProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Channel_Length_Units*Grid_Size]));
+yrot(90)path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", -Channel_Length_Units*Grid_Size]))
+    tag("ChannelDeletes")path_sweep(topDeleteProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", -Channel_Length_Units*Grid_Size])); ;
+}
+*/
 
 
 if(Debug_Show_Grid)
@@ -228,7 +239,7 @@ MOUNTING PARTS
 
 if(Show_Part == "Snap Connector")
     recolor(Global_Color)
-    make_ThreadedSnap(anchor=BOT);
+    make_ThreadedSnap(offset = Snap_Connector_Height, anchor=BOT);
 
 //Small MB Screw based on step file
 if(Mounting_Method == "Direct Screw")
