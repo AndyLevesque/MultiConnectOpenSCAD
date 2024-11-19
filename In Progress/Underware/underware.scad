@@ -21,7 +21,7 @@ include <BOSL2/threading.scad>
 Mounting_Method = "Threaded Snap Connector (Recommended)"; //[Direct Screw]
 
 /*[Chose Part]*/
-Show_Part = "Straight Channel"; // [Straight Channel, L Channel, C Curve Channel, X Intersection, T Intersection, Diagonal Channel, Snap Connector]
+Show_Part = "Straight Channel"; // [Straight Channel, L Channel, C Curve Channel, X Intersection, T Intersection, Diagonal Channel, Y Channel, Snap Connector]
 Base_Top_or_Both = "Both"; // [Base, Top, Both]
 /*[All Channels]*/
 
@@ -35,7 +35,7 @@ Show_Attached = false;
 /*[Straight Channels]*/
 //length of channel in units (default unit is 25mm)
 Channel_Length_Units = 5; 
-Number_of_Cord_Cutouts = 2;
+Number_of_Cord_Cutouts = 0;
 //Cutouts on left side, right side, or both (note that it can be flipped so left and right is moot)
 Cord_Side_Cutouts = "Both Sides"; //[Left Side, Right Side, Both Sides, None]
 //Width of each cord cutout (in mm)
@@ -53,14 +53,24 @@ L_Channel_Length_in_Units = 1;
 Curve_Radius_in_Units = 2;
 
 /*[Diagonal Channels]*/
-//Grid units to move up
-Units_Over = 2; //[-10:1:10]
 //Grid units to move over
+Units_Over = 2; //[-10:1:10]
+//Grid units to move up
 Units_Up = 2; //[-10:1:10]
 //Output the same direction (Forward) or at 90 degrees in direction of shift (Turn).
 Output_Direction = "Turn"; //[Forward, Turn]
 //Distance that the parts are straight in on the ends (before the angle)
 Straight_Distance = 25;//[12.5:12.5:100]
+
+/*[Y Channels]*/
+//Grid units to move over. Both sides will move over and away from the center by this amount.
+Y_Units_Over = 1; //[1:1:10]
+//Grid units to move up
+Y_Units_Up = 1;//[1:1:10]
+//Output the same direction (Forward) or at 90 degrees in direction of shift (Turn).
+Y_Output_Direction = "Forward"; //[Forward, Turn]
+//Distance that the parts are straight in on the ends (before the angle). Unexpected behavior on wider channels may be resolved by changing this slider. 
+Y_Straight_Distance = 12.5; //[12.5:12.5:100]
 
 /*[Advanced Options]*/
 //Units of measurement (in mm) for hole and length spacing. Multiboard is 25mm. Untested
@@ -139,25 +149,35 @@ x_channel_Y = channelWidth+Grid_Size*2;
 c_channel_arc = Grid_Size*(Channel_Width_in_Units/2 + Curve_Radius_in_Units-1);
 //solved via https://chatgpt.com/share/6736552f-ce1c-8010-ab4c-36a095eee6b5
 
-echo(str("C Channel Arc: ", c_channel_arc))
+echo(str("C Channel Arc: ", c_channel_arc));
 /*
 
 ***BEGIN DISPLAYS***
 
 */
 
-/* Sample upward corner piece
-!diff("ChannelDeletes")
-path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Channel_Length_Units*Grid_Size]), anchor=TOP, orient=BOT){
-    tag("ChannelDeletes")path_sweep(topDeleteProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Channel_Length_Units*Grid_Size]));
-yrot(90)path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", -Channel_Length_Units*Grid_Size]))
-    tag("ChannelDeletes")path_sweep(topDeleteProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", -Channel_Length_Units*Grid_Size])); ;
+// Sample upward corner piece
+//!diff("ChannelDeletes")
+//path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Channel_Length_Units*Grid_Size]), anchor=TOP, orient=BOT){
+//}
+
+
+/*
+//Sample top riser
+!extrude_from_to([0,0,0],[0,25,0]) {
+    topProfile(widthMM = 25, heightMM = 12);
+    topProfile(widthMM = 25, heightMM = 12);
 }
 */
 
 
-if(Debug_Show_Grid)
-#back(12.5) back(12.5*Channel_Width_in_Units-12.5) grid_copies(spacing=Grid_Size, inside=rect([200,200]))cyl(h=8, d=7, $fn=25);//temporary 
+
+
+
+//BEGIN FILE
+
+//if(Debug_Show_Grid)
+//#back(12.5) back(12.5*Channel_Width_in_Units-12.5) grid_copies(spacing=Grid_Size, inside=rect([200,200]))cyl(h=8, d=7, $fn=25);//temporary 
 
 if(Show_Part == "Diagonal Channel" && Base_Top_or_Both != "Top")
     color_this(Global_Color) 
@@ -170,6 +190,15 @@ if(Show_Part == "Diagonal Channel" && Base_Top_or_Both != "Base")
 CHANNELS
 
 */
+
+if(Show_Part == "Y Channel" && Base_Top_or_Both != "Top")
+    color_this(Global_Color)
+        left(partSeparation/2) yChannelBase(widthMM = channelWidth, unitsOver = Y_Units_Over, unitsUp = Y_Units_Up, outputDirection = Y_Output_Direction, straightDistance = Y_Straight_Distance, anchor=BOT+RIGHT);
+
+if(Show_Part == "Y Channel" && Base_Top_or_Both != "Top")
+    color_this(Global_Color)
+        right(partSeparation/2) yChannelTop(widthMM = channelWidth, unitsOver = Y_Units_Over, unitsUp = Y_Units_Up, heightMM = Channel_Internal_Height, outputDirection = Y_Output_Direction, straightDistance = Y_Straight_Distance, anchor=TOP+RIGHT, orient=BOT);
+
 
 if(Show_Part == "L Channel" && Base_Top_or_Both != "Top")
 color_this(Global_Color)
@@ -397,12 +426,12 @@ module diagonalChannelBase(unitsOver = 1, unitsUp=3, outputDirection = "Forward"
                         else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
                     //outside holes forward option
                     tag("holes") 
-                        if(outputDirection == "Forward") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(Units_Up*Grid_Size+Grid_Size*sign(unitsUp)-Grid_Size/2*sign(unitsUp)) right(unitsOver*Grid_Size)down(0.01) 
+                        if(outputDirection == "Forward") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(unitsUp*Grid_Size+Grid_Size*sign(unitsUp)-Grid_Size/2*sign(unitsUp)) right(unitsOver*Grid_Size)down(0.01) 
                         if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
                         else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
                     //outside holes turn option
                     tag("holes") 
-                        if(outputDirection == "Turn") ycopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(Units_Up*Grid_Size+Grid_Size/2*sign(unitsUp)) right(unitsOver*Grid_Size)down(0.01) 
+                        if(outputDirection == "Turn") ycopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(unitsUp*Grid_Size+Grid_Size/2*sign(unitsUp)) right(unitsOver*Grid_Size)down(0.01) 
                         if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
                         else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
                 }
@@ -499,6 +528,90 @@ module tIntersectionTop(widthMM, heightMM, anchor, spin, orient){
         children();
     }
 }
+
+//Y CHANNELS
+module yChannelBase(unitsOver = 1, unitsUp=3, outputDirection = "Forward", straightDistance = Grid_Size, widthMM, anchor, spin, orient){
+    attachable(anchor, spin, orient, size=[unitsOver*Grid_Size*2+channelWidth,unitsUp*Grid_Size+straightDistance*2, baseHeight]){
+        fwd(unitsUp*Grid_Size/2+straightDistance)
+        down(baseHeight/2)
+            diff("holes"){
+                xflip_copy() 
+                {
+                    right_half(s=max(unitsUp*Grid_Size*4,unitsOver*Grid_Size*4)) {//s should be a number larger than twice the size of the object's largest axis. Thew some random numbers in here for now. If mirror issues surface, this is likely the culprit. 
+                        path_sweep2d(baseProfile(widthMM = widthMM), 
+                            path= outputDirection == "Forward" ? [
+                                [0,0], //start
+                                [0,straightDistance*sign(unitsUp)+0.1], //distance forward or back. 0.05 is a subtle cheat that allows for a perfect side shift without a bad polygon
+                                [unitsOver*Grid_Size,unitsUp*Grid_Size+Grid_Size*sign(unitsUp)-straightDistance*sign(unitsUp)-0.1], //movement to position before last straight
+                                [unitsOver*Grid_Size,unitsUp*Grid_Size+Grid_Size*sign(unitsUp)] //last position either out the angle or straight out
+                            ] :
+                            [ //90 degree path
+                                [0,0], //start
+                                [0,straightDistance*sign(unitsUp)+0.1], //distance forward or back. 0.05 is a subtle cheat that allows for a perfect side shift without a bad polygon
+                                [unitsOver*Grid_Size+Grid_Size/2*sign(unitsOver)-straightDistance*sign(unitsOver),unitsUp*Grid_Size+Grid_Size/2*sign(unitsUp)], //movement to position before last straight
+                                [unitsOver*Grid_Size+Grid_Size/2*sign(unitsOver),unitsUp*Grid_Size+Grid_Size/2*sign(unitsUp)] //last position either out the angle or straight out
+                            ]
+                            );
+                    }}
+                            tag("holes") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(Grid_Size/2*sign(unitsUp)) down(0.01) 
+                                if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+                                else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
+                            //outside holes forward option (right side)
+                            tag("holes") 
+                                if(outputDirection == "Forward")
+                                    move_copies([
+                                        [unitsOver*Grid_Size, unitsUp*Grid_Size+Grid_Size*sign(unitsUp)-Grid_Size/2*sign(unitsUp),-0.01],//right side
+                                        [unitsOver*Grid_Size*-1, unitsUp*Grid_Size+Grid_Size*sign(unitsUp)-Grid_Size/2*sign(unitsUp),-0.01]
+                                        ])
+                                        xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) //back(Units_Up*Grid_Size+Grid_Size*sign(unitsUp)-Grid_Size/2*sign(unitsUp)) //right(unitsOver*Grid_Size)down(0.01) 
+                                    if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+                                    else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
+                            //outside holes turn option
+                            tag("holes") 
+                                if(outputDirection == "Turn") 
+                                    move_copies([
+                                        [unitsOver*Grid_Size,unitsUp*Grid_Size+Grid_Size/2*sign(unitsUp),-0.01],
+                                        [-unitsOver*Grid_Size,unitsUp*Grid_Size+Grid_Size/2*sign(unitsUp),-0.01]
+                                        ])
+                                        ycopies(spacing = Grid_Size, n = Channel_Width_in_Units)// back(Units_Up*Grid_Size+Grid_Size/2*sign(unitsUp)) //right(unitsOver*Grid_Size)down(0.01) 
+                                if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+                                else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);  
+            if(Debug_Show_Grid)
+                #back(12.5) back(12.5*Channel_Width_in_Units-12.5) grid_copies(spacing=Grid_Size, inside=rect([200,200]))cyl(h=8, d=7, $fn=25);//temporary 
+            }
+        children();
+    }
+}
+
+module yChannelTop(unitsOver = 1, unitsUp=3, heightMM = 12, outputDirection = "Forward", straightDistance = Grid_Size, widthMM, anchor, spin, orient){
+    attachable(anchor, spin, orient, size=[unitsOver*Grid_Size*2+channelWidth,unitsUp*Grid_Size+straightDistance*2, topHeight + (heightMM-12)]){
+        fwd(unitsUp*Grid_Size/2+straightDistance)
+        down((topHeight + (heightMM-12))/2)
+            diff("holes"){
+                xflip_copy() 
+                {
+                    right_half(s=max(unitsUp*Grid_Size*4,unitsOver*Grid_Size*4)) {//s should be a number larger than twice the size of the object's largest axis. Thew some random numbers in here for now. If mirror issues surface, this is likely the culprit. 
+                        path_sweep2d(topProfile(widthMM = widthMM, heightMM = heightMM), 
+                            path= outputDirection == "Forward" ? [
+                                [0,0], //start
+                                [0,straightDistance*sign(unitsUp)+0.1], //distance forward or back. 0.05 is a subtle cheat that allows for a perfect side shift without a bad polygon
+                                [unitsOver*Grid_Size,unitsUp*Grid_Size+Grid_Size*sign(unitsUp)-straightDistance*sign(unitsUp)-0.1], //movement to position before last straight
+                                [unitsOver*Grid_Size,unitsUp*Grid_Size+Grid_Size*sign(unitsUp)] //last position either out the angle or straight out
+                            ] :
+                            [ //90 degree path
+                                [0,0], //start
+                                [0,straightDistance*sign(unitsUp)+0.1], //distance forward or back. 0.05 is a subtle cheat that allows for a perfect side shift without a bad polygon
+                                [unitsOver*Grid_Size+Grid_Size/2*sign(unitsOver)-straightDistance*sign(unitsOver),unitsUp*Grid_Size+Grid_Size/2*sign(unitsUp)], //movement to position before last straight
+                                [unitsOver*Grid_Size+Grid_Size/2*sign(unitsOver),unitsUp*Grid_Size+Grid_Size/2*sign(unitsUp)] //last position either out the angle or straight out
+                            ]
+                            );
+                    }}
+            }
+        children();
+    }
+}
+
+//THREADED SNAP
 
 module make_ThreadedSnap (offset = 3, anchor=BOT,spin=0,orient=UP){
     attachable(anchor, spin, orient, size=[11.4465*2, 11.4465*2, 6.17+offset]){

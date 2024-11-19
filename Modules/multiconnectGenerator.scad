@@ -64,8 +64,8 @@ Depth2 = 2.5; //.1
 Depth3 = 0.5; //.1
 //Offset/Tolerance of receiver part
 Offset = 0.15; //.01
-//Radius (in mm) of dimple
-DimpleSize = 1.5; //.1
+//Radius (in mm) of dimple. Default for standard Multiconnect is 1mm radius (2mm diameter)
+DimpleSize = 1; //.1
 
 /* [Hidden] */
 debug = false; 
@@ -107,12 +107,12 @@ else GeneratePart(Select_Profile, Select_Part_Type, Dimples, OnRamps);
 //
 //BEGIN Multiconnect Modules and Functions
 //
-module GeneratePart(Select_Profile, Select_Part_Type, Dimples, OnRamps){
+module GeneratePart(Width, Length, Select_Profile, Select_Part_Type, Dimples, OnRamps){
     
 
     //unadjusted cordinates, dimple size, default offset
     customSpecs = [Radius, Depth1, Depth2, Depth3, Offset, DimpleSize];
-    standardSpecs = [10, 1, 2.5, 0.5, 0.15, 1.5];
+    standardSpecs = [10, 1, 2.5, 0.5, 0.15, 1];
     jrSpecs = [5, 0.6, 1.2, 0.4, 0.16, 0.8];
     miniSpecs = [3.2, 1, 1.2, 0.4, 0.16, 0.8];
     multipointBeta = [7.9, 0.4, 2.2, 0.4, 0.15, 0.8];
@@ -247,7 +247,7 @@ module GeneratePart(Select_Profile, Select_Part_Type, Dimples, OnRamps){
     }
 }
 
-module roundedEnd(profile, dimplesEnabled = true, dimpleSize = 1.5, dimpleScale = 1, anchor=CENTER, spin=0, orient=UP){
+module roundedEnd(profile, dimplesEnabled = true, dimpleSize = 1, dimpleScale = 1, anchor=CENTER, spin=0, orient=UP){
     attachable(anchor, spin, orient, size=[maxX(profile)*2,maxY(profile),maxX(profile)]){
         //align to anchors
         down(maxX(profile)/2) back(maxY(profile)/2)
@@ -266,7 +266,7 @@ module roundedEnd(profile, dimplesEnabled = true, dimpleSize = 1.5, dimpleScale 
     }
 }
 
-module rail(length, profile, dimplesEnabled = true, dimpleSize = 1.5, dimpleScale = 1, distanceBetweenDimples = 25, onRampEnabled = false, onRampDistanceBetween = 50, anchor=CENTER, spin=0, orient=UP){
+module rail(length, profile, dimplesEnabled = true, dimpleSize = 1, dimpleScale = 1, distanceBetweenDimples = 25, onRampEnabled = false, onRampDistanceBetween = 50, anchor=CENTER, spin=0, orient=UP){
     attachable(anchor, spin, orient, size=[maxX(profile)*2,maxY(profile),length]){
         up(length/2) back(maxY(profile)/2) 
         difference(){
