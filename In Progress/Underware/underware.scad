@@ -21,7 +21,7 @@ include <BOSL2/threading.scad>
 Mounting_Method = "Threaded Snap Connector (Recommended)"; //[Direct Screw]
 
 /*[Chose Part]*/
-Show_Part = "Straight Channel"; // [Straight Channel, L Channel, C Curve Channel, X Intersection, T Intersection, Diagonal Channel, Y Channel, Snap Connector]
+Show_Part = "Straight Channel"; // [Straight Channel, L Channel, C Curve Channel, X Intersection, T Intersection, Diagonal Channel, Y Channel, Mitered Channel, Snap Connector]
 Base_Top_or_Both = "Both"; // [Base, Top, Both]
 /*[All Channels]*/
 
@@ -29,8 +29,7 @@ Base_Top_or_Both = "Both"; // [Base, Top, Both]
 Channel_Width_in_Units = 1;
 //height inside the channel (in mm)
 Channel_Internal_Height = 12; //[12:6:72]
-//View the parts as they attach. Note that you must disable this before exporting for printing. 
-Show_Attached = false;
+
 
 /*[Straight Channels]*/
 //length of channel in units (default unit is 25mm)
@@ -109,6 +108,8 @@ Snap_Offset = 3;
 Snap_Holding_Tolerance = 1; //[0.5:0.05:1.5]
 Snap_Thread_Height = 3.6;
 Debug_Show_Grid = false;
+//View the parts as they attach. Note that you must disable this before exporting for printing. 
+Show_Attached = false;
 
 
 Threaded_Snap_Connector = false;
@@ -156,11 +157,19 @@ echo(str("C Channel Arc: ", c_channel_arc));
 
 */
 
-// Sample upward corner piece
-//!diff("ChannelDeletes")
-//path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Channel_Length_Units*Grid_Size]), anchor=TOP, orient=BOT){
-//}
+/*[Mitered Top Channels]*/
+//Length (in mm) the longest edge of one top channel. This should be the distance of where the channel starts to the wall or corner.
+Length_of_Longest_Edge = 75;
 
+// Sample upward corner piece
+if(Show_Part == "Mitered Channel" && Base_Top_or_Both != "Top")
+color_this(Global_Color) left(3)
+    half_of(UP+LEFT, s=Channel_Length_Units*Grid_Size*2+10)
+        path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Length_of_Longest_Edge+14.032*2]), anchor=TOP, orient=BOT);
+
+if(Show_Part == "Mitered Channel" && Base_Top_or_Both != "Top")
+    color_this(Global_Color) down(3)yrot(-90) xrot(180)half_of(UP+LEFT, s=Channel_Length_Units*Grid_Size*2+10)
+        path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Length_of_Longest_Edge+14.032*2]), anchor=TOP, orient=BOT);
 
 /*
 //Sample top riser

@@ -107,7 +107,7 @@ module test_shape() {
         cuboid([Center_Post_Thickness + Groove_Width*Number_of_Grooves+Individual_Post_Thickness*Number_of_Grooves,Hook_Depth,Base_Thickness], chamfer=1, edges=[BOT,TOP]){
             //center post
             attach(TOP, BOT, overlap=Chamfer) cuboid([Center_Post_Thickness,Hook_Depth,Center_Post_Length+Chamfer])
-                attach(TOP, FRONT) make_backer_openEnded(Length=Hook_Depth, Width=75);
+                attach(TOP, FRONT) make_backer_openEnded(Length=max(Hook_Depth, Grid_Size), Width=25);
             attach(TOP, BOT, overlap=Chamfer) xflip_copy()
                 xcopies(sp=[Center_Post_Thickness/2+Groove_Width+Individual_Post_Thickness/2,0,0], n = Number_of_Grooves/2, spacing = Groove_Width+Individual_Post_Thickness) 
                     //individual post
