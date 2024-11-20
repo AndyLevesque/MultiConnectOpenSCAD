@@ -18,7 +18,7 @@ include <BOSL2/threading.scad>
 
 
 /*[Mounting Options]*/
-Mounting_Method = "Threaded Snap Connector (Recommended)"; //[Direct Screw]
+Mounting_Method = "Threaded Snap Connector (Recommended)"; //[Direct Multiboard Screw]
 
 /*[Chose Part]*/
 Show_Part = "Straight Channel"; // [Straight Channel, L Channel, C Curve Channel, X Intersection, T Intersection, Diagonal Channel, Y Channel, Mitered Channel, Snap Connector]
@@ -70,6 +70,10 @@ Y_Units_Up = 1;//[1:1:10]
 Y_Output_Direction = "Forward"; //[Forward, Turn]
 //Distance that the parts are straight in on the ends (before the angle). Unexpected behavior on wider channels may be resolved by changing this slider. 
 Y_Straight_Distance = 12.5; //[12.5:12.5:100]
+
+/*[Mitered Top Channels]*/
+//Length (in mm) the longest edge of one top channel. This should be the distance of where the channel starts to the wall or corner.
+Length_of_Longest_Edge = 75;
 
 /*[Advanced Options]*/
 //Units of measurement (in mm) for hole and length spacing. Multiboard is 25mm. Untested
@@ -127,7 +131,16 @@ Thread_Depth_Sm = 0.5;
 //Diameter of the hole down the middle of the screw
 Inner_Hole_Diameter_Sm = 3.3;
 //length of the threaded portion of small screw
-Thread_Length_Sm = 9;
+Thread_Length_Sm = 7;
+
+///*[Small Screw Mount]*/
+Base_Screw_Hole_Inner_Diameter = 7;
+Base_Screw_Hole_Outer_Diameter = 15;
+//Thickness of of the base bottom and the bottom of the recessed hole (i.e., thicknes of base at the recess)
+Base_Screw_Hole_Inner_Depth = 1;
+Base_Screw_Hole_Cone = false;
+
+
 
 ///*[Large Screw]*/
 //Distance (in mm) between threads
@@ -157,9 +170,7 @@ echo(str("C Channel Arc: ", c_channel_arc));
 
 */
 
-/*[Mitered Top Channels]*/
-//Length (in mm) the longest edge of one top channel. This should be the distance of where the channel starts to the wall or corner.
-Length_of_Longest_Edge = 75;
+
 
 // Sample upward corner piece
 if(Show_Part == "Mitered Channel" && Base_Top_or_Both != "Top")
@@ -280,7 +291,7 @@ if(Show_Part == "Snap Connector")
     make_ThreadedSnap(offset = Snap_Connector_Height, anchor=BOT);
 
 //Small MB Screw based on step file
-if(Mounting_Method == "Direct Screw")
+if(Mounting_Method == "Direct Multiboard Screw")
 recolor(Global_Color)
 diff()
 right(channelWidth+25) fwd(30)
@@ -288,6 +299,45 @@ cyl(d=12,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
     attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Thread_Length_Sm, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
     tag("remove")attach(BOT, BOT, inside=true, shiftout=0.01) cyl(h=16.01, d= Inner_Hole_Diameter_Sm, $fn=25, chamfer1=-1);
 }
+
+//Small MB Screw split
+if(Mounting_Method == "Direct Multiboard Screw"){
+    recolor(Global_Color)
+    diff()
+    right(channelWidth+25) {
+        left(0.2)yrot(-90)right_half()cyl(d=12,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
+            attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Thread_Length_Sm, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
+        }
+        right(0.2)yrot(90)left_half()cyl(d=12,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
+            attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Thread_Length_Sm, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
+        }
+        cuboid([0.42,10,0.2], anchor=BOT);
+    }
+}
+
+//Small MB T Screw
+if(Mounting_Method == "Direct Multiboard Screw")
+recolor(Global_Color)
+diff()
+right(channelWidth+25) back(30)
+up(2)yrot(90)left_half(x=2)right_half(x=-2)cuboid([4,14,2.5], chamfer=0.75, edges=[LEFT+FRONT, RIGHT+FRONT, RIGHT+BACK, LEFT+BACK], anchor=BOT){
+    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=6.5, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
+}
+
+//Small MB T Screw tool
+recolor(Global_Color)
+right(channelWidth+25+20) back(30)
+    diff()
+    cyl(h=8, d=14.5, $fn=50, anchor=BOT, chamfer2=1, chamfer1=0.5){
+       //bottom cutout
+       attach(BOT, BOT, inside=true, shiftout=0.01) cuboid([4.2,15,3.5], chamfer=-1, edges=[TOP+RIGHT,TOP+LEFT]);
+        //top wing
+        attach(TOP, BOT, overlap=0.01) cuboid([2,12,7], chamfer=0.5, edges=[TOP,LEFT+FRONT, RIGHT+FRONT, LEFT+BACK, RIGHT+BACK]){
+            position([RIGHT+BOT])fillet(l=11, r=1.5, orient=FRONT);
+            position([LEFT+BOT])fillet(l=11, r=1.5, spin=180, orient=BACK);
+        }
+    }
+
 
 //Large MB Screw based on step file (not used yet)
 if(Mounting_Method == "Large Bolt")
@@ -313,7 +363,7 @@ module straightChannelBase(lengthMM, widthMM, anchor, spin, orient){
         diff("holes")
         zrot(90) path_sweep(baseProfile(widthMM = widthMM), turtle(["xmove", lengthMM]))
         tag("holes")  right(lengthMM/2) grid_copies(spacing=Grid_Size, inside=rect([lengthMM-1,widthMM-1])) 
-            if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+            if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3.5-Base_Screw_Hole_Inner_Depth+0.02, d1=Base_Screw_Hole_Cone ? Base_Screw_Hole_Inner_Diameter : Base_Screw_Hole_Outer_Diameter, d2=Base_Screw_Hole_Outer_Diameter, $fn=25);
             else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
     children();
     }
@@ -363,7 +413,7 @@ module lChannelBase(lengthMM = 50, widthMM = 25, anchor, spin, orient){
         diff("holes"){
             path_sweep2d(baseProfile(widthMM = widthMM), turtle(["move", calculatedPath, "turn", 90, "move",calculatedPath] )); 
             tag("holes") right(widthMM/2+lengthMM/2) back(lengthMM/2) grid_copies(spacing=Grid_Size, inside=rect([widthMM+lengthMM-1,widthMM+lengthMM-1])) 
-                if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+                if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=10, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
                 else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
         }
     children();
@@ -389,10 +439,10 @@ module curvedChannelBase(radiusMM, widthMM, anchor, spin, orient){
             diff("holes"){
                 path_sweep(baseProfile(widthMM = widthMM), turtle(["move", Grid_Size, "arcleft", radiusMM, 90, "move", Grid_Size])) {
                     tag("holes") ycopies(spacing = Grid_Size, n = Channel_Width_in_Units) right(Grid_Size/2) down(0.01) 
-                        if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+                        if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
                         else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
                     tag("holes") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) right(Grid_Size + channelWidth/2 + (radiusMM - channelWidth/2)) back(channelWidth/2 + Grid_Size/2 + (radiusMM - channelWidth/2)) down(0.01) 
-                        if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+                        if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
                         else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
                     //#tag("holes") right(12.5) back(12.5*Channel_Width_in_Units-12.5)#grid_copies(spacing=Grid_Size, inside=rect([200,200]))cyl(h=8, d=7, $fn=25);//temporary 
                 }
@@ -431,17 +481,17 @@ module diagonalChannelBase(unitsOver = 1, unitsUp=3, outputDirection = "Forward"
                     ]
                     ) {
                     tag("holes") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(Grid_Size/2*sign(unitsUp)) down(0.01) 
-                        if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+                        if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
                         else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
                     //outside holes forward option
                     tag("holes") 
                         if(outputDirection == "Forward") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(unitsUp*Grid_Size+Grid_Size*sign(unitsUp)-Grid_Size/2*sign(unitsUp)) right(unitsOver*Grid_Size)down(0.01) 
-                        if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+                        if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
                         else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
                     //outside holes turn option
                     tag("holes") 
                         if(outputDirection == "Turn") ycopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(unitsUp*Grid_Size+Grid_Size/2*sign(unitsUp)) right(unitsOver*Grid_Size)down(0.01) 
-                        if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+                        if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
                         else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
                 }
             }
@@ -481,7 +531,7 @@ module crossIntersectionBase(widthMM, anchor, spin, orient){
         //zrot_copies(n=4) straightChannelBase(lengthMM = Grid_Size*3, widthMM = channelWidth) //old approach with unwanted straight channel inheritance
         tag("channelClear") zrot_copies(n=4) straightChannelBaseDeleteTool(widthMM = channelWidth+0.02, lengthMM = Grid_Size+channelWidth); 
         tag("holes") down(4)grid_copies(spacing=Grid_Size, inside=rect([x_channel_X-1,x_channel_Y-1])) 
-            if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+            if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
             else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
         }
         children();
@@ -514,7 +564,7 @@ module tIntersectionBase(widthMM, anchor, spin, orient){
         zrot(90) left(channelWidth/2+Grid_Size)path_sweep(baseProfile(widthMM = widthMM), turtle(["move", channelWidth+Grid_Size*2]));
         tag("channelClear") straightChannelBaseDeleteTool(widthMM = channelWidth+0.02, lengthMM = channelWidth+Grid_Size*2, anchor=BOT);
         tag("holes") grid_copies(n=2+Channel_Width_in_Units, spacing=Grid_Size) 
-            if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+            if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
             else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
         }
         }
@@ -563,7 +613,7 @@ module yChannelBase(unitsOver = 1, unitsUp=3, outputDirection = "Forward", strai
                             );
                     }}
                             tag("holes") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(Grid_Size/2*sign(unitsUp)) down(0.01) 
-                                if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+                                if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
                                 else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
                             //outside holes forward option (right side)
                             tag("holes") 
@@ -573,7 +623,7 @@ module yChannelBase(unitsOver = 1, unitsUp=3, outputDirection = "Forward", strai
                                         [unitsOver*Grid_Size*-1, unitsUp*Grid_Size+Grid_Size*sign(unitsUp)-Grid_Size/2*sign(unitsUp),-0.01]
                                         ])
                                         xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) //back(Units_Up*Grid_Size+Grid_Size*sign(unitsUp)-Grid_Size/2*sign(unitsUp)) //right(unitsOver*Grid_Size)down(0.01) 
-                                    if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+                                    if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
                                     else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
                             //outside holes turn option
                             tag("holes") 
@@ -583,7 +633,7 @@ module yChannelBase(unitsOver = 1, unitsUp=3, outputDirection = "Forward", strai
                                         [-unitsOver*Grid_Size,unitsUp*Grid_Size+Grid_Size/2*sign(unitsUp),-0.01]
                                         ])
                                         ycopies(spacing = Grid_Size, n = Channel_Width_in_Units)// back(Units_Up*Grid_Size+Grid_Size/2*sign(unitsUp)) //right(unitsOver*Grid_Size)down(0.01) 
-                                if(Mounting_Method == "Direct Screw") cyl(h=8, d=7, $fn=25);
+                                if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
                                 else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);  
             if(Debug_Show_Grid)
                 #back(12.5) back(12.5*Channel_Width_in_Units-12.5) grid_copies(spacing=Grid_Size, inside=rect([200,200]))cyl(h=8, d=7, $fn=25);//temporary 
