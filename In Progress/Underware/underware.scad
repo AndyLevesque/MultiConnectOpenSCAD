@@ -21,7 +21,7 @@ include <BOSL2/threading.scad>
 Mounting_Method = "Threaded Snap Connector (Recommended)"; //[Direct Multiboard Screw]
 
 /*[Chose Part]*/
-Show_Part = "Straight Channel"; // [Straight Channel, L Channel, C Curve Channel, X Intersection, T Intersection, Diagonal Channel, Y Channel, Mitered Channel, Snap Connector]
+Show_Part = "Straight Channel"; // [Straight Channel, L Channel, C Curve Channel, X Intersection, T Intersection, Diagonal Channel, Y Channel, Mitered Channel, Snap Connector, Bolts]
 Base_Top_or_Both = "Both"; // [Base, Top, Both]
 /*[All Channels]*/
 
@@ -291,20 +291,20 @@ if(Show_Part == "Snap Connector")
     make_ThreadedSnap(offset = Snap_Connector_Height, anchor=BOT);
 
 //Small MB Screw based on step file
-if(Mounting_Method == "Direct Multiboard Screw")
+if(Show_Part == "Bolts")
 recolor(Global_Color)
 diff()
-right(channelWidth+25) fwd(30)
+fwd(30)
 cyl(d=12,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
     attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Thread_Length_Sm, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
     tag("remove")attach(BOT, BOT, inside=true, shiftout=0.01) cyl(h=16.01, d= Inner_Hole_Diameter_Sm, $fn=25, chamfer1=-1);
 }
 
 //Small MB Screw split
-if(Mounting_Method == "Direct Multiboard Screw"){
+if(Show_Part == "Bolts"){
     recolor(Global_Color)
     diff()
-    right(channelWidth+25) {
+    {
         left(0.2)yrot(-90)right_half()cyl(d=12,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
             attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Thread_Length_Sm, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
         }
@@ -316,21 +316,22 @@ if(Mounting_Method == "Direct Multiboard Screw"){
 }
 
 //Small MB T Screw
-if(Mounting_Method == "Direct Multiboard Screw")
+if(Show_Part == "Bolts")
 recolor(Global_Color)
 diff()
-right(channelWidth+25) back(30)
+back(30)
 up(2)yrot(90)left_half(x=2)right_half(x=-2)cuboid([4,14,2.5], chamfer=0.75, edges=[LEFT+FRONT, RIGHT+FRONT, RIGHT+BACK, LEFT+BACK], anchor=BOT){
     attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=6.5, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
 }
 
+if(Show_Part == "Bolts")
 //Small MB T Screw tool
 recolor(Global_Color)
-right(channelWidth+25+20) back(30)
+back(50)
     diff()
     cyl(h=8, d=14.5, $fn=50, anchor=BOT, chamfer2=1, chamfer1=0.5){
        //bottom cutout
-       attach(BOT, BOT, inside=true, shiftout=0.01) cuboid([4.2,15,3.5], chamfer=-1, edges=[TOP+RIGHT,TOP+LEFT]);
+       attach(BOT, BOT, inside=true, shiftout=0.01) cuboid([4.2,15,3.5], chamfer=1, edges=[TOP+RIGHT,TOP+LEFT]);
         //top wing
         attach(TOP, BOT, overlap=0.01) cuboid([2,12,7], chamfer=0.5, edges=[TOP,LEFT+FRONT, RIGHT+FRONT, LEFT+BACK, RIGHT+BACK]){
             position([RIGHT+BOT])fillet(l=11, r=1.5, orient=FRONT);
