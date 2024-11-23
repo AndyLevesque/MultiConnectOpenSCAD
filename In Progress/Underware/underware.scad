@@ -18,7 +18,7 @@ include <BOSL2/threading.scad>
 
 
 /*[Mounting Options]*/
-Mounting_Method = "Threaded Snap Connector (Recommended)"; //[Direct Multiboard Screw]
+Mounting_Method = "Threaded Snap Connector"; //[Threaded Snap Connector, Direct Multiboard Screw]
 
 /*[Chose Part]*/
 Show_Part = "Straight Channel"; // [Straight Channel, L Channel, C Curve Channel, X Intersection, T Intersection, Diagonal Channel, Y Channel, Mitered Channel, Snap Connector, Bolts]
