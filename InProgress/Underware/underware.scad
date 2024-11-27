@@ -75,6 +75,14 @@ Y_Straight_Distance = 12.5; //[12.5:12.5:100]
 //Length (in mm) the longest edge of one top channel. This should be the distance of where the channel starts to the wall or corner.
 Length_of_Longest_Edge = 75;
 
+/*[Threaded Snap Connector]*/
+//Height (in mm) the snap connector rests above the board. 3mm is standard. 0mm results in a flush fit. 
+Snap_Connector_Height = 3;
+
+/*[Bolts]*/
+//length of the threaded portion of small screw. MB is 6mm thick and the recessed hole in base channels is 1mm deep. 
+Thread_Length_Sm = 6.5;
+
 /*[Advanced Options]*/
 //Units of measurement (in mm) for hole and length spacing. Multiboard is 25mm. Untested
 Grid_Size = 25;
@@ -82,8 +90,8 @@ Grid_Size = 25;
 Curve_Resolution = 25;
 //Color of part (color names found at https://en.wikipedia.org/wiki/Web_colors)
 Global_Color = "SlateBlue";
-//Height (in mm) the snap connector rests above the board. 3mm is standard. 0mm results in a flush fit. 
-Snap_Connector_Height = 3;
+
+
 
 /*[Label]*/
 //Create label using multicolor on straight channel
@@ -130,8 +138,7 @@ Flank_Angle_Sm = 60;
 Thread_Depth_Sm = 0.5;
 //Diameter of the hole down the middle of the screw
 Inner_Hole_Diameter_Sm = 3.3;
-//length of the threaded portion of small screw
-Thread_Length_Sm = 7;
+
 
 ///*[Small Screw Mount]*/
 Base_Screw_Hole_Inner_Diameter = 7;
@@ -321,7 +328,7 @@ recolor(Global_Color)
 diff()
 back(30)
 up(2)yrot(90)left_half(x=2)right_half(x=-2)cuboid([4,14,2.5], chamfer=0.75, edges=[LEFT+FRONT, RIGHT+FRONT, RIGHT+BACK, LEFT+BACK], anchor=BOT){
-    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=6.5, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
+    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Thread_Length_Sm, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
 }
 
 if(Show_Part == "Bolts")
