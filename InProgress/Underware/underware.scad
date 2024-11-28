@@ -8,7 +8,8 @@ Credit to
     @Lyric on Printables for the flush connector idea
 
     
-Licensed Creative Commons 4.0 Attribution Non-Commercial Share-Alike (CC-BY-NC-SA)
+All parts except for Snap Connector are Licensed Creative Commons 4.0 Attribution Non-Commercial Share-Alike (CC-BY-NC-SA)
+Snap Connector adopts the Multiboard.io license at multiboard.io/license
 */
 
 include <BOSL2/std.scad>
@@ -78,6 +79,8 @@ Length_of_Longest_Edge = 75;
 /*[Threaded Snap Connector]*/
 //Height (in mm) the snap connector rests above the board. 3mm is standard. 0mm results in a flush fit. 
 Snap_Connector_Height = 3;
+//Scale of the Snap Connector holding 'bumpouts'. 1 is standard. 0.5 is half size. 1.5 is 50% larger. Large = stronger hold. 
+Snap_Holding_Tolerance = 1; //[0.5:0.05:1.5]
 
 /*[Bolts]*/
 //length of the threaded portion of small screw. MB is 6mm thick and the recessed hole in base channels is 1mm deep. 
@@ -115,9 +118,7 @@ topHeight = 10.968;
 interlockOverlap = 3.09; //distance that the top and base overlap each other
 interlockFromFloor = 6.533; //distance from the bottom of the base to the bottom of the top when interlocked
 partSeparation = 10;
-//mm that the snap protrudes from the board
-Snap_Offset = 3;
-Snap_Holding_Tolerance = 1; //[0.5:0.05:1.5]
+
 Snap_Thread_Height = 3.6;
 Debug_Show_Grid = false;
 //View the parts as they attach. Note that you must disable this before exporting for printing. 
@@ -825,7 +826,7 @@ module snapConnectBacker(offset = 0, holdingTolerance=1, anchor=CENTER, spin=0, 
             
             //end base
             //bumpouts
-            attach([RIGHT, LEFT, FWD, BACK],LEFT, shiftout=-0.01)  color("green") down(0.87) fwd(1)scale([1,1,holdingTolerance]) zrot(270)offset_sweep(path = bumpout, height=3);
+            attach([RIGHT, LEFT, FWD, BACK],LEFT, shiftout=-0.01)  color("green") down(0.87) fwd(1)scale([1,1,holdingTolerance]) zrot(90)offset_sweep(path = bumpout, height=3);
             //delete tools
             //Bottom and side cutout - 2 cubes that form an L (cut from bottom and from outside) and then rotated around the side
             tag("remove") 
