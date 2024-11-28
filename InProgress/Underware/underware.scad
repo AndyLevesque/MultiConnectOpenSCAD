@@ -825,7 +825,7 @@ module snapConnectBacker(offset = 0, holdingTolerance=1, anchor=CENTER, spin=0, 
             
             //end base
             //bumpouts
-            attach([RIGHT, LEFT, FWD, BACK],LEFT, shiftout=-0.01)  color("green") down(0.87) fwd(1)scale([1,1,holdingTolerance])offset_sweep(path = bumpout, height=3, spin=[0,270,0]);
+            attach([RIGHT, LEFT, FWD, BACK],LEFT, shiftout=-0.01)  color("green") down(0.87) fwd(1)scale([1,1,holdingTolerance]) zrot(270)offset_sweep(path = bumpout, height=3);
             //delete tools
             //Bottom and side cutout - 2 cubes that form an L (cut from bottom and from outside) and then rotated around the side
             tag("remove") 
