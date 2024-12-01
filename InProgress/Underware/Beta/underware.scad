@@ -8,8 +8,7 @@ Credit to
     @Lyric on Printables for the flush connector idea
 
     
-All parts except for Snap Connector are Licensed Creative Commons 4.0 Attribution Non-Commercial Share-Alike (CC-BY-NC-SA)
-Snap Connector adopts the Multiboard.io license at multiboard.io/license
+All parts are Licensed Creative Commons 4.0 Attribution Non-Commercial Share-Alike (CC-BY-NC-SA)
 */
 
 include <BOSL2/std.scad>
@@ -18,13 +17,14 @@ include <BOSL2/threading.scad>
 
 
 
-/*[Mounting Options]*/
-Mounting_Method = "Threaded Snap Connector"; //[Threaded Snap Connector, Direct Multiboard Screw]
-
-/*[Chose Part]*/
-Show_Part = "Straight Channel"; // [Straight Channel, L Channel, C Curve Channel, X Intersection, T Intersection, Diagonal Channel, Y Channel, Mitered Channel, Snap Connector, Bolts]
+/*[Choose Part]*/
+Choose_Part = "I-Channel - Straight"; // [I-Channel - Straight, C-Channel - Curved, L-Channel,  T-Channel, X-Channel, Y-Channel, Diagonal Channel, Mitre Channel]
 Base_Top_or_Both = "Both"; // [Base, Top, Both]
-/*[All Channels]*/
+/*[Channel Height and Width]*/
+
+/*[Mounting Options]*/
+//How do you intend to connect the channels to a surface such as Honeycomb Storage Wall or Multiboard? See options at https://coda.io/@andylevesque/underware
+Mounting_Method = "Threaded Snap Connector"; //[Threaded Snap Connector, Direct Multiboard Screw]
 
 //width of channel in units (default unit is 25mm)
 Channel_Width_in_Units = 1;
@@ -32,7 +32,7 @@ Channel_Width_in_Units = 1;
 Channel_Internal_Height = 12; //[12:6:72]
 
 
-/*[Straight Channels]*/
+/*[Options: I-Channel]*/
 //length of channel in units (default unit is 25mm)
 Channel_Length_Units = 5; 
 Number_of_Cord_Cutouts = 0;
@@ -44,15 +44,15 @@ Distance_Between_Cutouts = 25;
 //Distance (in mm) to shift all cutouts forward (positive) or back (negative)
 Shift_Cutouts_Forward_or_Back = 0;
 
-/*[L Channels]*/
+/*[Options: L-Channel]*/
 //Number of grids extending from the corner grid
 L_Channel_Length_in_Units = 1;
 
-/*[C Channels]*/
+/*[Options: C-Channel]*/
 //Grid units to curve. 2 = up 2 and over 2 grids.
 Curve_Radius_in_Units = 2;
 
-/*[Diagonal Channels]*/
+/*[Options: Diagonal Channel]*/
 //Grid units to move over
 Units_Over = 2; //[-10:1:10]
 //Grid units to move up
@@ -62,7 +62,7 @@ Output_Direction = "Turn"; //[Forward, Turn]
 //Distance that the parts are straight in on the ends (before the angle)
 Straight_Distance = 25;//[12.5:12.5:100]
 
-/*[Y Channels]*/
+/*[Options: Y-Channel]*/
 //Grid units to move over. Both sides will move over and away from the center by this amount.
 Y_Units_Over = 1; //[1:1:10]
 //Grid units to move up
@@ -72,19 +72,9 @@ Y_Output_Direction = "Forward"; //[Forward, Turn]
 //Distance that the parts are straight in on the ends (before the angle). Unexpected behavior on wider channels may be resolved by changing this slider. 
 Y_Straight_Distance = 12.5; //[12.5:12.5:100]
 
-/*[Mitered Top Channels]*/
+/*[Options: Waterfall Channel]*/
 //Length (in mm) the longest edge of one top channel. This should be the distance of where the channel starts to the wall or corner.
 Length_of_Longest_Edge = 75;
-
-/*[Threaded Snap Connector]*/
-//Height (in mm) the snap connector rests above the board. 3mm is standard. 0mm results in a flush fit. 
-Snap_Connector_Height = 3;
-//Scale of the Snap Connector holding 'bumpouts'. 1 is standard. 0.5 is half size. 1.5 is 50% larger. Large = stronger hold. 
-Snap_Holding_Tolerance = 1; //[0.5:0.05:1.5]
-
-/*[Bolts]*/
-//length of the threaded portion of small screw. MB is 6mm thick and the recessed hole in base channels is 1mm deep. 
-Thread_Length_Sm = 6.5;
 
 /*[Advanced Options]*/
 //Units of measurement (in mm) for hole and length spacing. Multiboard is 25mm. Untested
@@ -96,7 +86,7 @@ Global_Color = "SlateBlue";
 
 
 
-/*[Label]*/
+/*[Straight Channel Label]*/
 //Create label using multicolor on straight channel
 Add_Label = false;
 //Text to appear on label
@@ -119,16 +109,12 @@ interlockOverlap = 3.09; //distance that the top and base overlap each other
 interlockFromFloor = 6.533; //distance from the bottom of the base to the bottom of the top when interlocked
 partSeparation = 10;
 
-Snap_Thread_Height = 3.6;
+
 Debug_Show_Grid = false;
 //View the parts as they attach. Note that you must disable this before exporting for printing. 
 Show_Attached = false;
 
-
-Threaded_Snap_Connector = false;
-
-
-///*[Small Screw]*/
+///*[Small Screw Profile]*/
 //Distance (in mm) between threads
 Pitch_Sm = 3;
 //Diameter (in mm) at the outer threads
@@ -137,11 +123,11 @@ Outer_Diameter_Sm = 6.747;
 Flank_Angle_Sm = 60;
 //Depth (in mm) of the thread
 Thread_Depth_Sm = 0.5;
-//Diameter of the hole down the middle of the screw
+//Diameter of the hole down the middle of the screw (for strength)
 Inner_Hole_Diameter_Sm = 3.3;
 
 
-///*[Small Screw Mount]*/
+///*[Direct Screw Mount]*/
 Base_Screw_Hole_Inner_Diameter = 7;
 Base_Screw_Hole_Outer_Diameter = 15;
 //Thickness of of the base bottom and the bottom of the recessed hole (i.e., thicknes of base at the recess)
@@ -150,17 +136,7 @@ Base_Screw_Hole_Cone = false;
 
 
 
-///*[Large Screw]*/
-//Distance (in mm) between threads
-Pitch_Lg = 2.5;
-//Diameter (in mm) at the outer threads
-Outer_Diameter_Lg = 22.245;
-//Angle of the one side of the thread
-Flank_Angle_Lg = 45;
-//Depth (in mm) of the thread
-Thread_Depth_Lg = 0.75;
-//Diameter of the hole down the middle of the bolt
-Inner_Hole_Diameter_Lg = 10;
+
 
 //Part Size Calculations
 straight_channel_Y = Grid_Size * Channel_Length_Units;
@@ -181,12 +157,12 @@ echo(str("C Channel Arc: ", c_channel_arc));
 
 
 // Sample upward corner piece
-if(Show_Part == "Mitered Channel" && Base_Top_or_Both != "Top")
+if(Choose_Part == "Mitre Channel" && Base_Top_or_Both != "Top")
 color_this(Global_Color) left(3)
     half_of(UP+LEFT, s=Channel_Length_Units*Grid_Size*2+10)
         path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Length_of_Longest_Edge+14.032*2]), anchor=TOP, orient=BOT);
 
-if(Show_Part == "Mitered Channel" && Base_Top_or_Both != "Top")
+if(Choose_Part == "Mitre Channel" && Base_Top_or_Both != "Top")
     color_this(Global_Color) down(3)yrot(-90) xrot(180)half_of(UP+LEFT, s=Channel_Length_Units*Grid_Size*2+10)
         path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Length_of_Longest_Edge+14.032*2]), anchor=TOP, orient=BOT);
 
@@ -207,10 +183,10 @@ if(Show_Part == "Mitered Channel" && Base_Top_or_Both != "Top")
 //if(Debug_Show_Grid)
 //#back(12.5) back(12.5*Channel_Width_in_Units-12.5) grid_copies(spacing=Grid_Size, inside=rect([200,200]))cyl(h=8, d=7, $fn=25);//temporary 
 
-if(Show_Part == "Diagonal Channel" && Base_Top_or_Both != "Top")
+if(Choose_Part == "Diagonal Channel" && Base_Top_or_Both != "Top")
     color_this(Global_Color) 
         diagonalChannelBase(unitsOver = Units_Over, unitsUp = Units_Up, outputDirection = Output_Direction, straightDistance = Straight_Distance, widthMM = Channel_Width_in_Units * Grid_Size, anchor = BOT);
-if(Show_Part == "Diagonal Channel" && Base_Top_or_Both != "Base")
+if(Choose_Part == "Diagonal Channel" && Base_Top_or_Both != "Base")
     color_this(Global_Color) left(channelWidth*sign(Units_Over)+partSeparation*sign(Units_Over)) 
         diagonalChannelTop(unitsOver = Units_Over, unitsUp = Units_Up, outputDirection = Output_Direction, straightDistance = Straight_Distance, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height, anchor = TOP, orient = Show_Attached ? TOP :  BOT);
 /*
@@ -219,20 +195,20 @@ CHANNELS
 
 */
 
-if(Show_Part == "Y Channel" && Base_Top_or_Both != "Top")
+if(Choose_Part == "Y-Channel" && Base_Top_or_Both != "Top")
     color_this(Global_Color)
         left(partSeparation/2) yChannelBase(widthMM = channelWidth, unitsOver = Y_Units_Over, unitsUp = Y_Units_Up, outputDirection = Y_Output_Direction, straightDistance = Y_Straight_Distance, anchor=BOT+RIGHT);
 
-if(Show_Part == "Y Channel" && Base_Top_or_Both != "Top")
+if(Choose_Part == "Y-Channel" && Base_Top_or_Both != "Top")
     color_this(Global_Color)
         right(partSeparation/2) yChannelTop(widthMM = channelWidth, unitsOver = Y_Units_Over, unitsUp = Y_Units_Up, heightMM = Channel_Internal_Height, outputDirection = Y_Output_Direction, straightDistance = Y_Straight_Distance, anchor=TOP+RIGHT, orient=BOT);
 
 
-if(Show_Part == "L Channel" && Base_Top_or_Both != "Top")
+if(Choose_Part == "L-Channel" && Base_Top_or_Both != "Top")
 color_this(Global_Color)
     left(Show_Attached ? 0 : partSeparation)
         lChannelBase(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, anchor=Show_Attached ? BOT : BOT+RIGHT);
-if(Show_Part == "L Channel" && Base_Top_or_Both != "Base")
+if(Choose_Part == "L-Channel" && Base_Top_or_Both != "Base")
 color_this(Global_Color)
     up(Show_Attached ? interlockFromFloor : 0)
     right(Show_Attached ? 0 : partSeparation)
@@ -240,11 +216,11 @@ color_this(Global_Color)
 
 
 
-if(Show_Part == "Straight Channel" && Base_Top_or_Both != "Top")
+if(Choose_Part == "I-Channel - Straight" && Base_Top_or_Both != "Top")
 color_this(Global_Color)
         left(Show_Attached ? 0 : channelWidth/2)
             straightChannelBase(lengthMM = Channel_Length_Units * Grid_Size, widthMM = channelWidth, anchor=BOT);
-if(Show_Part == "Straight Channel" && Base_Top_or_Both != "Base")
+if(Choose_Part == "I-Channel - Straight" && Base_Top_or_Both != "Base")
 color_this(Global_Color)
         right(Show_Attached ? 0 : channelWidth/2 + 5)
         up(Show_Attached ? interlockFromFloor : Add_Label ? 0.01 : 0)
@@ -254,33 +230,33 @@ color_this(Global_Color)
                 right(Text_x_coordinate)text3d(Text, size = Text_size, h=0.05, font = surname_font, atype="ycenter", anchor=CENTER);
 
 
-if(Show_Part == "C Curve Channel" && Base_Top_or_Both != "Top")
+if(Choose_Part == "C-Channel - Curved" && Base_Top_or_Both != "Top")
 color_this(Global_Color)
     left(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
         curvedChannelBase(radiusMM = c_channel_arc, widthMM = channelWidth, anchor=BOT);
-if(Show_Part == "C Curve Channel" && Base_Top_or_Both != "Base")
+if(Choose_Part == "C-Channel - Curved" && Base_Top_or_Both != "Base")
 color_this(Global_Color)
     right(Show_Attached ? 0 : radius_channel_Y + partSeparation / 2)
     up(Show_Attached ? interlockFromFloor : 0)
         curvedChannelTop(radiusMM = c_channel_arc, widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor = Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
 
-if(Show_Part == "X Intersection" && Base_Top_or_Both != "Top")
+if(Choose_Part == "X-Channel" && Base_Top_or_Both != "Top")
     //cross intersection
 color_this(Global_Color) 
     left(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
         crossIntersectionBase(widthMM = channelWidth, anchor=BOT);
-if(Show_Part == "X Intersection" && Base_Top_or_Both != "Base")
+if(Choose_Part == "X-Channel" && Base_Top_or_Both != "Base")
 color_this(Global_Color)
     right(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
     up(Show_Attached ? interlockFromFloor : 0) 
         crossIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
 
 
-if(Show_Part == "T Intersection"&& Base_Top_or_Both != "Top")
+if(Choose_Part == "T-Channel"&& Base_Top_or_Both != "Top")
 color_this(Global_Color)
     left(Show_Attached ? 0 : partSeparation)
         tIntersectionBase(widthMM = channelWidth, anchor=Show_Attached ? BOT : BOT+RIGHT);
-if(Show_Part == "T Intersection"&& Base_Top_or_Both != "Base")
+if(Choose_Part == "T-Channel"&& Base_Top_or_Both != "Base")
 color_this(Global_Color)
     right(Show_Attached ? 0 : partSeparation)
     up(Show_Attached ? interlockFromFloor : 0) 
@@ -288,75 +264,7 @@ color_this(Global_Color)
 
 
 
-/*
 
-MOUNTING PARTS
-
-*/
-
-if(Show_Part == "Snap Connector")
-    recolor(Global_Color)
-    make_ThreadedSnap(offset = Snap_Connector_Height, anchor=BOT);
-
-//Small MB Screw based on step file
-if(Show_Part == "Bolts")
-recolor(Global_Color)
-diff()
-fwd(30)
-cyl(d=12,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
-    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Thread_Length_Sm, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
-    tag("remove")attach(BOT, BOT, inside=true, shiftout=0.01) cyl(h=16.01, d= Inner_Hole_Diameter_Sm, $fn=25, chamfer1=-1);
-}
-
-//Small MB Screw split
-if(Show_Part == "Bolts"){
-    recolor(Global_Color)
-    diff()
-    {
-        left(0.2)yrot(-90)right_half()cyl(d=12,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
-            attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Thread_Length_Sm, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
-        }
-        right(0.2)yrot(90)left_half()cyl(d=12,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
-            attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Thread_Length_Sm, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
-        }
-        cuboid([0.42,10,0.2], anchor=BOT);
-    }
-}
-
-//Small MB T Screw
-if(Show_Part == "Bolts")
-recolor(Global_Color)
-diff()
-back(30)
-up(2)yrot(90)left_half(x=2)right_half(x=-2)cuboid([4,14,2.5], chamfer=0.75, edges=[LEFT+FRONT, RIGHT+FRONT, RIGHT+BACK, LEFT+BACK], anchor=BOT){
-    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Thread_Length_Sm, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false);
-}
-
-if(Show_Part == "Bolts")
-//Small MB T Screw tool
-recolor(Global_Color)
-back(50)
-    diff()
-    cyl(h=8, d=14.5, $fn=50, anchor=BOT, chamfer2=1, chamfer1=0.5){
-       //bottom cutout
-       attach(BOT, BOT, inside=true, shiftout=0.01) cuboid([4.2,15,3.5], chamfer=1, edges=[TOP+RIGHT,TOP+LEFT]);
-        //top wing
-        attach(TOP, BOT, overlap=0.01) cuboid([2,12,7], chamfer=0.5, edges=[TOP,LEFT+FRONT, RIGHT+FRONT, LEFT+BACK, RIGHT+BACK]){
-            position([RIGHT+BOT])fillet(l=11, r=1.5, orient=FRONT);
-            position([LEFT+BOT])fillet(l=11, r=1.5, spin=180, orient=BACK);
-        }
-    }
-
-
-//Large MB Screw based on step file (not used yet)
-if(Mounting_Method == "Large Bolt")
-color_this(Global_Color)
-diff()
-right(channelWidth+25) back(30)
-cyl(d=30,h=2.5, $fn=6, anchor=BOT, chamfer2=0.6){
-    attach(TOP, BOT) trapezoidal_threaded_rod(d=Outer_Diameter_Lg, l=10, pitch=Pitch_Lg, flank_angle = Flank_Angle_Lg, thread_depth = Thread_Depth_Lg, $fn=50, bevel2 = true, blunt_start=false);
-    tag("remove")attach(BOT, BOT, inside=true, shiftout=0.01) cyl(h=16.01, d= Inner_Hole_Diameter_Lg, $fn=25 );
-}
 
 /*
 
@@ -597,7 +505,7 @@ module tIntersectionTop(widthMM, heightMM, anchor, spin, orient){
     }
 }
 
-//Y CHANNELS
+//Y-ChannelS
 module yChannelBase(unitsOver = 1, unitsUp=3, outputDirection = "Forward", straightDistance = Grid_Size, widthMM, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[unitsOver*Grid_Size*2+channelWidth,unitsUp*Grid_Size+straightDistance*2, baseHeight]){
         fwd(unitsUp*Grid_Size/2+straightDistance)
@@ -679,16 +587,7 @@ module yChannelTop(unitsOver = 1, unitsUp=3, heightMM = 12, outputDirection = "F
     }
 }
 
-//THREADED SNAP
 
-module make_ThreadedSnap (offset = 3, anchor=BOT,spin=0,orient=UP){
-    attachable(anchor, spin, orient, size=[11.4465*2, 11.4465*2, 6.17+offset]){
-    snapConnectBacker(offset = offset, holdingTolerance = Snap_Holding_Tolerance) {
-        attach(TOP, BOT, overlap=0.01) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=Snap_Thread_Height, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=anchor,spin=spin,orient=orient);
-    }
-    children();
-    }
-}
 
 //BEGIN PROFILES
 
@@ -795,64 +694,3 @@ function maxX(path) = max([for (p = path) p[0]]) + abs(min([for (p = path) p[0]]
 function maxY(path) = max([for (p = path) p[1]]) + abs(min([for (p = path) p[1]]));
 
 
-/*
-
-BEGIN SNAP CONNECTOR
-
-*/
-
-module snapConnectBacker(offset = 0, holdingTolerance=1, anchor=CENTER, spin=0, orient=UP){
-    attachable(anchor, spin, orient, size=[11.4465*2, 11.4465*2, 6.17+offset]){ 
-    //bumpout profile
-    bumpout = turtle([
-        "ymove", -2.237,
-        "turn", 40,
-        "move", 0.557,
-        "arcleft", 0.5, 50,
-        "ymove", 0.252
-        ]   );
-
-    down(6.2/2+offset/2)
-    union(){
-    diff("remove")
-        //base
-            oct_prism(h = 4.23, r = 11.4465, anchor=BOT) {
-                //first bevel
-                attach(TOP, BOT, shiftout=-0.01) oct_prism(h = 1.97, r1 = 11.4465, r2 = 12.5125, $fn =8, anchor=BOT)
-                    //top - used as offset. Independen snap height is 2.2
-                    attach(TOP, BOT, shiftout=-0.01) oct_prism(h = offset, r = 12.9885, anchor=BOTTOM);
-                        //top bevel - not used when applied as backer
-                        //position(TOP) oct_prism(h = 0.4, r1 = 12.9985, r2 = 12.555, anchor=BOTTOM);
-            
-            //end base
-            //bumpouts
-            attach([RIGHT, LEFT, FWD, BACK],LEFT, shiftout=-0.01)  color("green") down(0.87) fwd(1)scale([1,1,holdingTolerance]) zrot(90)offset_sweep(path = bumpout, height=3);
-            //delete tools
-            //Bottom and side cutout - 2 cubes that form an L (cut from bottom and from outside) and then rotated around the side
-            tag("remove") 
-                 align(BOTTOM, [RIGHT, BACK, LEFT, FWD], inside=true, shiftout=0.01, inset = 1.6) 
-                    color("lightblue") cuboid([0.8,7.161,3.4], spin=90*$idx)
-                        align(RIGHT, [TOP]) cuboid([0.8,7.161,1], anchor=BACK);
-            }
-    }
-    children();
-    }
-
-    //octo_prism - module that creates an oct_prism with anchors positioned on the faces instead of the edges (as per cyl default for 8 sides)
-    module oct_prism(h, r=0, r1=0, r2=0, anchor=CENTER, spin=0, orient=UP) {
-        attachable(anchor, spin, orient, size=[max(r*2, r1*2, r2*2), max(r*2, r1*2, r2*2), h]){ 
-            down(h/2)
-            if (r != 0) {
-                // If r is provided, create a regular octagonal prism with radius r
-                rotate (22.5) cylinder(h=h, r1=r, r2=r, $fn=8) rotate (-22.5);
-            } else if (r1 != 0 && r2 != 0) {
-                // If r1 and r2 are provided, create an octagonal prism with different top and bottom radii
-                rotate (22.5) cylinder(h=h, r1=r1, r2=r2, $fn=8) rotate (-22.5);
-            } else {
-                echo("Error: You must provide either r or both r1 and r2.");
-            }  
-            children(); 
-        }
-    }
-    
-}
