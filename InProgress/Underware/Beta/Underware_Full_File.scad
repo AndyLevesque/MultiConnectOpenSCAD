@@ -138,74 +138,28 @@ radius_channel_Y = Grid_Size + channelWidth + (Curve_Radius_in_Units*channelWidt
 c_channel_arc = Grid_Size*(Channel_Width_in_Units/2 + Curve_Radius_in_Units-1);
 //solved via https://chatgpt.com/share/6736552f-ce1c-8010-ab4c-36a095eee6b5
 
-echo(str("C Channel Arc: ", c_channel_arc));
 /*
 
 ***BEGIN DISPLAYS***
 
 */
 
-
-
-// Sample upward corner piece
-if(Choose_Part == "Mitre Channel" && Base_Top_or_Both != "Top")
-color_this(Global_Color) left(3)
-    half_of(UP+LEFT, s=Channel_Length_Units*Grid_Size*2+10)
-        path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Length_of_Longest_Edge_1*2-50+14.032*2- (Channel_Internal_Height-12)*2]), anchor=TOP, orient=BOT);
-
-if(Choose_Part == "Mitre Channel" && Base_Top_or_Both != "Top")
-    color_this(Global_Color) down(3)yrot(-90) xrot(180)half_of(UP+LEFT, s=Channel_Length_Units*Grid_Size*2+10)
-            path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Length_of_Longest_Edge_2+14.032*2+14 - (Channel_Internal_Height-12)*2]), anchor=TOP, orient=BOT);
-
 /*
-//Sample top riser
+//Testing top riser
 !extrude_from_to([0,0,0],[0,25,0]) {
     topProfile(widthMM = 25, heightMM = 12);
     topProfile(widthMM = 25, heightMM = 12);
 }
 */
 
-
-
-
-
-//BEGIN FILE
-
 //if(Debug_Show_Grid)
 //#back(12.5) back(12.5*Channel_Width_in_Units-12.5) grid_copies(spacing=Grid_Size, inside=rect([200,200]))cyl(h=8, d=7, $fn=25);//temporary 
 
-if(Choose_Part == "Diagonal Channel" && Base_Top_or_Both != "Top")
-    color_this(Global_Color) 
-        diagonalChannelBase(unitsOver = Units_Over, unitsUp = Units_Up, outputDirection = Output_Direction, straightDistance = Straight_Distance, widthMM = Channel_Width_in_Units * Grid_Size, anchor = BOT);
-if(Choose_Part == "Diagonal Channel" && Base_Top_or_Both != "Base")
-    color_this(Global_Color) left(channelWidth*sign(Units_Over)+partSeparation*sign(Units_Over)) 
-        diagonalChannelTop(unitsOver = Units_Over, unitsUp = Units_Up, outputDirection = Output_Direction, straightDistance = Straight_Distance, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height, anchor = TOP, orient = Show_Attached ? TOP :  BOT);
 /*
 
 CHANNELS
 
 */
-
-if(Choose_Part == "Y-Channel" && Base_Top_or_Both != "Top")
-    color_this(Global_Color)
-        left(partSeparation/2) yChannelBase(widthMM = channelWidth, unitsOver = Y_Units_Over, unitsUp = Y_Units_Up, outputDirection = Y_Output_Direction, straightDistance = Y_Straight_Distance, anchor=BOT+RIGHT);
-
-if(Choose_Part == "Y-Channel" && Base_Top_or_Both != "Base")
-    color_this(Global_Color)
-        right(partSeparation/2) yChannelTop(widthMM = channelWidth, unitsOver = Y_Units_Over, unitsUp = Y_Units_Up, heightMM = Channel_Internal_Height, outputDirection = Y_Output_Direction, straightDistance = Y_Straight_Distance, anchor=TOP+RIGHT, orient=BOT);
-
-
-if(Choose_Part == "L-Channel" && Base_Top_or_Both != "Top")
-color_this(Global_Color)
-    left(Show_Attached ? 0 : partSeparation)
-        lChannelBase(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, anchor=Show_Attached ? BOT : BOT+RIGHT);
-if(Choose_Part == "L-Channel" && Base_Top_or_Both != "Base")
-color_this(Global_Color)
-    up(Show_Attached ? interlockFromFloor : 0)
-    right(Show_Attached ? 0 : partSeparation)
-        lChannelTop(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height, anchor= Show_Attached ? BOT : TOP+RIGHT, orient=Show_Attached ? TOP : BOT);
-
-
 
 if(Choose_Part == "I-Channel - Straight" && Base_Top_or_Both != "Top")
 color_this(Global_Color)
@@ -220,6 +174,40 @@ color_this(Global_Color)
                 if(Add_Label) tag("text") recolor(Text_Color) zrot(-90) attach(TOP) //linear_extrude(height = 0.02)
                 right(Text_x_coordinate)text3d(Text, size = Text_size, h=0.05, font = surname_font, atype="ycenter", anchor=CENTER);
 
+
+if(Choose_Part == "Diagonal Channel" && Base_Top_or_Both != "Top")
+    color_this(Global_Color) 
+        diagonalChannelBase(unitsOver = Units_Over, unitsUp = Units_Up, outputDirection = Output_Direction, straightDistance = Straight_Distance, widthMM = Channel_Width_in_Units * Grid_Size, anchor = BOT);
+if(Choose_Part == "Diagonal Channel" && Base_Top_or_Both != "Base")
+    color_this(Global_Color) left(channelWidth*sign(Units_Over)+partSeparation*sign(Units_Over)) 
+        diagonalChannelTop(unitsOver = Units_Over, unitsUp = Units_Up, outputDirection = Output_Direction, straightDistance = Straight_Distance, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height, anchor = TOP, orient = Show_Attached ? TOP :  BOT);
+
+if(Choose_Part == "Mitre Channel")
+color_this(Global_Color) left(3)
+    half_of(UP+LEFT, s=Channel_Length_Units*Grid_Size*2+10)
+        path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Length_of_Longest_Edge_1*2-50+14.032*2- (Channel_Internal_Height-12)*2]), anchor=TOP, orient=BOT);
+
+if(Choose_Part == "Mitre Channel")
+    color_this(Global_Color) down(3)yrot(-90) xrot(180)half_of(UP+LEFT, s=Channel_Length_Units*Grid_Size*2+10)
+            path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Length_of_Longest_Edge_2+14.032*2+14 - (Channel_Internal_Height-12)*2]), anchor=TOP, orient=BOT);
+
+if(Choose_Part == "Y-Channel" && Base_Top_or_Both != "Top")
+    color_this(Global_Color)
+        left(partSeparation/2) yChannelBase(widthMM = channelWidth, unitsOver = Y_Units_Over, unitsUp = Y_Units_Up, outputDirection = Y_Output_Direction, straightDistance = Y_Straight_Distance, anchor=BOT+RIGHT);
+
+if(Choose_Part == "Y-Channel" && Base_Top_or_Both != "Base")
+    color_this(Global_Color)
+        right(partSeparation/2) yChannelTop(widthMM = channelWidth, unitsOver = Y_Units_Over, unitsUp = Y_Units_Up, heightMM = Channel_Internal_Height, outputDirection = Y_Output_Direction, straightDistance = Y_Straight_Distance, anchor=TOP+RIGHT, orient=BOT);
+
+if(Choose_Part == "L-Channel" && Base_Top_or_Both != "Top")
+color_this(Global_Color)
+    left(Show_Attached ? 0 : partSeparation)
+        lChannelBase(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, anchor=Show_Attached ? BOT : BOT+RIGHT);
+if(Choose_Part == "L-Channel" && Base_Top_or_Both != "Base")
+color_this(Global_Color)
+    up(Show_Attached ? interlockFromFloor : 0)
+    right(Show_Attached ? 0 : partSeparation)
+        lChannelTop(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height, anchor= Show_Attached ? BOT : TOP+RIGHT, orient=Show_Attached ? TOP : BOT);
 
 if(Choose_Part == "C-Channel - Curved" && Base_Top_or_Both != "Top")
 color_this(Global_Color)
@@ -252,9 +240,6 @@ color_this(Global_Color)
     right(Show_Attached ? 0 : partSeparation)
     up(Show_Attached ? interlockFromFloor : 0) 
         tIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP+RIGHT, orient= Show_Attached ? TOP : BOT);
-
-
-
 
 
 /*
@@ -295,6 +280,7 @@ module straightChannelTop(lengthMM, widthMM, heightMM = 12, anchor, spin, orient
     }
 }
 
+//STRAIGHT CHANNEL DELETE TOOLS
 module straightChannelBaseDeleteTool(lengthMM, widthMM, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[widthMM, lengthMM, baseHeight]){
         fwd(lengthMM/2) down(maxY(baseProfileHalf)/2)
@@ -336,7 +322,7 @@ module lChannelTop(lengthMM = 50, widthMM = 25, heightMM = 12, anchor, spin, ori
     }
 }
 
-//CURVED CHANNELS
+//C CHANNELS
 module curvedChannelBase(radiusMM, widthMM, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[Grid_Size + channelWidth + (radiusMM - channelWidth/2), Grid_Size + channelWidth + (radiusMM - channelWidth/2), baseHeight]){ //Curve_Radius_in_Units*channelWidth/2
         let(adjustedWidth = Grid_Size + channelWidth + (radiusMM - channelWidth/2))
@@ -495,7 +481,7 @@ module tIntersectionTop(widthMM, heightMM, anchor, spin, orient){
     }
 }
 
-//Y-ChannelS
+//Y-Channels
 module yChannelBase(unitsOver = 1, unitsUp=3, outputDirection = "Forward", straightDistance = Grid_Size, widthMM, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[unitsOver*Grid_Size*2+channelWidth,unitsUp*Grid_Size+straightDistance*2, baseHeight]){
         fwd(unitsUp*Grid_Size/2+straightDistance)
