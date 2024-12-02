@@ -190,7 +190,7 @@ if(Choose_Part == "Y-Channel" && Base_Top_or_Both != "Top")
     color_this(Global_Color)
         left(partSeparation/2) yChannelBase(widthMM = channelWidth, unitsOver = Y_Units_Over, unitsUp = Y_Units_Up, outputDirection = Y_Output_Direction, straightDistance = Y_Straight_Distance, anchor=BOT+RIGHT);
 
-if(Choose_Part == "Y-Channel" && Base_Top_or_Both != "Top")
+if(Choose_Part == "Y-Channel" && Base_Top_or_Both != "Base")
     color_this(Global_Color)
         right(partSeparation/2) yChannelTop(widthMM = channelWidth, unitsOver = Y_Units_Over, unitsUp = Y_Units_Up, heightMM = Channel_Internal_Height, outputDirection = Y_Output_Direction, straightDistance = Y_Straight_Distance, anchor=TOP+RIGHT, orient=BOT);
 
