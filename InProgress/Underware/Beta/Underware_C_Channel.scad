@@ -18,19 +18,17 @@ include <BOSL2/threading.scad>
 /*[Choose Part]*/
 Base_Top_or_Both = "Both"; // [Base, Top, Both]
 
-/*[Channel Height and Width]*/
+/*[Channel Size]*/
 //width of channel in units (default unit is 25mm)
 Channel_Width_in_Units = 1;
 //height inside the channel (in mm)
 Channel_Internal_Height = 12; //[12:6:72]
+//Grid units to curve. 2 = up 2 and over 2 grids.
+Curve_Radius_in_Units = 2;
 
 /*[Mounting Options]*/
 //How do you intend to connect the channels to a surface such as Honeycomb Storage Wall or Multiboard? See options at https://coda.io/@andylevesque/underware
 Mounting_Method = "Threaded Snap Connector"; //[Threaded Snap Connector, Direct Multiboard Screw]
-
-/*[Options: C-Channel]*/
-//Grid units to curve. 2 = up 2 and over 2 grids.
-Curve_Radius_in_Units = 2;
 
 /*[Advanced Options]*/
 //Units of measurement (in mm) for hole and length spacing. Multiboard is 25mm. Untested
