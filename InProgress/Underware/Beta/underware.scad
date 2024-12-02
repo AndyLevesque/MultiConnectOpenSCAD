@@ -76,8 +76,6 @@ Length_of_Longest_Edge = 75;
 /*[Advanced Options]*/
 //Units of measurement (in mm) for hole and length spacing. Multiboard is 25mm. Untested
 Grid_Size = 25;
-//Resolution of arcs. Higher results in finer detail in the turns.
-Curve_Resolution = 25;
 //Color of part (color names found at https://en.wikipedia.org/wiki/Web_colors)
 Global_Color = "SlateBlue";
 

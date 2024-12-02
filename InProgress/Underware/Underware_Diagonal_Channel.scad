@@ -18,17 +18,24 @@ include <BOSL2/threading.scad>
 /*[Choose Part]*/
 Base_Top_or_Both = "Both"; // [Base, Top, Both]
 
-/*[Channel Size]*/
+/*[Channel Shape]*/
 //width of channel in units (default unit is 25mm)
 Channel_Width_in_Units = 1;
 //height inside the channel (in mm)
 Channel_Internal_Height = 12; //[12:6:72]
-//Number of grids extending from the corner grid
-L_Channel_Length_in_Units = 1;
+//Grid units to move over
+Units_Over = 2; //[-10:1:10]
+//Grid units to move up
+Units_Up = 2; //[-10:1:10]
+//Output the same direction (Forward) or at 90 degrees in direction of shift (Turn).
+Output_Direction = "Turn"; //[Forward, Turn]
+//Distance that the parts are straight in on the ends (before the angle)
+Straight_Distance = 25;//[12.5:12.5:100]
 
 /*[Mounting Options]*/
 //How do you intend to connect the channels to a surface such as Honeycomb Storage Wall or Multiboard? See options at https://coda.io/@andylevesque/underware
 Mounting_Method = "Threaded Snap Connector"; //[Threaded Snap Connector, Direct Multiboard Screw]
+
 
 /*[Advanced Options]*/
 //Units of measurement (in mm) for hole and length spacing. Multiboard is 25mm. Untested
@@ -70,15 +77,11 @@ Base_Screw_Hole_Inner_Depth = 1;
 Base_Screw_Hole_Cone = false;
 
 if(Base_Top_or_Both != "Top")
-color_this(Global_Color)
-    left(Show_Attached ? 0 : partSeparation)
-        lChannelBase(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, anchor=Show_Attached ? BOT : BOT+RIGHT);
+    color_this(Global_Color) 
+        diagonalChannelBase(unitsOver = Units_Over, unitsUp = Units_Up, outputDirection = Output_Direction, straightDistance = Straight_Distance, widthMM = Channel_Width_in_Units * Grid_Size, anchor = BOT);
 if(Base_Top_or_Both != "Base")
-color_this(Global_Color)
-    up(Show_Attached ? interlockFromFloor : 0)
-    right(Show_Attached ? 0 : partSeparation)
-        lChannelTop(lengthMM = L_Channel_Length_in_Units * Grid_Size, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height, anchor= Show_Attached ? BOT : TOP+RIGHT, orient=Show_Attached ? TOP : BOT);
-
+    color_this(Global_Color) left(channelWidth*sign(Units_Over)+partSeparation*sign(Units_Over)) 
+        diagonalChannelTop(unitsOver = Units_Over, unitsUp = Units_Up, outputDirection = Output_Direction, straightDistance = Straight_Distance, widthMM = Channel_Width_in_Units * Grid_Size, heightMM = Channel_Internal_Height, anchor = TOP, orient = Show_Attached ? TOP :  BOT);
 
 /*
 
@@ -86,28 +89,64 @@ color_this(Global_Color)
 
 */
 
-//L CHANNELS
-module lChannelBase(lengthMM = 50, widthMM = 25, anchor, spin, orient){
-    attachable(anchor, spin, orient, size=[widthMM+lengthMM, widthMM+lengthMM, baseHeight]){
-        let(calculatedPath = widthMM/2+lengthMM)
-        left(widthMM/2+lengthMM/2) fwd(lengthMM/2)
+//DIAGONAL CHANNELS
+module diagonalChannelBase(unitsOver = 1, unitsUp=3, outputDirection = "Forward", straightDistance = Grid_Size, widthMM, anchor, spin, orient){
+    attachable(anchor, spin, orient, size=[50,50, baseHeight]){
         down(baseHeight/2)
-        diff("holes"){
-            path_sweep2d(baseProfile(widthMM = widthMM), turtle(["move", calculatedPath, "turn", 90, "move",calculatedPath] )); 
-            tag("holes") right(widthMM/2+lengthMM/2) back(lengthMM/2) grid_copies(spacing=Grid_Size, inside=rect([widthMM+lengthMM-1,widthMM+lengthMM-1])) 
-                if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=10, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
-                else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
-        }
-    children();
+            diff("holes"){
+                path_sweep2d(baseProfile(widthMM = widthMM), 
+                    path= outputDirection == "Forward" ? [
+                        [0,0], //start
+                        [0,Straight_Distance*sign(unitsUp)+0.1], //distance forward or back. 0.05 is a subtle cheat that allows for a perfect side shift without a bad polygon
+                        [unitsOver*Grid_Size,unitsUp*Grid_Size+Grid_Size*sign(unitsUp)-Straight_Distance*sign(unitsUp)-0.1], //movement to position before last straight
+                        [unitsOver*Grid_Size,unitsUp*Grid_Size+Grid_Size*sign(unitsUp)] //last position either out the angle or straight out
+                    ] :
+                    [ //90 degree path
+                        [0,0], //start
+                        [0,Straight_Distance*sign(unitsUp)+0.1], //distance forward or back. 0.05 is a subtle cheat that allows for a perfect side shift without a bad polygon
+                        [unitsOver*Grid_Size+Grid_Size/2*sign(unitsOver)-straightDistance*sign(unitsOver),unitsUp*Grid_Size+Grid_Size/2*sign(unitsUp)], //movement to position before last straight
+                        [unitsOver*Grid_Size+Grid_Size/2*sign(unitsOver),unitsUp*Grid_Size+Grid_Size/2*sign(unitsUp)] //last position either out the angle or straight out
+                    ]
+                    ) {
+                    tag("holes") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(Grid_Size/2*sign(unitsUp)) down(0.01) 
+                        if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
+                        else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
+                    //outside holes forward option
+                    tag("holes") 
+                        if(outputDirection == "Forward") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(unitsUp*Grid_Size+Grid_Size*sign(unitsUp)-Grid_Size/2*sign(unitsUp)) right(unitsOver*Grid_Size)down(0.01) 
+                        if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
+                        else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
+                    //outside holes turn option
+                    tag("holes") 
+                        if(outputDirection == "Turn") ycopies(spacing = Grid_Size, n = Channel_Width_in_Units) back(unitsUp*Grid_Size+Grid_Size/2*sign(unitsUp)) right(unitsOver*Grid_Size)down(0.01) 
+                        if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
+                        else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
+                }
+            }
+        children();
     }
 }
-module lChannelTop(lengthMM = 50, widthMM = 25, heightMM = 12, anchor, spin, orient){
-    attachable(anchor, spin, orient, size=[widthMM+lengthMM, widthMM+lengthMM, topHeight + (heightMM-12)]){
-        let(calculatedPath = widthMM/2+lengthMM)
-        left(widthMM/2+lengthMM/2) fwd(lengthMM/2) 
+
+module diagonalChannelTop(unitsOver = 1, unitsUp=3, outputDirection = "Forward", straightDistance = Grid_Size, widthMM, heightMM = 12, anchor, spin, orient){
+    attachable(anchor, spin, orient, size=[50,50, topHeight + (heightMM-12)]){ //Curve_Radius_in_Units*channelWidth/2
         down(topHeight/2 + (heightMM - 12)/2)
-        path_sweep2d(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["move", calculatedPath, "turn", 90, "move",calculatedPath] )); 
-    children();
+            diff("holes"){
+                path_sweep2d(topProfile(widthMM = widthMM, heightMM = heightMM), 
+                    path= outputDirection == "Forward" ? [
+                        [0,0], //start
+                        [0,Straight_Distance*sign(unitsUp)+0.1], //distance forward or back. 0.05 is a subtle cheat that allows for a perfect side shift without a bad polygon
+                        [unitsOver*Grid_Size,unitsUp*Grid_Size+Grid_Size*sign(unitsUp)-Straight_Distance*sign(unitsUp)-0.1], //movement to position before last straight
+                        [unitsOver*Grid_Size,unitsUp*Grid_Size+Grid_Size*sign(unitsUp)] //last position either out the angle or straight out
+                    ] :
+                    [ //90 degree path
+                        [0,0], //start
+                        [0,Straight_Distance*sign(unitsUp)+0.1], //distance forward or back. 0.05 is a subtle cheat that allows for a perfect side shift without a bad polygon
+                        [unitsOver*Grid_Size+Grid_Size/2*sign(unitsOver)-straightDistance*sign(unitsOver),unitsUp*Grid_Size+Grid_Size/2*sign(unitsUp)], //movement to position before last straight
+                        [unitsOver*Grid_Size+Grid_Size/2*sign(unitsOver),unitsUp*Grid_Size+Grid_Size/2*sign(unitsUp)] //last position either out the angle or straight out
+                    ]
+                    ) ;
+            }
+        children();
     }
 }
 
