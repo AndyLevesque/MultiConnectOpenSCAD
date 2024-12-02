@@ -1,4 +1,6 @@
-/*Created by Hands on Katie and BlackjackDuck (Andy)
+/*Created by BlackjackDuck (Andy) and Hands on Katie. Original model from Hands on Katie (https://handsonkatie.com/)
+This code and all parts derived from it are Licensed Creative Commons 4.0 Attribution Non-Commercial Share-Alike (CC-BY-NC-SA)
+
 Credit to 
     First and foremost - Katie and her community at Hands on Katie on Youtube, Patreon, and Discord
     @David D on Printables for Multiconnect
@@ -7,30 +9,25 @@ Credit to
     @siyrahfall+1155967 on Printables for the idea of top exit holes
     @Lyric on Printables for the flush connector idea
 
-    
-All parts are Licensed Creative Commons 4.0 Attribution Non-Commercial Share-Alike (CC-BY-NC-SA)
 */
 
 include <BOSL2/std.scad>
 include <BOSL2/rounding.scad>
 include <BOSL2/threading.scad>
 
-
-
 /*[Choose Part]*/
 Choose_Part = "I-Channel - Straight"; // [I-Channel - Straight, C-Channel - Curved, L-Channel,  T-Channel, X-Channel, Y-Channel, Diagonal Channel, Mitre Channel]
 Base_Top_or_Both = "Both"; // [Base, Top, Both]
+
 /*[Channel Height and Width]*/
-
-/*[Mounting Options]*/
-//How do you intend to connect the channels to a surface such as Honeycomb Storage Wall or Multiboard? See options at https://coda.io/@andylevesque/underware
-Mounting_Method = "Threaded Snap Connector"; //[Threaded Snap Connector, Direct Multiboard Screw]
-
 //width of channel in units (default unit is 25mm)
 Channel_Width_in_Units = 1;
 //height inside the channel (in mm)
 Channel_Internal_Height = 12; //[12:6:72]
 
+/*[Mounting Options]*/
+//How do you intend to connect the channels to a surface such as Honeycomb Storage Wall or Multiboard? See options at https://coda.io/@andylevesque/underware
+Mounting_Method = "Threaded Snap Connector"; //[Threaded Snap Connector, Direct Multiboard Screw]
 
 /*[Options: I-Channel]*/
 //length of channel in units (default unit is 25mm)
@@ -109,7 +106,7 @@ interlockOverlap = 3.09; //distance that the top and base overlap each other
 interlockFromFloor = 6.533; //distance from the bottom of the base to the bottom of the top when interlocked
 partSeparation = 10;
 
-
+///*[Visual Options]*/
 Debug_Show_Grid = false;
 //View the parts as they attach. Note that you must disable this before exporting for printing. 
 Show_Attached = false;
@@ -134,16 +131,12 @@ Base_Screw_Hole_Outer_Diameter = 15;
 Base_Screw_Hole_Inner_Depth = 1;
 Base_Screw_Hole_Cone = false;
 
-
-
-
-
 //Part Size Calculations
 straight_channel_Y = Grid_Size * Channel_Length_Units;
-radius_channel_Y = Grid_Size + channelWidth + (Curve_Radius_in_Units*channelWidth/2 - channelWidth/2)/2 - channelWidth/2;
 l_channel_Y = channelWidth*1.5 + Grid_Size * L_Channel_Length_in_Units;
 x_channel_X = channelWidth+Grid_Size*2;
 x_channel_Y = channelWidth+Grid_Size*2;
+radius_channel_Y = Grid_Size + channelWidth + (Curve_Radius_in_Units*channelWidth/2 - channelWidth/2)/2 - channelWidth/2;
 c_channel_arc = Grid_Size*(Channel_Width_in_Units/2 + Curve_Radius_in_Units-1);
 //solved via https://chatgpt.com/share/6736552f-ce1c-8010-ab4c-36a095eee6b5
 
@@ -267,7 +260,6 @@ color_this(Global_Color)
 
 
 /*
-
 
 ***BEGIN MODULES***
 
@@ -589,7 +581,7 @@ module yChannelTop(unitsOver = 1, unitsUp=3, heightMM = 12, outputDirection = "F
 
 
 
-//BEGIN PROFILES
+//BEGIN PROFILES - Must match across all files
 
 //take the two halves of base and merge them
 function baseProfile(widthMM = 25) = 
