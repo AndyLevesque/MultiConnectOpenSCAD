@@ -12,11 +12,11 @@ Notes:
 
 /* [Internal Dimensions] */
 //Height (in mm) from the top of the back to the base of the internal floor
-internalHeight = 50.0; //.1
+internalHeight = 50.0;
 //Width (in mm) of the internal dimension or item you wish to hold
-internalWidth = 50.0; //.1
+internalWidth = 50.0; 
 //Length (i.e., distance from back) (in mm) of the internal dimension or item you wish to hold
-internalDepth = 15.0; //.1
+internalDepth = 15.0;
 
 /* [Front Cutout Customizations] */
 //cut out the front
