@@ -151,11 +151,11 @@ echo(str("C Channel Arc: ", c_channel_arc));
 if(Choose_Part == "Mitre Channel" && Base_Top_or_Both != "Top")
 color_this(Global_Color) left(3)
     half_of(UP+LEFT, s=Channel_Length_Units*Grid_Size*2+10)
-        path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Length_of_Longest_Edge+14.032*2]), anchor=TOP, orient=BOT);
+        path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Length_of_Longest_Edge_1*2-50+14.032*2- (Channel_Internal_Height-12)*2]), anchor=TOP, orient=BOT);
 
 if(Choose_Part == "Mitre Channel" && Base_Top_or_Both != "Top")
     color_this(Global_Color) down(3)yrot(-90) xrot(180)half_of(UP+LEFT, s=Channel_Length_Units*Grid_Size*2+10)
-        path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Length_of_Longest_Edge+14.032*2]), anchor=TOP, orient=BOT);
+            path_sweep(topProfile(widthMM = channelWidth, heightMM = Channel_Internal_Height), turtle(["xmove", Length_of_Longest_Edge_2+14.032*2+14 - (Channel_Internal_Height-12)*2]), anchor=TOP, orient=BOT);
 
 /*
 //Sample top riser
