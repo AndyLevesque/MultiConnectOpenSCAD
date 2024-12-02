@@ -8,7 +8,7 @@ Credit to
     @cosmicdust on MakerWorld and @freakadings_1408562 on Printables for the idea of diagonals (forward and turn)
     @siyrahfall+1155967 on Printables for the idea of top exit holes
     @Lyric on Printables for the flush connector idea
-
+    @dmgerman on MakerWorld for the specs on the small screw profile
 */
 
 include <BOSL2/std.scad>
@@ -81,7 +81,7 @@ Global_Color = "SlateBlue";
 
 
 
-/*[Straight Channel Label]*/
+/*[I-Channel Label]*/
 //Create label using multicolor on straight channel
 Add_Label = false;
 //Text to appear on label
