@@ -235,12 +235,12 @@ if(Choose_Part == "X-Channel" && Base_Top_or_Both != "Top")
     //cross intersection
 color_this(Global_Color) 
     left(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
-        crossIntersectionBase(widthMM = channelWidth, anchor=BOT);
+        XChannelBase(widthMM = channelWidth, anchor=BOT);
 if(Choose_Part == "X-Channel" && Base_Top_or_Both != "Base")
 color_this(Global_Color)
     right(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
     up(Show_Attached ? interlockFromFloor : 0) 
-        crossIntersectionTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
+        XChannelTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
 
 
 if(Choose_Part == "T-Channel"&& Base_Top_or_Both != "Top")
@@ -430,7 +430,7 @@ module diagonalChannelTop(unitsOver = 1, unitsUp=3, outputDirection = "Forward",
 }
 
 //X CHANNELS
-module crossIntersectionBase(widthMM, anchor, spin, orient){
+module XChannelBase(widthMM, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[channelWidth+Grid_Size*2, channelWidth+Grid_Size*2, baseHeight]){
         diff("channelClear holes"){
         down(baseHeight/2)left((channelWidth/2+Grid_Size)) path_sweep(baseProfile(widthMM = widthMM), turtle(["xmove", channelWidth+Grid_Size*2]));
@@ -445,7 +445,7 @@ module crossIntersectionBase(widthMM, anchor, spin, orient){
     }
 }
 
-module crossIntersectionTop(widthMM, heightMM = 12, anchor, spin, orient){
+module XChannelTop(widthMM, heightMM = 12, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[Grid_Size*3, Grid_Size*3, topHeight + (heightMM-12)]){
     down((topHeight + (heightMM-12))/2)
     diff("channelClear"){
