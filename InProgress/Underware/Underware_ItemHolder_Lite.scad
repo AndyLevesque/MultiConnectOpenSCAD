@@ -61,10 +61,14 @@ cuboid([Item_Width_MM + Bridge_Wall_Thickness_MM*2, Bridge_Width_MM, Bridge_Wall
     attach(BOT, TOP, align=[LEFT,RIGHT])
         cuboid([Bridge_Wall_Thickness_MM, Bridge_Width_MM, Item_Height_MM], anchor=BOT)
             //horizontal mounting points (mount on outside)
-            attach($idx == 0 ? LEFT : RIGHT, LEFT , align=BOT)
-                cuboid([calculatedHoleOffsetFromEdge()+Base_Screw_Hole_Inner_Diameter/2+2, Bridge_Width_MM, 3], anchor=BOT, rounding=4, edges=[FRONT+RIGHT, BACK+RIGHT]){
+            attach($idx == 0 ? LEFT : RIGHT, TOP , align=BOT)
+                prismoid(size1=[Base_Screw_Hole_Inner_Diameter+1,3], size2=[Bridge_Width_MM,3], h=calculatedHoleOffsetFromEdge()+Base_Screw_Hole_Inner_Diameter/2+2){
+                    edge_profile([BOT+RIGHT, BOT+LEFT], excess=10, convexity=5) 
+                        mask2d_roundover(h=3,mask_angle=$edge_angle);
+                //cuboid([calculatedHoleOffsetFromEdge()+Base_Screw_Hole_Inner_Diameter/2+2, Bridge_Width_MM, 3], anchor=BOT, rounding=4, edges=[FRONT+RIGHT, BACK+RIGHT]){
                     //screw cutouts
-                    attach(TOP, BOT, inside=true, shiftout=0.01, align=LEFT, inset=-1*Base_Screw_Hole_Inner_Diameter/2+calculatedHoleOffsetFromEdge()) cyl(r=Base_Screw_Hole_Inner_Diameter/2, h=3.1, $fn=25);
+                    //#attach(TOP, BOT, inside=true, shiftout=0.01, align=LEFT, inset=-1*Base_Screw_Hole_Inner_Diameter/2+calculatedHoleOffsetFromEdge()) cyl(r=Base_Screw_Hole_Inner_Diameter/2, h=3.1, $fn=25);
+                    down(-1*Base_Screw_Hole_Inner_Diameter/2+calculatedHoleOffsetFromEdge())attach(TOP, FRONT, inside=true, shiftout=0.01) cyl(r=Base_Screw_Hole_Inner_Diameter/2, h=3.1, $fn=25);
                 };
     tag("remove")
         //splitter
