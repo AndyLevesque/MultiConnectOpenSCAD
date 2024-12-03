@@ -21,7 +21,13 @@ Base_Top_or_Both = "Both"; // [Base, Top, Both]
 
 /*[Mounting Options]*/
 //How do you intend to connect the channels to a surface such as Honeycomb Storage Wall or Multiboard? See options at https://coda.io/@andylevesque/underware
-Mounting_Method = "Threaded Snap Connector"; //[Threaded Snap Connector, Direct Multiboard Screw]
+Mounting_Method = "Threaded Snap Connector"; //[Threaded Snap Connector, Direct Multiboard Screw, Magnet]
+//Diameter of the magnet (in mm)
+Magnet_Diameter = 4.0; 
+//Thickness of the magnet (in mm)
+Magnet_Thickness = 1.5;
+//Add a tolerance to the magnet hole to make it easier to insert the magnet.
+Magnet_Tolerance = 0.1;
 
 /*[Channel Size]*/
 //width of channel in units (default unit is 25mm)
@@ -113,7 +119,6 @@ color_this(Global_Color)
 
 /*
 
-
 ***BEGIN MODULES***
 
 */
@@ -126,6 +131,7 @@ module straightChannelBase(lengthMM, widthMM, anchor, spin, orient){
         zrot(90) path_sweep(baseProfile(widthMM = widthMM), turtle(["xmove", lengthMM]))
         tag("holes")  right(lengthMM/2) grid_copies(spacing=Grid_Size, inside=rect([lengthMM-1,widthMM-1])) 
             if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3.5-Base_Screw_Hole_Inner_Depth+0.02, d1=Base_Screw_Hole_Cone ? Base_Screw_Hole_Inner_Diameter : Base_Screw_Hole_Outer_Diameter, d2=Base_Screw_Hole_Outer_Diameter, $fn=25);
+            else if(Mounting_Method == "Magnet") up(Magnet_Thickness+Magnet_Tolerance-0.01) cyl(h=Magnet_Thickness+Magnet_Tolerance, d=Magnet_Diameter+Magnet_Tolerance, $fn=50, anchor=TOP);
             else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
     children();
     }
