@@ -27,8 +27,14 @@ Channel_Internal_Height = 12; //[12:6:72]
 L_Channel_Length_in_Units = 1;
 
 /*[Mounting Options]*/
-//How do you intend to connect the channels to a surface such as Honeycomb Storage Wall or Multiboard? See options at https://coda.io/@andylevesque/underware
-Mounting_Method = "Threaded Snap Connector"; //[Threaded Snap Connector, Direct Multiboard Screw]
+//How do you intend to connect the channels to a surface such as Honeycomb Storage Wall, Multiboard, or metal surface? See options at https://coda.io/@andylevesque/underware
+Mounting_Method = "Threaded Snap Connector"; //[Threaded Snap Connector, Direct Multiboard Screw, Magnet]
+//Diameter of the magnet (in mm)
+Magnet_Diameter = 4.0; 
+//Thickness of the magnet (in mm)
+Magnet_Thickness = 1.5;
+//Add a tolerance to the magnet hole to make it easier to insert the magnet.
+Magnet_Tolerance = 0.1;
 
 /*[Advanced Options]*/
 //Units of measurement (in mm) for hole and length spacing. Multiboard is 25mm. Untested
@@ -96,6 +102,7 @@ module lChannelBase(lengthMM = 50, widthMM = 25, anchor, spin, orient){
             path_sweep2d(baseProfile(widthMM = widthMM), turtle(["move", calculatedPath, "turn", 90, "move",calculatedPath] )); 
             tag("holes") right(widthMM/2+lengthMM/2) back(lengthMM/2) grid_copies(spacing=Grid_Size, inside=rect([widthMM+lengthMM-1,widthMM+lengthMM-1])) 
                 if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=10, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
+                else if(Mounting_Method == "Magnet") up(Magnet_Thickness+Magnet_Tolerance-0.01) cyl(h=Magnet_Thickness+Magnet_Tolerance, d=Magnet_Diameter+Magnet_Tolerance, $fn=50, anchor=TOP);
                 else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
         }
     children();
