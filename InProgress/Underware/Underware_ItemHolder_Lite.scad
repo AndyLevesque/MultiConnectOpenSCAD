@@ -39,14 +39,14 @@ Base_Screw_Hole_Outer_Diameter = 15;
 Base_Screw_Hole_Inner_Depth = 1;
 Base_Screw_Hole_Cone = false;
 //Minimum distance from the edge of the base to the center of the screw hole
-Minimum_Mount_Clearance = Base_Screw_Hole_Inner_Diameter/2 + 2;
+Minimum_Mount_Clearance = 7;
 minDistanceBetweenMountPoints = Item_Width_MM + Minimum_Mount_Clearance*2 + Base_Screw_Hole_Inner_Diameter/2;
 echo(str("Min distance between mounting points: ", minDistanceBetweenMountPoints));
-calculatedMountPointCenters = quantup(minDistanceBetweenMountPoints, Grid_Size);
-echo(str("Next available grid point: ", calculatedMountPointCenters));
-calculatedHoleOffsetFromEdge = (calculatedMountPointCenters-Item_Width_MM-Bridge_Wall_Thickness_MM*2)/2;
+function calculatedMountPointCenters() = quantup(minDistanceBetweenMountPoints, Grid_Size);
+echo(str("Next available grid point: ", calculatedMountPointCenters()));
+function calculatedHoleOffsetFromEdge() = (calculatedMountPointCenters()-Item_Width_MM-Bridge_Wall_Thickness_MM*2)/2;
 
-debug=true;
+debug=false;
 
 //Item Representation
 if(debug)
@@ -62,9 +62,9 @@ cuboid([Item_Width_MM + Bridge_Wall_Thickness_MM*2, Bridge_Width_MM, Bridge_Wall
         cuboid([Bridge_Wall_Thickness_MM, Bridge_Width_MM, Item_Height_MM], anchor=BOT)
             //horizontal mounting points (mount on outside)
             attach($idx == 0 ? LEFT : RIGHT, LEFT , align=BOT)
-                cuboid([calculatedHoleOffsetFromEdge+Base_Screw_Hole_Inner_Diameter/2+2, Bridge_Width_MM, 3], anchor=BOT){
+                cuboid([calculatedHoleOffsetFromEdge()+Base_Screw_Hole_Inner_Diameter/2+2, Bridge_Width_MM, 3], anchor=BOT, rounding=4, edges=[FRONT+RIGHT, BACK+RIGHT]){
                     //screw cutouts
-                    attach(TOP, BOT, inside=true, shiftout=0.01, align=LEFT, inset=-Base_Screw_Hole_Inner_Diameter/2+calculatedHoleOffsetFromEdge) cyl(r=Base_Screw_Hole_Inner_Diameter/2, h=3.1, $fn=25);
+                    attach(TOP, BOT, inside=true, shiftout=0.01, align=LEFT, inset=-1*Base_Screw_Hole_Inner_Diameter/2+calculatedHoleOffsetFromEdge()) cyl(r=Base_Screw_Hole_Inner_Diameter/2, h=3.1, $fn=25);
                 };
     tag("remove")
         //splitter
@@ -73,6 +73,7 @@ cuboid([Item_Width_MM + Bridge_Wall_Thickness_MM*2, Bridge_Width_MM, Bridge_Wall
     }
 
 //view grid
+if(debug)
 left(calculatedMountPointCenters/2)
 #grid_copies(size=150, spacing = 25) cyl(h=0.1, r=Base_Screw_Hole_Inner_Diameter/2);
 
