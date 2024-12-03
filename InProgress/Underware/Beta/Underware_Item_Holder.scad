@@ -100,11 +100,13 @@ totalWidth = internalWidth + wallThickness*2;
 totalCenterX = internalWidth/2;
 
 //move to center
+union(){
 translate(v = [-internalWidth/2,0,0]) 
     basket();
     //slotted back
-translate([-max(totalWidth,distanceBetweenSlots)/2,0,-baseThickness])
+translate([-max(totalWidth,distanceBetweenSlots)/2,0.02,-baseThickness])
     multiconnectBack(backWidth = totalWidth, backHeight = totalHeight, distanceBetweenSlots = distanceBetweenSlots);
+}
 
 //Create Basket
 module basket() {
