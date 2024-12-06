@@ -1,7 +1,7 @@
 /*Created by Hands on Katie and BlackjackDuck (Andy)
 Credit to 
     First and foremost - Katie and her community at Hands on Katie on Youtube, Patreon, and Discord
-    @David D on Printables for Multiconnect
+    @dmgerman on MakerWorld and @David D on Printables for the bolt thread specs
     Jonathan at Keep Making for Multiboard
     @Lyric on Printables for the flush connector idea
 
@@ -21,7 +21,7 @@ Show_Part = "Snap Connector"; // [Snap Connector, Bolts]
 //Height (in mm) the snap connector rests above the board. 3mm is standard. 0mm results in a flush fit. 
 Snap_Connector_Height = 3;
 //Scale of the Snap Connector holding 'bumpouts'. 1 is standard. 0.5 is half size. 1.5 is 50% larger. Large = stronger hold. 
-Snap_Holding_Tolerance = 1; //[0.5:0.05:1.5]
+Snap_Holding_Tolerance = 1; //[0.5:0.05:2.0]
 //Length of the treaded portion of the snap connector. 3.6mm is standard.
 Snap_Thread_Height = 3.6;
 
@@ -57,6 +57,7 @@ Flank_Angle_Lg = 45;
 Thread_Depth_Lg = 0.75;
 //Diameter of the hole down the middle of the bolt
 Inner_Hole_Diameter_Lg = 10;
+
 /*
 
 MOUNTING PARTS
