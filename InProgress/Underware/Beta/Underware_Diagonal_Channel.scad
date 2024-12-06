@@ -1,6 +1,8 @@
 /*Created by BlackjackDuck (Andy) and Hands on Katie. Original model from Hands on Katie (https://handsonkatie.com/)
 This code and all parts derived from it are Licensed Creative Commons 4.0 Attribution Non-Commercial Share-Alike (CC-BY-NC-SA)
 
+Documentation available at https://handsonkatie.com/underware-2-0-the-made-to-measure-collection/
+
 Credit to 
     First and foremost - Katie and her community at Hands on Katie on Youtube, Patreon, and Discord
     @David D on Printables for Multiconnect
@@ -33,7 +35,7 @@ Output_Direction = "Turn"; //[Forward, Turn]
 Straight_Distance = 25;//[12.5:12.5:100]
 
 /*[Mounting Options]*/
-//How do you intend to connect the channels to a surface such as Honeycomb Storage Wall or Multiboard? See options at https://coda.io/@andylevesque/underware
+//How do you intend to mount the channels to a surface such as Honeycomb Storage Wall or Multiboard? See options at https://handsonkatie.com/underware-2-0-the-made-to-measure-collection/
 Mounting_Method = "Threaded Snap Connector"; //[Threaded Snap Connector, Direct Multiboard Screw, Magnet, Wood Screw]
 //Diameter of the magnet (in mm)
 Magnet_Diameter = 4.0; 

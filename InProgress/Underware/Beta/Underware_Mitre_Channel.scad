@@ -1,6 +1,8 @@
 /*Created by BlackjackDuck (Andy) and Hands on Katie. Original model from Hands on Katie (https://handsonkatie.com/)
 This code and all parts derived from it are Licensed Creative Commons 4.0 Attribution Non-Commercial Share-Alike (CC-BY-NC-SA)
 
+Documentation available at https://handsonkatie.com/underware-2-0-the-made-to-measure-collection/
+
 Credit to 
     First and foremost - Katie and her community at Hands on Katie on Youtube, Patreon, and Discord
     @David D on Printables for Multiconnect

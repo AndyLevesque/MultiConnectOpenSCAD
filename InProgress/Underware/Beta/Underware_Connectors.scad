@@ -1,4 +1,7 @@
 /*Created by Hands on Katie and BlackjackDuck (Andy)
+
+Documentation available at https://handsonkatie.com/underware-2-0-the-made-to-measure-collection/
+
 Credit to 
     First and foremost - Katie and her community at Hands on Katie on Youtube, Patreon, and Discord
     @dmgerman on MakerWorld and @David D on Printables for the bolt thread specs
@@ -15,6 +18,7 @@ include <BOSL2/rounding.scad>
 include <BOSL2/threading.scad>
 
 /*[Choose Part]*/
+//How do you intend to mount the channels to a surface such as Honeycomb Storage Wall or Multiboard? See options at https://handsonkatie.com/underware-2-0-the-made-to-measure-collection/
 Show_Part = "Snap Connector"; // [Snap Connector, Bolts]
 
 /*[Options: Thread Snap Connector ]*/
