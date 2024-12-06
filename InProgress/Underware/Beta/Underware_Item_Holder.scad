@@ -78,6 +78,8 @@ wallThickness = 2; //.1
 baseThickness = 3; //.1
 
 /*[Slot Customization]*/
+//Do you want the slots to come from the top of the back (true) or the bottom (false)
+Slot_From_Top = true;
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
 distanceBetweenSlots = 25;
 //QuickRelease removes the small indent in the top of the slots that lock the part into place
@@ -106,7 +108,10 @@ union(){
 translate(v = [-internalWidth/2,0,0]) 
     basket();
     //slotted back
-translate([-max(totalWidth,distanceBetweenSlots)/2,0.02,-baseThickness])
+//translate([max(totalWidth,distanceBetweenSlots)/2,0.02,0])
+    translate([0,0.02,totalHeight/2-baseThickness]) 
+    rotate([0,Slot_From_Top ? 180 : 0,0])
+    translate([-totalWidth/2,0,-totalHeight/2])//center
     multiconnectBack(backWidth = totalWidth, backHeight = totalHeight, distanceBetweenSlots = distanceBetweenSlots);
 }
 
