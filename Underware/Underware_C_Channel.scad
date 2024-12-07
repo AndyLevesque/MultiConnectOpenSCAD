@@ -113,11 +113,7 @@ module curvedChannelBase(radiusMM, widthMM, anchor, spin, orient){
             diff("holes"){
                 path_sweep(baseProfile(widthMM = widthMM), turtle(["move", Grid_Size, "arcleft", radiusMM, 90, "move", Grid_Size])) {
                     tag("holes") ycopies(spacing = Grid_Size, n = Channel_Width_in_Units) right(Grid_Size/2) down(0.01)
-                        if(Mounting_Method == "Direct Multiboard Screw")
-                          up(Base_Screw_Hole_Inner_Depth)
-                          cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP)
-                          attach(TOP, BOT, overlap=0.01)
-                          cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
+                        if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
                         else if(Mounting_Method == "Magnet") up(Magnet_Thickness+Magnet_Tolerance-0.01) cyl(h=Magnet_Thickness+Magnet_Tolerance, d=Magnet_Diameter+Magnet_Tolerance, $fn=50, anchor=TOP);
                         else if(Mounting_Method == "Wood Screw") up(3.5 - Wood_Screw_Head_Height) cyl(h=3.5 - Wood_Screw_Head_Height+0.05, d=Wood_Screw_Thread_Diameter, $fn=25, anchor=TOP)
                             //wood screw head
@@ -125,11 +121,7 @@ module curvedChannelBase(radiusMM, widthMM, anchor, spin, orient){
                         else if(Mounting_Method == "Flat") ; //do nothing
                         else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
                     tag("holes") xcopies(spacing = Grid_Size, n = Channel_Width_in_Units) right(Grid_Size + channelWidth/2 + (radiusMM - channelWidth/2)) back(channelWidth/2 + Grid_Size/2 + (radiusMM - channelWidth/2)) down(0.01)
-                        if(Mounting_Method == "Direct Multiboard Screw")
-                          up(Base_Screw_Hole_Inner_Depth)
-                          cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP)
-                          attach(TOP, BOT, overlap=0.01)
-                          cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
+                        if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
                         else if(Mounting_Method == "Magnet") up(Magnet_Thickness+Magnet_Tolerance-0.01) cyl(h=Magnet_Thickness+Magnet_Tolerance, d=Magnet_Diameter+Magnet_Tolerance, $fn=50, anchor=TOP);
                         else if(Mounting_Method == "Wood Screw") up(3.5 - Wood_Screw_Head_Height) cyl(h=3.5 - Wood_Screw_Head_Height+0.05, d=Wood_Screw_Thread_Diameter, $fn=25, anchor=TOP)
                             //wood screw head
