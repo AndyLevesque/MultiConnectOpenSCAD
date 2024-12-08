@@ -12,6 +12,9 @@ Notes:
     - wallThickness = 0
 */
 
+include <BOSL2/std.scad>
+include <BOSL2/walls.scad>
+
 /* [Internal Dimensions] */
 //Height (in mm) from the top of the back to the base of the internal floor
 internalHeight = 50.0;
@@ -19,6 +22,10 @@ internalHeight = 50.0;
 internalWidth = 50.0; 
 //Length (i.e., distance from back) (in mm) of the internal dimension or item you wish to hold
 internalDepth = 15.0;
+
+/*[Style Customizations]*/
+//Edge rounding (in mm)
+edgeRounding = 1.0; // [0:0.1:2]
 
 /* [Front Cutout Customizations] */
 //cut out the front
@@ -78,6 +85,8 @@ wallThickness = 2; //.1
 baseThickness = 3; //.1
 
 /*[Slot Customization]*/
+//Offset the multiconnect on-ramps to be between grid slots rather than on the slot
+onRampHalfOffset = true;
 //Do you want the slots to come from the top of the back (true) or the bottom (false)
 Slot_From_Top = true;
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
@@ -91,7 +100,7 @@ slotTolerance = 1.00; //[0.925:0.005:1.075]
 //Move the slot in (positive) or out (negative)
 slotDepthMicroadjustment = 0; //[-.5:0.05:.5]
 //enable a slot on-ramp for easy mounting of tall items
-onRampEnabled = true;
+onRampEnabled = false;
 //frequency of slots for on-ramp. 1 = every slot; 2 = every 2 slots; etc.
 onRampEveryXSlots = 1;
 
@@ -121,19 +130,16 @@ module basket() {
         union() {
             //bottom
             translate([-wallThickness,0,-baseThickness])
-                cube([internalWidth + wallThickness*2, internalDepth + wallThickness,baseThickness]);
-
+                cuboid([internalWidth + wallThickness*2, internalDepth + wallThickness,baseThickness], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [BOTTOM+LEFT,BOTTOM+RIGHT,BOTTOM+BACK,LEFT+BACK,RIGHT+BACK]);
             //left wall
             translate([-wallThickness,0,0])
-                cube([wallThickness, internalDepth + wallThickness, internalHeight]);
-
+                cuboid([wallThickness, internalDepth + wallThickness, internalHeight], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [TOP+LEFT,TOP+BACK,BACK+LEFT]);
             //right wall
             translate([internalWidth,0,0])
-                cube([wallThickness, internalDepth + wallThickness, internalHeight]);
-
+                cuboid([wallThickness, internalDepth + wallThickness, internalHeight], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [TOP+RIGHT,TOP+BACK,BACK+RIGHT]);
             //front wall
-                translate([0,internalDepth,0])
-                    cube([internalWidth,wallThickness,internalHeight]);
+            translate([0,internalDepth,0])
+                cuboid([internalWidth,wallThickness,internalHeight], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [TOP+BACK]);
         }
 
         //frontCaptureDeleteTool for item holders
@@ -171,7 +177,8 @@ module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
     //slot width needs to be at least the distance between slot for at least 1 slot to generate
     let (backWidth = max(backWidth,distanceBetweenSlots), backHeight = max(backHeight, 25),slotCount = floor(backWidth/distanceBetweenSlots), backThickness = 6.5){
         difference() {
-            translate(v = [0,-backThickness,0]) cube(size = [backWidth,backThickness,backHeight]);
+            translate(v = [0,-backThickness,0]) 
+            cuboid(size = [backWidth,backThickness,backHeight], rounding=edgeRounding, except_edges=BACK, anchor=FRONT+LEFT+BOT);
             //Loop through slots and center on the item
             //Note: I kept doing math until it looked right. It's possible this can be simplified.
             for (slotNum = [0:1:slotCount-1]) {
@@ -183,6 +190,9 @@ module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
     }
     //Create Slot Tool
     module slotTool(totalHeight) {
+        //In slotTool, added a new variable distanceOffset which is set by the option:
+        distanceOffset = onRampHalfOffset ? distanceBetweenSlots / 2 : 0;
+
         scale(v = slotTolerance)
         //slot minus optional dimple with optional on-ramp
         let (slotProfile = [[0,0],[10.15,0],[10.15,1.2121],[7.65,3.712],[7.65,5],[0,5]])
@@ -204,7 +214,8 @@ module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
                 //on-ramp
                 if(onRampEnabled)
                     for(y = [1:onRampEveryXSlots:totalHeight/distanceBetweenSlots])
-                        translate(v = [0,-5,-y*distanceBetweenSlots]) 
+                        //then modify the translate within the on-ramp code to include the offset
+                        translate(v = [0,-5,(-y*distanceBetweenSlots)+distanceOffset])
                             rotate(a = [-90,0,0]) 
                                 cylinder(h = 5, r1 = 12, r2 = 10.15);
             }
