@@ -1,0 +1,37 @@
+scad_files:
+  - filename: 'Underware_I_Channel.scad'
+    output_prefix: 'i_Channel'
+    parameters:
+      Channel_Length_Units: [1, 2, 3, 4, 5, 6]
+      Channel_Width_in_Units: [1, 2, 3]
+      Channel_Internal_Height: [12, 18, 24]
+      Mounting_Method:
+        - 'Threaded Snap Connector'
+        - 'Flat'
+        - 'Wood Screw'
+    groups:
+      - fixed_parameters:
+          Mounting_Method: 'Threaded Snap Connector'
+        variable_parameters:
+          - Channel_Length_Units
+          - Channel_Internal_Height
+          - Channel_Width_in_Units
+      - fixed_parameters:
+          Mounting_Method: 'Direct Multiboard Screw'
+        variable_parameters:
+          - Channel_Length_Units
+          - Channel_Internal_Height
+          - Channel_Width_in_Units
+      - fixed_parameters:
+          Mounting_Method: 'Wood Screw'
+          Channel_Width_in_Units: [1]  # Ensure this is a list
+          hannel_Internal_Height: [12]
+        variable_parameters:
+          - Channel_Length_Units
+      - fixed_parameters:
+          Mounting_Method: 'Flat'
+          Channel_Width_in_Units: [1]  # Ensure this is a list
+          hannel_Internal_Height: [12]
+        variable_parameters:
+          - Channel_Length_Units
+  

@@ -39,7 +39,7 @@ Wood_Screw_Head_Height = 1.75;
 
 /*[Channel Size]*/
 //width of channel in units (default unit is 25mm)
-Channel_Width_in_Units = 1;
+Channel_Width_in_Units = 1;  // Ensure this is an integer
 //height inside the channel (in mm)
 Channel_Internal_Height = 12; //[12:6:72]
 //length of channel in units (default unit is 25mm)
@@ -107,10 +107,6 @@ Base_Screw_Hole_Outer_Diameter = 15;
 //Thickness of of the base bottom and the bottom of the recessed hole (i.e., thicknes of base at the recess)
 Base_Screw_Hole_Inner_Depth = 1;
 Base_Screw_Hole_Cone = false;
-
-//Part Size Calculations
-straight_channel_Y = Grid_Size * Channel_Length_Units;
-
 
 if(Base_Top_or_Both != "Top")
 color_this(Global_Color)
