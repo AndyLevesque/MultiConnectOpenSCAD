@@ -16,11 +16,11 @@ include <BOSL2/std.scad>
 include <BOSL2/walls.scad>
 
 /* [Internal Dimensions] */
-//Height (in mm) from the top of the back to the base of the internal floor
+//Height (in mm): internal dimension along the Z axis. Measured from the top to the base of the internal floor, equivalent to the height of the item you wish to hold
 internalHeight = 50.0;
-//Width (in mm) of the internal dimension or item you wish to hold
+//Width (in mm): internal dimension along the X axis. Measured from left to right, equivalent to the width of the item you wish to hold
 internalWidth = 50.0; 
-//Length (i.e., distance from back) (in mm) of the internal dimension or item you wish to hold
+//Length (in mm): internal dimension along the Y axis. Measured from the front to the back, equivalent to the thickness of the item you wish to hold
 internalDepth = 15.0;
 
 /*[Style Customizations]*/
@@ -28,66 +28,66 @@ internalDepth = 15.0;
 edgeRounding = 1.0; // [0:0.1:2]
 
 /* [Front Cutout Customizations] */
-//cut out the front
+//Cut out the front
 frontCutout = true; 
-//Distance upward from the bottom (in mm) that captures the bottom front of the item
+//Distance upward (Z axis) from the bottom (in mm). This captures the bottom front of the item
 frontLowerCapture = 7;
-//Distance downward from the top (in mm) that captures the top front of the item. Use zero (0) for a cutout top. May require printing supports if used. 
+//Distance downward (Z axis) from the top (in mm). This captures the top front of the item. Use zero (0) for a cutout top. May require printing supports if used. 
 frontUpperCapture = 0;
-//Distance inward from the sides (in mm) that captures the sides of the item
+//Distance inward (X axis) from the sides (in mm) that captures the sides of the item
 frontLateralCapture = 3;
 
 
 /*[Bottom Cutout Customizations]*/
 //Cut out the bottom 
 bottomCutout = false;
-//Distance inward from the front (in mm) that captures the bottom of the item
+//Distance inward (Y axis) from the front (in mm). This captures the bottom front of the item
 bottomFrontCapture = 3;
-//Distance inward from the back (in mm) that captures the bottom of the item
+//Distance inward (Y axis) from the back (in mm). That captures the bottom back of the item
 bottomBackCapture = 3;
-//Distance inward from the sides (in mm) that captures the bottom of the item
+//Distance inward (X axis) from the sides (in mm) that captures the bottom side of the item
 bottomSideCapture = 3;
 
 /*[Cord Cutout Customizations]*/
-//cut out a slot on the bottom and through the front for a cord to connect to the device
+//Cut out a slot on the bottom and through the front for a cord to connect to the device
 cordCutout = false;
-//diameter/width of cord cutout
+//Diameter/width of cord cutout
 cordCutoutDiameter = 10;
-//move the cord cutout left (positive) or right (negative) (in mm)
+//Move the cord cutout laterally (X axis), left is positive and right is negative (in mm)
 cordCutoutLateralOffset = 0;
-//move the cord cutout forward (positive) and back (negative) (in mm)
+//Move the cord cutout depth (Y axis), forward is positive and back is negative (in mm)
 cordCutoutDepthOffset = 0;
 
 /* [Right Cutout Customizations] */
 rightCutout = false; 
-//Distance upward from the bottom (in mm) that captures the bottom right of the item
+//Distance upward (Z axis) from the bottom (in mm) that captures the bottom right of the item
 rightLowerCapture = 7;
-//Distance downward from the top (in mm) that captures the bottom right of the item. Use zero (0) for a cutout top. May require printing supports if used. 
+//Distance downward (Z axis) from the top (in mm) that captures the top right of the item. Use zero (0) for a cutout top. May require printing supports if used. 
 rightUpperCapture = 0;
-//Distance inward from the sides (in mm) that captures the sides of the item
+//Distance inward (Y axis) from the sides (in mm) that captures the right sides of the item
 rightLateralCapture = 3;
 
 
 /* [Left Cutout Customizations] */
 leftCutout = false; 
-//Distance upward from the bottom (in mm) that captures the upper left of the item
+//Distance upward (Z axis) from the bottom (in mm) that captures the bottom left of the item
 leftLowerCapture = 7;
-//Distance downward from the top (in mm) that captures the upper left of the item. Use zero (0) for a cutout top. May require printing supports if used. 
+//Distance downward (Z axis) from the top (in mm) that captures the top left of the item. Use zero (0) for a cutout top. May require printing supports if used. 
 leftUpperCapture = 0;
-//Distance inward from the sides (in mm) that captures the sides of the item
+//Distance inward (Y axis) from the sides (in mm) that captures the left sides of the item
 leftLateralCapture = 3;
 
 
 /* [Additional Customization] */
-//Thickness of bin walls (in mm)
+//Thickness of item holder walls (in mm)
 wallThickness = 2; //.1
-//Thickness of bin  (in mm)
+//Thickness of item holder base (in mm)
 baseThickness = 3; //.1
 
 /*[Slot Customization]*/
 //Offset the multiconnect on-ramps to be between grid slots rather than on the slot
 onRampHalfOffset = true;
-//Do you want the slots to come from the top of the back (true) or the bottom (false)
+//Change slot orientation, when enabled slots to come from the top of the back, when disabled slots come from the bottom
 Slot_From_Top = true;
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
 distanceBetweenSlots = 25;
@@ -97,11 +97,11 @@ slotQuickRelease = false;
 dimpleScale = 1; //[0.5:.05:1.5]
 //Scale the size of slots in the back (1.015 scale is default for a tight fit. Increase if your finding poor fit. )
 slotTolerance = 1.00; //[0.925:0.005:1.075]
-//Move the slot in (positive) or out (negative)
+//Move the slot (Y axis) inwards (positive) or outwards (negative)
 slotDepthMicroadjustment = 0; //[-.5:0.05:.5]
-//enable a slot on-ramp for easy mounting of tall items
+//Enable a slot on-ramp for easy mounting of tall items
 onRampEnabled = false;
-//frequency of slots for on-ramp. 1 = every slot; 2 = every 2 slots; etc.
+//Frequency of slots for on-ramp. 1 = every slot; 2 = every 2 slots; etc.
 onRampEveryXSlots = 1;
 
 /* [Hidden] */
