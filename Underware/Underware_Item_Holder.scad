@@ -6,9 +6,9 @@ Documentation available at https://handsonkatie.com/underware-2-0-the-made-to-me
 
 Notes:
 - Slot test fit - For a slot test fit, set the following parameters
-    - internalDepth = 0
-    - internalHeight = 25
-    - internalWidth = 0
+    - Internal_Height = 0
+    - Internal_Depth = 25
+    - Internal_Width = 0
     - wallThickness = 0
 */
 
@@ -16,16 +16,16 @@ include <BOSL2/std.scad>
 include <BOSL2/walls.scad>
 
 /* [Internal Dimensions] */
-//Height (in mm): internal dimension along the Z axis. Measured from the top to the base of the internal floor, equivalent to the height of the item you wish to hold
-internalHeight = 50.0;
-//Width (in mm): internal dimension along the X axis. Measured from left to right, equivalent to the width of the item you wish to hold
-internalWidth = 50.0; 
-//Length (in mm): internal dimension along the Y axis. Measured from the front to the back, equivalent to the thickness of the item you wish to hold
-internalDepth = 15.0;
+//Depth (in mm): internal dimension along the Z axis of print orientation. Measured from the top to the base of the internal floor, equivalent to the depth of the item you wish to hold when mounted horizontally.
+Internal_Depth = 50.0;
+//Width (in mm): internal dimension along the X axis of print orientation. Measured from left to right, equivalent to the width of the item you wish to hold when mounted horizontally.
+Internal_Width = 50.0; 
+//Height (in mm): internal dimension along the Y axis of print orientation. Measured from the front to the back, equivalent to the thickness of the item you wish to hold when mounted horizontally.
+Internal_Height = 15.0;
 
 /*[Style Customizations]*/
 //Edge rounding (in mm)
-edgeRounding = 1.0; // [0:0.1:2]
+edgeRounding = 0.5; // [0:0.1:2]
 
 /* [Front Cutout Customizations] */
 //Cut out the front
@@ -107,21 +107,20 @@ onRampEveryXSlots = 1;
 /* [Hidden] */
 
 //Calculated
-totalHeight = internalHeight+baseThickness;
-totalDepth = internalDepth + wallThickness;
-totalWidth = internalWidth + wallThickness*2;
-totalCenterX = internalWidth/2;
+totalDepth = Internal_Depth+baseThickness;
+totalHeight = Internal_Height + wallThickness;
+totalWidth = Internal_Width + wallThickness*2;
+totalCenterX = Internal_Width/2;
 
 //move to center
 union(){
-translate(v = [-internalWidth/2,0,0]) 
+translate(v = [-Internal_Width/2,0,0]) 
     basket();
     //slotted back
-//translate([max(totalWidth,distanceBetweenSlots)/2,0.02,0])
-    translate([0,0.02,totalHeight/2-baseThickness]) 
+    translate([0,0.02,totalDepth/2-baseThickness]) 
     rotate([0,Slot_From_Top ? 180 : 0,0])
-    translate([-totalWidth/2,0,-totalHeight/2])//center
-    multiconnectBack(backWidth = totalWidth, backHeight = totalHeight, distanceBetweenSlots = distanceBetweenSlots);
+    translate([-totalWidth/2,0,-totalDepth/2])//center
+    multiconnectBack(backWidth = totalWidth, backHeight = totalDepth, distanceBetweenSlots = distanceBetweenSlots);
 }
 
 //Create Basket
@@ -130,37 +129,37 @@ module basket() {
         union() {
             //bottom
             translate([-wallThickness,0,-baseThickness])
-                cuboid([internalWidth + wallThickness*2, internalDepth + wallThickness,baseThickness], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [BOTTOM+LEFT,BOTTOM+RIGHT,BOTTOM+BACK,LEFT+BACK,RIGHT+BACK]);
+                cuboid([Internal_Width + wallThickness*2, Internal_Height + wallThickness,baseThickness], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [BOTTOM+LEFT,BOTTOM+RIGHT,BOTTOM+BACK,LEFT+BACK,RIGHT+BACK]);
             //left wall
             translate([-wallThickness,0,0])
-                cuboid([wallThickness, internalDepth + wallThickness, internalHeight], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [TOP+LEFT,TOP+BACK,BACK+LEFT]);
+                cuboid([wallThickness, Internal_Height + wallThickness, Internal_Depth], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [TOP+LEFT,TOP+BACK,BACK+LEFT]);
             //right wall
-            translate([internalWidth,0,0])
-                cuboid([wallThickness, internalDepth + wallThickness, internalHeight], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [TOP+RIGHT,TOP+BACK,BACK+RIGHT]);
+            translate([Internal_Width,0,0])
+                cuboid([wallThickness, Internal_Height + wallThickness, Internal_Depth], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [TOP+RIGHT,TOP+BACK,BACK+RIGHT]);
             //front wall
-            translate([0,internalDepth,0])
-                cuboid([internalWidth,wallThickness,internalHeight], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [TOP+BACK]);
+            translate([0,Internal_Height,0])
+                cuboid([Internal_Width,wallThickness,Internal_Depth], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [TOP+BACK]);
         }
 
         //frontCaptureDeleteTool for item holders
             if (frontCutout == true)
-                translate([frontLateralCapture,internalDepth-1,frontLowerCapture])
-                    cube([internalWidth-frontLateralCapture*2,wallThickness+2,internalHeight-frontLowerCapture-frontUpperCapture+0.01]);
+                translate([frontLateralCapture,Internal_Height-1,frontLowerCapture])
+                    cube([Internal_Width-frontLateralCapture*2,wallThickness+2,Internal_Depth-frontLowerCapture-frontUpperCapture+0.01]);
             if (bottomCutout == true)
                 translate(v = [bottomSideCapture,bottomBackCapture,-baseThickness-1]) 
-                    cube([internalWidth-bottomSideCapture*2,internalDepth-bottomFrontCapture-bottomBackCapture,baseThickness+2]);
+                    cube([Internal_Width-bottomSideCapture*2,Internal_Height-bottomFrontCapture-bottomBackCapture,baseThickness+2]);
                     //frontCaptureDeleteTool for item holders
             if (rightCutout == true)
                 translate([-wallThickness-1,rightLateralCapture,rightLowerCapture])
-                    cube([wallThickness+2,internalDepth-rightLateralCapture*2,internalHeight-rightLowerCapture-rightUpperCapture+0.01]);
+                    cube([wallThickness+2,Internal_Height-rightLateralCapture*2,Internal_Depth-rightLowerCapture-rightUpperCapture+0.01]);
             if (leftCutout == true)
-                translate([internalWidth-1,leftLateralCapture,leftLowerCapture])
-                    cube([wallThickness+2,internalDepth-leftLateralCapture*2,internalHeight-leftLowerCapture-leftUpperCapture+0.01]);
+                translate([Internal_Width-1,leftLateralCapture,leftLowerCapture])
+                    cube([wallThickness+2,Internal_Height-leftLateralCapture*2,Internal_Depth-leftLowerCapture-leftUpperCapture+0.01]);
             if (cordCutout == true) {
-                translate(v = [internalWidth/2+cordCutoutLateralOffset,internalDepth/2+cordCutoutDepthOffset,-baseThickness-1]) {
+                translate(v = [Internal_Width/2+cordCutoutLateralOffset,Internal_Height/2+cordCutoutDepthOffset,-baseThickness-1]) {
                     union(){
                         cylinder(h = baseThickness + frontLowerCapture + 2, r = cordCutoutDiameter/2);
-                        translate(v = [-cordCutoutDiameter/2,0,0]) cube([cordCutoutDiameter,internalWidth/2+wallThickness+1,baseThickness + frontLowerCapture + 2]);
+                        translate(v = [-cordCutoutDiameter/2,0,0]) cube([cordCutoutDiameter,Internal_Width/2+wallThickness+1,baseThickness + frontLowerCapture + 2]);
                     }
                 }
             }
@@ -189,7 +188,7 @@ module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
         }
     }
     //Create Slot Tool
-    module slotTool(totalHeight) {
+    module slotTool(totalDepth) {
         //In slotTool, added a new variable distanceOffset which is set by the option:
         distanceOffset = onRampHalfOffset ? distanceBetweenSlots / 2 : 0;
 
@@ -205,7 +204,7 @@ module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
                 //long slot
                 translate(v = [0,0,0]) 
                     rotate(a = [180,0,0]) 
-                    linear_extrude(height = totalHeight+1) 
+                    linear_extrude(height = totalDepth+1) 
                         union(){
                             polygon(points = slotProfile);
                             mirror([1,0,0])
@@ -213,7 +212,7 @@ module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
                         }
                 //on-ramp
                 if(onRampEnabled)
-                    for(y = [1:onRampEveryXSlots:totalHeight/distanceBetweenSlots])
+                    for(y = [1:onRampEveryXSlots:totalDepth/distanceBetweenSlots])
                         //then modify the translate within the on-ramp code to include the offset
                         translate(v = [0,-5,(-y*distanceBetweenSlots)+distanceOffset])
                             rotate(a = [-90,0,0]) 

@@ -23,7 +23,7 @@ internalDepth = 15.0; //.1
 
 /*[Style Customizations]*/
 //Edge rounding (in mm)
-edgeRounding = 1.0; // [0:0.1:2]
+edgeRounding = 0.5; // [0:0.1:2]
 
 /* [Front Cutout Customizations] */
 //cut out the front
