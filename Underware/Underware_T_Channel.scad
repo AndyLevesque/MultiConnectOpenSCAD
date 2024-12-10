@@ -3,6 +3,12 @@ This code and all parts derived from it are Licensed Creative Commons 4.0 Attrib
 
 Documentation available at https://handsonkatie.com/underware-2-0-the-made-to-measure-collection/
 
+Change Log:
+- 2024-12-06 
+    - Initial release
+- 2024-12-09
+    - Fix to threading of snap connector by adding flare and new slop parameter
+
 Credit to 
     First and foremost - Katie and her community at Hands on Katie on Youtube, Patreon, and Discord
     @David D on Printables for Multiconnect
@@ -10,6 +16,7 @@ Credit to
     @cosmicdust on MakerWorld and @freakadings_1408562 on Printables for the idea of diagonals (forward and turn)
     @siyrahfall+1155967 on Printables for the idea of top exit holes
     @Lyric on Printables for the flush connector idea
+    @fawix on GitHub for her contributions on parameter descriptors
 
 */
 
@@ -47,6 +54,8 @@ Wood_Screw_Head_Height = 1.75;
 Grid_Size = 25;
 //Color of part (color names found at https://en.wikipedia.org/wiki/Web_colors)
 Global_Color = "SlateBlue";
+//Slop in thread. Increase to make threading easier. Decrease to make threading harder.
+Slop = 0.075;
 
 /*[Hidden]*/
 channelWidth = Channel_Width_in_Units * Grid_Size;
@@ -123,7 +132,8 @@ module tIntersectionBase(widthMM, anchor, spin, orient){
                 //wood screw head
                 attach(TOP, BOT, overlap=0.01) cyl(h=Wood_Screw_Head_Height+0.05, d1=Wood_Screw_Thread_Diameter, d2=Wood_Screw_Head_Diameter, $fn=25);
             else if(Mounting_Method == "Flat") ; //do nothing
-            else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
+            //Default is Threaded Snap Connector
+            else up(5.99) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=6, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, internal=true, bevel2 = true, blunt_start=false, anchor=TOP, $slop=Slop);
         }
         }
         children();

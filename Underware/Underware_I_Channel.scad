@@ -16,6 +16,7 @@ Credit to
     @cosmicdust on MakerWorld and @freakadings_1408562 on Printables for the idea of diagonals (forward and turn)
     @siyrahfall+1155967 on Printables for the idea of top exit holes
     @Lyric on Printables for the flush connector idea
+    @fawix on GitHub for her contributions on parameter descriptors
 
 */
 

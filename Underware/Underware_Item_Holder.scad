@@ -1,8 +1,13 @@
 /*Created by Andy Levesque
-Credit to @David D on Printables and Jonathan at Keep Making for Multiconnect and Multiboard, respectively
+
 Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attribution
 
 Documentation available at https://handsonkatie.com/underware-2-0-the-made-to-measure-collection/
+
+Credit to 
+    @David D on Printables for Multiconnect
+    Jonathan at Keep Making for Multiboard
+    @fawix on GitHub for her contributions on parameter descriptors
 
 Change Log:
 - 2024-12-06 
