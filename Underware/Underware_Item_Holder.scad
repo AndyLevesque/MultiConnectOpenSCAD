@@ -4,6 +4,13 @@ Licensed Creative Commons 4.0 Attribution Non-Commercial Sharable with Attributi
 
 Documentation available at https://handsonkatie.com/underware-2-0-the-made-to-measure-collection/
 
+Change Log:
+- 2024-12-06 
+    - Initial release
+- 2024-12-08 
+    - Renamed depth and width
+    - Rounding added to edges
+
 Notes:
 - Slot test fit - For a slot test fit, set the following parameters
     - Internal_Height = 0
