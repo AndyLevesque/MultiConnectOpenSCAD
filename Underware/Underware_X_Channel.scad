@@ -21,9 +21,9 @@ include <BOSL2/threading.scad>
 Base_Top_or_Both = "Both"; // [Base, Top, Both]
 
 /*[Channel Height and Width]*/
-//width of channel in units (default unit is 25mm)
+//Width of channel in units (default unit is 25mm)
 Channel_Width_in_Units = 1;
-//height inside the channel (in mm)
+//Height (Z axis) inside the channel (in mm)
 Channel_Internal_Height = 12; //[12:6:72]
 
 /*[Mounting Options]*/
@@ -35,7 +35,7 @@ Magnet_Diameter = 4.0;
 Magnet_Thickness = 1.5;
 //Add a tolerance to the magnet hole to make it easier to insert the magnet.
 Magnet_Tolerance = 0.1;
-//wood screw diameter (in mm)
+//Wood screw diameter (in mm)
 Wood_Screw_Thread_Diameter = 3.5;
 //Wood Screw Head Diameter (in mm)
 Wood_Screw_Head_Diameter = 7;

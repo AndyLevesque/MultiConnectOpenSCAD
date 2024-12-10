@@ -21,17 +21,17 @@ include <BOSL2/threading.scad>
 Base_Top_or_Both = "Both"; // [Base, Top, Both]
 
 /*[Channel Shape]*/
-//width of channel in units (default unit is 25mm)
+//Width of channel in units (default unit is 25mm)
 Channel_Width_in_Units = 1;
-//height inside the channel (in mm)
+//Height (Z axis) inside the channel (in mm)
 Channel_Internal_Height = 12; //[12:6:72]
-//Grid units to move over
+//Grid units to move over (X axis)
 Units_Over = 2; //[-10:1:10]
-//Grid units to move up
+//Grid units to move up (Y axis)
 Units_Up = 2; //[-10:1:10]
-//Output the same direction (Forward) or at 90 degrees in direction of shift (Turn).
+//Channel ends with same direction when set to Forward or at 90 degrees angle if set to Turn
 Output_Direction = "Turn"; //[Forward, Turn]
-//Distance that the parts are straight in on the ends (before the angle)
+//Straight distance on both edges of the channel (before the angle)
 Straight_Distance = 25;//[12.5:12.5:100]
 
 /*[Mounting Options]*/
@@ -43,7 +43,7 @@ Magnet_Diameter = 4.0;
 Magnet_Thickness = 1.5;
 //Add a tolerance to the magnet hole to make it easier to insert the magnet.
 Magnet_Tolerance = 0.1;
-//wood screw diameter (in mm)
+//Wood screw diameter (in mm)
 Wood_Screw_Thread_Diameter = 3.5;
 //Wood Screw Head Diameter (in mm)
 Wood_Screw_Head_Diameter = 7;
