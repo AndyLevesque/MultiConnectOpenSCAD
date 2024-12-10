@@ -30,7 +30,7 @@ Magnet_Diameter = 4.0;
 Magnet_Thickness = 1.5;
 //Add a tolerance to the magnet hole to make it easier to insert the magnet.
 Magnet_Tolerance = 0.1;
-//wood screw diameter (in mm)
+//Wood screw diameter (in mm)
 Wood_Screw_Thread_Diameter = 3.5;
 //Wood Screw Head Diameter (in mm)
 Wood_Screw_Head_Diameter = 7;
@@ -38,11 +38,11 @@ Wood_Screw_Head_Diameter = 7;
 Wood_Screw_Head_Height = 1.75;
 
 /*[Channel Size]*/
-//width of channel in units (default unit is 25mm)
+//Width (X axis) of channel in units. Default unit is 25mm
 Channel_Width_in_Units = 1;  // Ensure this is an integer
-//height inside the channel (in mm)
+//Height (Z axis) inside the channel (in mm)
 Channel_Internal_Height = 12; //[12:6:72]
-//length of channel in units (default unit is 25mm)
+//Length (Y axis) of channel in units. Default unit is 25mm
 Channel_Length_Units = 5; 
 
 /*[Cord Cutouts]*/
@@ -51,8 +51,9 @@ Number_of_Cord_Cutouts = 0;
 Cord_Side_Cutouts = "Both Sides"; //[Left Side, Right Side, Both Sides, None]
 //Width of each cord cutout (in mm)
 Cord_Cutout_Width = 12;
+// in mm
 Distance_Between_Cutouts = 25;
-//Distance (in mm) to shift all cutouts forward (positive) or back (negative)
+//Distance (in mm) to offset cutouts along Y axis. Forward is positive, back is negative
 Shift_Cutouts_Forward_or_Back = 0;
 
 /*[Color Label]*/
@@ -60,7 +61,8 @@ Shift_Cutouts_Forward_or_Back = 0;
 Add_Label = false;
 //Text to appear on label
 Text = "Hands on Katie";  // Text to be displayed
-Text_x_coordinate = 0;  // Adjusting the x position of the text
+// Adjust the X axis position of the text
+Text_x_coordinate = 0; 
 //Font must be installed on local machine if using local OpenSCAD
 Font = "Raleway"; // [Asap, Bangers, Changa One, Chewy, Harmony OS Sans,Inter,Inter Tight,Lora,Merriweather Sans,Montserrat,Noto Emoji,Noto Sans,Noto Sans Adlam,Noto Sans Adlam Unjoined,Noto Sans Arabic,Noto Sans Arabic UI,Noto Sans Armenian,Noto Sans Balinese,Noto Sans Bamum,Noto Sans Bassa Vah,Noto Sans Bengali,Noto Sans Bengali UI,Noto Sans Canadian Aboriginal,Noto Sans Cham,Noto Sans Cherokee,Noto Sans Devanagari,Noto Sans Display,Noto Sans Ethiopic,Noto Sans Georgian,Noto Sans Gujarati,Noto Sans Gunjala Gondi,Noto Sans Gurmukhi,Noto Sans Gurmukhi UI,Noto Sans HK,Noto Sans Hanifi Rohingya,Noto Sans Hebrew,Noto Sans JP,Noto Sans Javanese,Noto Sans KR,Noto Sans Kannada,Noto Sans Kannada UI,Noto Sans Kawi,Noto Sans Kayah Li,Noto Sans Khmer,Noto Sans Khmer UI,Noto Sans Lao,Noto Sans Lao Looped,Noto Sans Lao UI,Noto Sans Lisu,Noto Sans Malayalam,Noto Sans Malayalam UI,Noto Sans Medefaidrin,Noto Sans Meetei Mayek,Noto Sans Mono,Noto Sans Myanmar,Noto Sans NKo Unjoined,Noto Sans Nag Mundari,Noto Sans New Tai Lue,Noto Sans Ol Chiki,Noto Sans Oriya,Noto Sans SC,Noto Sans Sinhala,Noto Sans Sinhala UI,Noto Sans Sora Sompeng,Noto Sans Sundanese,Noto Sans Symbols,Noto Sans Syriac,Noto Sans Syriac Eastern,Noto Sans TC,Noto Sans Tai Tham,Noto Sans Tamil,Noto Sans Tamil UI,Noto Sans Tangsa,Noto Sans Telugu,Noto Sans Telugu UI,Noto Sans Thaana,Noto Sans Thai,Noto Sans Thai UI,Noto Sans Vithkuqi,Nunito,Nunito Sans,Open Sans,Open Sans Condensed,Oswald,Playfair Display,Plus Jakarta Sans,Raleway,Roboto,Roboto Condensed,Roboto Flex,Roboto Mono,Roboto Serif,Roboto Slab,Rubik,Source Sans 3,Ubuntu Sans,Ubuntu Sans Mono,Work Sans]
 //Styling of selecte font. Note that not all fonts support all styles. 
