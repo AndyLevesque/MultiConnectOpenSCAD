@@ -18,12 +18,13 @@ include <BOSL2/rounding.scad>
 include <BOSL2/threading.scad>
 
 /*[Channel Size]*/
-//width of channel in units (default unit is 25mm)
+//Width (Y axis) of channel in units. Default unit is 25mm
 Channel_Width_in_Units = 1;
-//height inside the channel (in mm)
+//Height inside the channel (in mm). Z axis for top channel and X axis bottom channel.
 Channel_Internal_Height = 12; //[12:6:72]
-//Length (in mm) the longest edge of one top channel. This should be the distance of where the channel starts to the wall or corner.
+//Length (X axis) in mm of the top channel. This should be the distance of where the channel starts to the wall or corner.
 Length_of_Longest_Edge_1 = 75;
+//Length (Z axis) in mm of the bottom channel. This should be the distance of where the channel starts to the wall or corner.
 Length_of_Longest_Edge_2 = 75;
 
 /*[Advanced Options]*/
