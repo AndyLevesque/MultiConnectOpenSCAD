@@ -30,7 +30,7 @@ Snap_Holding_Tolerance = 1; //[0.5:0.05:2.0]
 Snap_Thread_Height = 3.6;
 
 /*[Options: Bolts]*/
-//length of the threaded portion of small screw. MB is 6mm thick and the recessed hole in base channels is 1mm deep. 
+//Length of the threaded portion of small screw. MB is 6mm thick and the recessed hole in base channels is 1mm deep.
 Thread_Length_Sm = 6.5;
 
 /*[Advanced Options]*/
