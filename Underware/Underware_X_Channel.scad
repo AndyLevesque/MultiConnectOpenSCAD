@@ -3,6 +3,12 @@ This code and all parts derived from it are Licensed Creative Commons 4.0 Attrib
 
 Documentation available at https://handsonkatie.com/underware-2-0-the-made-to-measure-collection/
 
+Change Log:
+- 2024-12-06 
+    - Initial release
+- 2024-12-09 
+    - Added ability to set different widths for the intersections
+
 Credit to 
     First and foremost - Katie and her community at Hands on Katie on Youtube, Patreon, and Discord
     @David D on Printables for Multiconnect
@@ -22,7 +28,9 @@ Base_Top_or_Both = "Both"; // [Base, Top, Both]
 
 /*[Channel Height and Width]*/
 //width of channel in units (default unit is 25mm)
-Channel_Width_in_Units = 1;
+Channel_X_Width_X_in_Units = 1;
+//width of channel in units (default unit is 25mm)
+Channel_Y_Width_in_Units = 1;
 //height inside the channel (in mm)
 Channel_Internal_Height = 12; //[12:6:72]
 
@@ -49,7 +57,8 @@ Grid_Size = 25;
 Global_Color = "SlateBlue";
 
 /*[Hidden]*/
-channelWidth = Channel_Width_in_Units * Grid_Size;
+channelXWidth = Channel_X_Width_X_in_Units * Grid_Size;
+channelYWidth = Channel_Y_Width_in_Units * Grid_Size;
 baseHeight = 9.63;
 topHeight = 10.968;
 interlockOverlap = 3.09; //distance that the top and base overlap each other
@@ -82,8 +91,8 @@ Base_Screw_Hole_Inner_Depth = 1;
 Base_Screw_Hole_Cone = false;
 
 //Part Size Calculations
-x_channel_X = channelWidth+Grid_Size*2;
-x_channel_Y = channelWidth+Grid_Size*2;
+x_channel_X = channelXWidth+Grid_Size*2;
+x_channel_Y = channelYWidth+Grid_Size*2;
 
 /*
 
@@ -93,13 +102,13 @@ x_channel_Y = channelWidth+Grid_Size*2;
 
 if(Base_Top_or_Both != "Top")
 color_this(Global_Color) 
-    left(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
-        XChannelBase(widthMM = channelWidth, anchor=BOT);
+    left(Show_Attached ? 0 : x_channel_Y / 2 + partSeparation/2)
+        XChannelBase(widthMMX = channelXWidth, widthMMY = channelYWidth, anchor=BOT);
 if(Base_Top_or_Both != "Base")
 color_this(Global_Color)
-    right(Show_Attached ? 0 : x_channel_X / 2 + partSeparation/2)
+    right(Show_Attached ? 0 : x_channel_Y / 2 + partSeparation/2)
     up(Show_Attached ? interlockFromFloor : 0) 
-        XChannelTop(widthMM = channelWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
+        XChannelTop(widthMMX = channelXWidth, widthMMY = channelYWidth, heightMM = Channel_Internal_Height, anchor=Show_Attached ? BOT : TOP, orient= Show_Attached ? TOP : BOT);
 
 /*
 
@@ -107,34 +116,44 @@ color_this(Global_Color)
 
 */
 
-module XChannelBase(widthMM, anchor, spin, orient){
-    attachable(anchor, spin, orient, size=[channelWidth+Grid_Size*2, channelWidth+Grid_Size*2, baseHeight]){
+
+module XChannelBase(widthMMX, widthMMY, anchor, spin, orient){
+    attachable(anchor, spin, orient, size=[channelXWidth+Grid_Size*2, channelYWidth+Grid_Size*2, baseHeight]){
         diff("channelClear holes"){
-        down(baseHeight/2)left((channelWidth/2+Grid_Size)) path_sweep(baseProfile(widthMM = widthMM), turtle(["xmove", channelWidth+Grid_Size*2]));
-        down(baseHeight/2)fwd(channelWidth/2+Grid_Size) zrot(90)path_sweep(baseProfile(widthMM = widthMM), turtle(["xmove", channelWidth+Grid_Size*2]));
-        //zrot_copies(n=4) straightChannelBase(lengthMM = Grid_Size*3, widthMM = channelWidth) //old approach with unwanted straight channel inheritance
-        tag("channelClear") zrot_copies(n=4) straightChannelBaseDeleteTool(widthMM = channelWidth+0.02, lengthMM = Grid_Size+channelWidth); 
-        tag("holes") down(5)grid_copies(spacing=Grid_Size, inside=rect([x_channel_X-1,x_channel_Y-1])) 
-            if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
-            else if(Mounting_Method == "Magnet") up(Magnet_Thickness+Magnet_Tolerance-0.01) cyl(h=Magnet_Thickness+Magnet_Tolerance, d=Magnet_Diameter+Magnet_Tolerance, $fn=50, anchor=TOP);
-            else if(Mounting_Method == "Wood Screw") up(3.5 - Wood_Screw_Head_Height) cyl(h=3.5 - Wood_Screw_Head_Height+0.05, d=Wood_Screw_Thread_Diameter, $fn=25, anchor=TOP)
-                //wood screw head -- TODO - fix alignment
-                attach(TOP, BOT, overlap=0.01) cyl(h=Wood_Screw_Head_Height+0.2, d1=Wood_Screw_Thread_Diameter, d2=Wood_Screw_Head_Diameter, $fn=25);
-            else if(Mounting_Method == "Flat") ; //do nothing
-            else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
+            //X direction channel
+            down(baseHeight/2) left((widthMMY+Grid_Size*2)/2) 
+                path_sweep(baseProfile(widthMM = widthMMX), turtle(["xmove", widthMMY+Grid_Size*2]));
+            //Y direction channel
+            zrot(90)
+                down(baseHeight/2) left((widthMMX+Grid_Size*2)/2) 
+                    path_sweep(baseProfile(widthMM = widthMMY), turtle(["xmove", widthMMX+Grid_Size*2]));
+            //tag("channelClear") #zrot_copies(n=4) straightChannelBaseDeleteTool(widthMM = channelXWidth+0.02, lengthMM = Grid_Size+channelXWidth); 
+            tag("channelClear") straightChannelBaseDeleteTool(widthMM = channelYWidth+0.02, lengthMM = channelXWidth+Grid_Size*2); 
+            tag("channelClear") zrot(90) straightChannelBaseDeleteTool(widthMM = channelXWidth+0.02, lengthMM = channelYWidth+Grid_Size*2); 
+            tag("holes") down(5)grid_copies(spacing=Grid_Size, inside=rect([channelYWidth+Grid_Size*2-1, channelXWidth+Grid_Size*2-1])) 
+                if(Mounting_Method == "Direct Multiboard Screw") up(Base_Screw_Hole_Inner_Depth) cyl(h=8, d=Base_Screw_Hole_Inner_Diameter, $fn=25, anchor=TOP) attach(TOP, BOT, overlap=0.01) cyl(h=3, d=Base_Screw_Hole_Outer_Diameter, $fn=25);
+                else if(Mounting_Method == "Magnet") up(Magnet_Thickness+Magnet_Tolerance-0.01) cyl(h=Magnet_Thickness+Magnet_Tolerance, d=Magnet_Diameter+Magnet_Tolerance, $fn=50, anchor=TOP);
+                else if(Mounting_Method == "Wood Screw") up(3.5 - Wood_Screw_Head_Height) cyl(h=3.5 - Wood_Screw_Head_Height+0.05, d=Wood_Screw_Thread_Diameter, $fn=25, anchor=TOP)
+                    //wood screw head -- TODO - fix alignment
+                    attach(TOP, BOT, overlap=0.01) cyl(h=Wood_Screw_Head_Height+0.2, d1=Wood_Screw_Thread_Diameter, d2=Wood_Screw_Head_Diameter, $fn=25);
+                else if(Mounting_Method == "Flat") ; //do nothing
+                else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
         }
         children();
     }
 }
 
-module XChannelTop(widthMM, heightMM = 12, anchor, spin, orient){
+module XChannelTop(widthMMX, widthMMY, heightMM = 12, anchor, spin, orient){
     attachable(anchor, spin, orient, size=[Grid_Size*3, Grid_Size*3, topHeight + (heightMM-12)]){
     down((topHeight + (heightMM-12))/2)
     diff("channelClear"){
-        left((channelWidth/2+Grid_Size)) path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["xmove", channelWidth+Grid_Size*2]));
-        fwd(channelWidth/2+Grid_Size) zrot(90) path_sweep(topProfile(widthMM = widthMM, heightMM = heightMM), turtle(["xmove", channelWidth+Grid_Size*2]));
-        tag("channelClear") zrot_copies(n=4) straightChannelTopDeleteTool(widthMM = channelWidth+0.02, lengthMM = Grid_Size+channelWidth, heightMM = heightMM, anchor=BOT); 
-    }
+        left((widthMMY+Grid_Size*2)/2) 
+            path_sweep(topProfile(widthMM = widthMMX, heightMM = heightMM), turtle(["xmove", widthMMY+Grid_Size*2]));
+        zrot(90) left((widthMMX+Grid_Size*2)/2)
+            path_sweep(topProfile(widthMM = widthMMY, heightMM = heightMM), turtle(["xmove", widthMMX+Grid_Size*2]));
+        tag("channelClear") straightChannelTopDeleteTool(widthMM = channelYWidth+0.02, lengthMM = Grid_Size*2+channelXWidth, heightMM = heightMM, anchor=BOT); 
+        tag("channelClear") zrot(90) straightChannelTopDeleteTool(widthMM = channelXWidth+0.02, lengthMM = Grid_Size*2+channelYWidth, heightMM = heightMM, anchor=BOT); 
+    }   
     children();
     }
 }
