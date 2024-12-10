@@ -8,6 +8,7 @@ Change Log:
     - Initial release
 - 2024-12-09 
     - Added ability to set different widths for the intersections
+    - Fix to threading of snap connector by adding flare and new slop parameter
 
 Credit to 
     First and foremost - Katie and her community at Hands on Katie on Youtube, Patreon, and Discord
@@ -55,6 +56,9 @@ Wood_Screw_Head_Height = 1.75;
 Grid_Size = 25;
 //Color of part (color names found at https://en.wikipedia.org/wiki/Web_colors)
 Global_Color = "SlateBlue";
+//Slop in thread. Increase to make threading easier. Decrease to make threading harder.
+Slop = 0.075;
+
 
 /*[Hidden]*/
 channelXWidth = Channel_X_Width_X_in_Units * Grid_Size;
@@ -127,7 +131,6 @@ module XChannelBase(widthMMX, widthMMY, anchor, spin, orient){
             zrot(90)
                 down(baseHeight/2) left((widthMMX+Grid_Size*2)/2) 
                     path_sweep(baseProfile(widthMM = widthMMY), turtle(["xmove", widthMMX+Grid_Size*2]));
-            //tag("channelClear") #zrot_copies(n=4) straightChannelBaseDeleteTool(widthMM = channelXWidth+0.02, lengthMM = Grid_Size+channelXWidth); 
             tag("channelClear") straightChannelBaseDeleteTool(widthMM = channelYWidth+0.02, lengthMM = channelXWidth+Grid_Size*2); 
             tag("channelClear") zrot(90) straightChannelBaseDeleteTool(widthMM = channelXWidth+0.02, lengthMM = channelYWidth+Grid_Size*2); 
             tag("holes") down(5)grid_copies(spacing=Grid_Size, inside=rect([channelYWidth+Grid_Size*2-1, channelXWidth+Grid_Size*2-1])) 
@@ -137,7 +140,8 @@ module XChannelBase(widthMMX, widthMMY, anchor, spin, orient){
                     //wood screw head -- TODO - fix alignment
                     attach(TOP, BOT, overlap=0.01) cyl(h=Wood_Screw_Head_Height+0.2, d1=Wood_Screw_Thread_Diameter, d2=Wood_Screw_Head_Diameter, $fn=25);
                 else if(Mounting_Method == "Flat") ; //do nothing
-                else up(6.5) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=9, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, bevel2 = true, blunt_start=false, anchor=TOP);
+                //Default is Threaded Snap Connector
+                else up(5.99) trapezoidal_threaded_rod(d=Outer_Diameter_Sm, l=6, pitch=Pitch_Sm, flank_angle = Flank_Angle_Sm, thread_depth = Thread_Depth_Sm, $fn=50, internal=true, bevel2 = true, blunt_start=false, anchor=TOP, $slop=Slop);
         }
         children();
     }
