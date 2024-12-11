@@ -14,7 +14,11 @@ Change Log:
     - Initial release
 - 2024-12-08 
     - Renamed depth and width
+    - Multiconnect On-Ramps off by default
+    - Multiconnect On-Ramps at 1/2 grid intervals for more contact points
     - Rounding added to edges
+- 2024-12-10
+    - Hexagon panel option
 
 Notes:
 - Slot test fit - For a slot test fit, set the following parameters
@@ -117,6 +121,8 @@ onRampEnabled = false;
 onRampEveryXSlots = 1;
 
 /* [Hidden] */
+Wall_Type = "Solid"; //["Hex","Solid"]
+
 
 //Calculated
 totalDepth = Internal_Depth+baseThickness;
@@ -141,16 +147,31 @@ module basket() {
         union() {
             //bottom
             translate([-wallThickness,0,-baseThickness])
-                cuboid([Internal_Width + wallThickness*2, Internal_Height + wallThickness,baseThickness], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [BOTTOM+LEFT,BOTTOM+RIGHT,BOTTOM+BACK,LEFT+BACK,RIGHT+BACK]);
+                if (bottomCutout == true || Wall_Type == "Solid") //cutouts are not compatible with hex panels at this time. Need to build a frame first. 
+                    cuboid([Internal_Width + wallThickness*2, Internal_Height + wallThickness,baseThickness], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [BOTTOM+LEFT,BOTTOM+RIGHT,BOTTOM+BACK,LEFT+BACK,RIGHT+BACK]);
+                else    
+                     fwd(wallThickness)hex_panel([Internal_Width + wallThickness*2,Internal_Height+wallThickness*2, baseThickness], strut = 1, spacing = 5, frame= wallThickness, anchor=FRONT+LEFT+BOT);
+
             //left wall
             translate([-wallThickness,0,0])
-                cuboid([wallThickness, Internal_Height + wallThickness, Internal_Depth], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [TOP+LEFT,TOP+BACK,BACK+LEFT]);
+                if (leftCutout == true || Wall_Type == "Solid") //cutouts are not compatible with hex panels at this time. Need to build a frame first. 
+                    cuboid([wallThickness, Internal_Height + wallThickness, Internal_Depth], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [TOP+LEFT,TOP+BACK,BACK+LEFT]);
+                else    
+                     fwd(wallThickness)hex_panel([Internal_Depth, Internal_Height + wallThickness*2,wallThickness], strut = 1, spacing = 7, frame= wallThickness, orient=RIGHT, anchor=FRONT+RIGHT+BOT);
+
             //right wall
             translate([Internal_Width,0,0])
-                cuboid([wallThickness, Internal_Height + wallThickness, Internal_Depth], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [TOP+RIGHT,TOP+BACK,BACK+RIGHT]);
-            //front wall
+                if (rightCutout == true || Wall_Type == "Solid") //cutouts are not compatible with hex panels at this time. Need to build a frame first. 
+                    cuboid([wallThickness, Internal_Height + wallThickness, Internal_Depth], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [TOP+RIGHT,TOP+BACK,BACK+RIGHT]);
+                else    
+                     fwd(wallThickness)hex_panel([Internal_Depth, Internal_Height + wallThickness*2,wallThickness], strut = 1, spacing = 7, frame= wallThickness, orient=RIGHT, anchor=FRONT+RIGHT+BOT);
+
+            //front wall            
             translate([0,Internal_Height,0])
-                cuboid([Internal_Width,wallThickness,Internal_Depth], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [TOP+BACK]);
+                if (frontCutout == true || Wall_Type == "Solid") //cutouts are not compatible with hex panels at this time. Need to build a frame first. 
+                    cuboid([Internal_Width,wallThickness,Internal_Depth], anchor=FRONT+LEFT+BOT, rounding=edgeRounding, edges = [TOP+BACK]);
+                else    
+                    back(wallThickness)zrot(-90) hex_panel([Internal_Depth,Internal_Width,wallThickness], strut = 1, spacing = 7, frame= wallThickness,orient=RIGHT, anchor=FRONT+RIGHT+BOT);
         }
 
         //frontCaptureDeleteTool for item holders
@@ -160,7 +181,6 @@ module basket() {
             if (bottomCutout == true)
                 translate(v = [bottomSideCapture,bottomBackCapture,-baseThickness-1]) 
                     cube([Internal_Width-bottomSideCapture*2,Internal_Height-bottomFrontCapture-bottomBackCapture,baseThickness+2]);
-                    //frontCaptureDeleteTool for item holders
             if (rightCutout == true)
                 translate([-wallThickness-1,rightLateralCapture,rightLowerCapture])
                     cube([wallThickness+2,Internal_Height-rightLateralCapture*2,Internal_Depth-rightLowerCapture-rightUpperCapture+0.01]);
