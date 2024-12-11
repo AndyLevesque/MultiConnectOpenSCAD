@@ -39,6 +39,8 @@ def generate_output(task):
         '--enable=lazy-union',
         '-o', output_file
     ]
+    # Ensure manifold and lazy_unions are enabled
+    command.extend(['--backend=manifold'])
     for key, value in params.items():
         if isinstance(value, list):
             value = value[0]  # Fix for list values
@@ -65,22 +67,36 @@ if __name__ == "__main__":
         config = yaml.safe_load(file)
     tasks = []
     for scad in config['scad_files']:
+        if not scad.get('enabled', True):
+            continue  # Skip if the SCAD file is not enabled
         scad_file = scad['filename']
         output_prefix = scad.get('output_prefix', '')
         parameters = scad['parameters']
         for group in scad['groups']:
+            if not group.get('enabled', True):
+                continue  # Skip if the group is not enabled
             fixed_params = group['fixed_parameters']
-            variable_params = {k: parameters[k] for k in group['variable_parameters']}
-            param_names, param_values = zip(*variable_params.items())
-            combinations = itertools.product(*param_values)
+            variable_params = {k: parameters[k] for k in group.get('variable_parameters', [])}
+            output_folder = group.get('output_folder', '')
+            if variable_params:
+                param_names, param_values = zip(*variable_params.items())
+                combinations = itertools.product(*param_values)
+            else:
+                param_names = []
+                combinations = [()]
             for values in combinations:
-                params = dict(zip(param_names, values))
+                params = dict(zip(param_names, values)) if variable_params else {}
                 params.update(fixed_params)
-                output_file = output_prefix
-                for key, value in params.items():
+                output_file = os.path.join(output_folder, output_prefix)
+                os.makedirs(os.path.join(output_dir, output_folder), exist_ok=True)
+                param_order = config.get('parameter_order', [])
+                ordered_params = {k: params[k] for k in param_order if k in params}
+                for key, value in ordered_params.items():
                     if isinstance(value, list):
                         value = value[0]  # Fix for list values
-                    output_file += f'_{key}{value}'
+                    param_prefix = config['parameter_prefixes'].get(key, key)
+                    value_abbreviation = config['value_abbreviations'].get(value, value)
+                    output_file += f'_{param_prefix}{value_abbreviation}'
                 output_file += '.3mf'
                 task = {
                     'scad_file': scad_file,

@@ -1,8 +1,9 @@
 scad_files:
   - filename: 'Underware_I_Channel.scad'
     output_prefix: 'i_Channel'
+    enabled: true
     parameters:
-      Channel_Length_Units: [1, 2, 3, 4, 5, 6]
+      Channel_Length_Units: [1, 2, 3, 4, 5, 6, 7, 8]
       Channel_Width_in_Units: [1, 2, 3]
       Channel_Internal_Height: [12, 18, 24]
       Mounting_Method:
@@ -10,28 +11,204 @@ scad_files:
         - 'Flat'
         - 'Wood Screw'
     groups:
-      - fixed_parameters:
+      - enabled: true
+        fixed_parameters:
           Mounting_Method: 'Threaded Snap Connector'
+          Channel_Internal_Height: [12]
+          Channel_Width_in_Units: [1] 
         variable_parameters:
           - Channel_Length_Units
           - Channel_Internal_Height
           - Channel_Width_in_Units
-      - fixed_parameters:
+        output_folder: 'iChannel/iChannel_ThrSnap_1x12'
+      - enabled: true
+        fixed_parameters:
           Mounting_Method: 'Direct Multiboard Screw'
         variable_parameters:
           - Channel_Length_Units
           - Channel_Internal_Height
           - Channel_Width_in_Units
-      - fixed_parameters:
+        output_folder: 'iChannel/iChannel_DirScrew_1x12'
+      - enabled: true
+        fixed_parameters:
           Mounting_Method: 'Wood Screw'
           Channel_Width_in_Units: [1]  # Ensure this is a list
-          hannel_Internal_Height: [12]
+          Channel_Internal_Height: [12]
         variable_parameters:
           - Channel_Length_Units
-      - fixed_parameters:
+        output_folder: 'iChannel/iChannel_WoodScrew_1x12'
+      - enabled: true
+        fixed_parameters:
           Mounting_Method: 'Flat'
           Channel_Width_in_Units: [1]  # Ensure this is a list
-          hannel_Internal_Height: [12]
+          Channel_Internal_Height: [12]
         variable_parameters:
           - Channel_Length_Units
-  
+        output_folder: 'iChannel/iChannel_Flat_1x12'
+  - filename: 'Underware_C_Channel.scad'
+    output_prefix: 'c_Channel'
+    enabled: true
+    parameters:
+      Curve_Radius_in_Units: [1, 2, 3, 4, 5]
+      Channel_Width_in_Units: [1, 2, 3]
+      Channel_Internal_Height: [12, 18, 24]
+      Mounting_Method:
+        - 'Threaded Snap Connector'
+        - 'Flat'
+        - 'Wood Screw'
+    groups:
+      - enabled: true
+        fixed_parameters:
+          Mounting_Method: 'Threaded Snap Connector'
+          Channel_Internal_Height: [12]
+          Channel_Width_in_Units: [1] 
+        variable_parameters:
+          - Curve_Radius_in_Units
+        output_folder: 'Group1'
+  - filename: 'Underware_L_Channel.scad'
+    output_prefix: 'l_Channel'
+    enabled: true
+    parameters:
+      L_Channel_Length_in_Units: [1, 2, 3]
+      Channel_Width_in_Units: [1, 2, 3]
+      Channel_Internal_Height: [12, 18, 24]
+      Mounting_Method:
+        - 'Threaded Snap Connector'
+        - 'Flat'
+        - 'Wood Screw'
+    groups:
+      - enabled: true
+        fixed_parameters:
+          Mounting_Method: 'Threaded Snap Connector'
+          Channel_Internal_Height: [12]
+          Channel_Width_in_Units: [1] 
+        variable_parameters:
+          - L_Channel_Length_in_Units
+        output_folder: 'Group1'
+  - filename: 'Underware_T_Channel.scad'
+    output_prefix: 't_Channel'
+    enabled: true
+    parameters:
+      Channel_Width_in_Units: [1, 2, 3]
+      Channel_Internal_Height: [12, 18, 24]
+      Mounting_Method:
+        - 'Threaded Snap Connector'
+        - 'Flat'
+        - 'Wood Screw'
+    groups:
+      - enabled: true
+        fixed_parameters:
+          Mounting_Method: 'Threaded Snap Connector'
+          Channel_Internal_Height: [12]
+          Channel_Width_in_Units: [1]
+        variable_parameters: []
+        output_folder: 'Group1'
+  - filename: 'Underware_X_Channel.scad'
+    output_prefix: 'x_Channel'
+    enabled: true
+    parameters:
+      Channel_Width_in_Units: [1, 2, 3]
+      Channel_Internal_Height: [12, 18, 24]
+      Mounting_Method:
+        - 'Threaded Snap Connector'
+        - 'Flat'
+        - 'Wood Screw'
+    groups:
+      - enabled: true
+        fixed_parameters:
+          Mounting_Method: 'Threaded Snap Connector'
+          Channel_Internal_Height: [12]
+          Channel_Width_in_Units: [1]
+        variable_parameters: []
+        output_folder: 'Group1'
+  - filename: 'Underware_Y_Channel.scad'
+    output_prefix: 'y_Channel'
+    enabled: true
+    parameters:
+      Channel_Width_in_Units: [1, 2, 3]
+      Channel_Internal_Height: [12, 18, 24]
+      Y_Units_Over: [1, 2, 3]
+      Y_Units_Up: [1, 2, 3]
+      Straight_Distance: [12.5, 25]
+      Mounting_Method:
+        - 'Threaded Snap Connector'
+        - 'Flat'
+        - 'Wood Screw'
+      Y_Output_Direction: 
+        - 'Forward'
+        - 'Turn'
+    groups:
+      - enabled: true
+        fixed_parameters:
+          Mounting_Method: 'Threaded Snap Connector'
+          Channel_Internal_Height: [12]
+          Channel_Width_in_Units: [1]
+        variable_parameters: 
+          - Y_Output_Direction
+        output_folder: 'Group1'
+  - filename: 'Underware_Diagonal_Channel.scad'
+    output_prefix: 'diag_Channel'
+    enabled: true
+    parameters:
+      Channel_Width_in_Units: [1, 2, 3]
+      Channel_Internal_Height: [12, 18, 24]
+      Units_Over: [1, 2, 3]
+      Units_Up: [1, 2, 3]
+      Straight_Distance: [12.5, 25]
+      Mounting_Method:
+        - 'Threaded Snap Connector'
+        - 'Flat'
+        - 'Wood Screw'
+      Output_Direction: 
+        - 'Forward'
+        - 'Turn'
+    groups:
+      - enabled: true
+        fixed_parameters:
+          Mounting_Method: 'Threaded Snap Connector'
+          Channel_Internal_Height: [12]
+          Channel_Width_in_Units: [1]
+          Units_Over: [1]
+          Units_Up: [1]
+          Straight_Distance: [12.5]
+        variable_parameters: 
+          - Output_Direction
+        output_folder: 'Group1'
+
+parameter_prefixes:
+  Channel_Length_Units: 'Len'
+  Channel_Width_in_Units: 'Wid'
+  Channel_Internal_Height: 'Hgt'
+  Mounting_Method: 'Mnt'
+  Curve_Radius_in_Units: 'Rad'
+  L_Channel_Length_in_Units: 'Len'
+  Y_Units_Over: 'Over'
+  Y_Units_Up: 'Up'
+  Straight_Distance: 'StrDist'
+  Y_Output_Direction: 'OutDir'
+  Units_Over: 'Over'
+  Units_Up: 'Up'
+  Output_Direction: 'OutDir'
+
+parameter_order:
+  - Mounting_Method  
+  - Channel_Length_Units
+  - Channel_Width_in_Units
+  - Channel_Internal_Height
+  - Curve_Radius_in_Units
+  - L_Channel_Length_in_Units
+  - Y_Units_Over
+  - Y_Units_Up
+  - Straight_Distance
+  - Y_Output_Direction
+  - Units_Over
+  - Units_Up
+  - Output_Direction
+
+value_abbreviations:
+  'Threaded Snap Connector': 'ThrSnap'
+  'Flat': 'Flat'
+  'Wood Screw': 'WoodScr'
+  'Direct Multiboard Screw': 'DirMultiScr'
+  'Forward': 'Fwd'
+  'Turn': 'Turn'
