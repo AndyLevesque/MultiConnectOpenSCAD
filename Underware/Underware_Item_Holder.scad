@@ -32,36 +32,36 @@ include <BOSL2/std.scad>
 include <BOSL2/walls.scad>
 
 /* [Internal Dimensions] */
-//Depth (in mm): internal dimension along the Z axis of print orientation. Measured from the top to the base of the internal floor, equivalent to the depth of the item you wish to hold when mounted horizontally.
+//Depth (by mm): internal dimension along the Z axis of print orientation. Measured from the top to the base of the internal floor, equivalent to the depth of the item you wish to hold when mounted horizontally.
 Internal_Depth = 50.0;
-//Width (in mm): internal dimension along the X axis of print orientation. Measured from left to right, equivalent to the width of the item you wish to hold when mounted horizontally.
+//Width (by mm): internal dimension along the X axis of print orientation. Measured from left to right, equivalent to the width of the item you wish to hold when mounted horizontally.
 Internal_Width = 50.0; 
-//Height (in mm): internal dimension along the Y axis of print orientation. Measured from the front to the back, equivalent to the thickness of the item you wish to hold when mounted horizontally.
+//Height (by mm): internal dimension along the Y axis of print orientation. Measured from the front to the back, equivalent to the thickness of the item you wish to hold when mounted horizontally.
 Internal_Height = 15.0;
 
 /*[Style Customizations]*/
-//Edge rounding (in mm)
+//Edge rounding (by mm)
 edgeRounding = 0.5; // [0:0.1:2]
 
 /* [Front Cutout Customizations] */
 //Cut out the front
 frontCutout = true; 
-//Distance upward (Z axis) from the bottom (in mm). This captures the bottom front of the item
+//Distance upward (Z axis) from the bottom (by mm). This captures the bottom front of the item
 frontLowerCapture = 7;
-//Distance downward (Z axis) from the top (in mm). This captures the top front of the item. Use zero (0) for a cutout top. May require printing supports if used. 
+//Distance downward (Z axis) from the top (by mm). This captures the top front of the item. Use zero (0) for a cutout top. May require printing supports if used. 
 frontUpperCapture = 0;
-//Distance inward (X axis) from the sides (in mm) that captures the sides of the item
+//Distance inward (X axis) from the sides (by mm) that captures the sides of the item
 frontLateralCapture = 3;
 
 
 /*[Bottom Cutout Customizations]*/
 //Cut out the bottom 
 bottomCutout = false;
-//Distance inward (Y axis) from the front (in mm). This captures the bottom front of the item
+//Distance inward (Y axis) from the front (by mm). This captures the bottom front of the item
 bottomFrontCapture = 3;
-//Distance inward (Y axis) from the back (in mm). That captures the bottom back of the item
+//Distance inward (Y axis) from the back (by mm). That captures the bottom back of the item
 bottomBackCapture = 3;
-//Distance inward (X axis) from the sides (in mm) that captures the bottom side of the item
+//Distance inward (X axis) from the sides (by mm) that captures the bottom side of the item
 bottomSideCapture = 3;
 
 /*[Cord Cutout Customizations]*/
@@ -69,35 +69,35 @@ bottomSideCapture = 3;
 cordCutout = false;
 //Diameter/width of cord cutout
 cordCutoutDiameter = 10;
-//Move the cord cutout laterally (X axis), left is positive and right is negative (in mm)
+//Move the cord cutout laterally (X axis), left is positive and right is negative (by mm)
 cordCutoutLateralOffset = 0;
-//Move the cord cutout depth (Y axis), forward is positive and back is negative (in mm)
+//Move the cord cutout depth (Y axis), forward is positive and back is negative (by mm)
 cordCutoutDepthOffset = 0;
 
 /* [Right Cutout Customizations] */
 rightCutout = false; 
-//Distance upward (Z axis) from the bottom (in mm) that captures the bottom right of the item
+//Distance upward (Z axis) from the bottom (by mm) that captures the bottom right of the item
 rightLowerCapture = 7;
-//Distance downward (Z axis) from the top (in mm) that captures the top right of the item. Use zero (0) for a cutout top. May require printing supports if used. 
+//Distance downward (Z axis) from the top (by mm) that captures the top right of the item. Use zero (0) for a cutout top. May require printing supports if used. 
 rightUpperCapture = 0;
-//Distance inward (Y axis) from the sides (in mm) that captures the right sides of the item
+//Distance inward (Y axis) from the sides (by mm) that captures the right sides of the item
 rightLateralCapture = 3;
 
 
 /* [Left Cutout Customizations] */
 leftCutout = false; 
-//Distance upward (Z axis) from the bottom (in mm) that captures the bottom left of the item
+//Distance upward (Z axis) from the bottom (by mm) that captures the bottom left of the item
 leftLowerCapture = 7;
-//Distance downward (Z axis) from the top (in mm) that captures the top left of the item. Use zero (0) for a cutout top. May require printing supports if used. 
+//Distance downward (Z axis) from the top (by mm) that captures the top left of the item. Use zero (0) for a cutout top. May require printing supports if used. 
 leftUpperCapture = 0;
-//Distance inward (Y axis) from the sides (in mm) that captures the left sides of the item
+//Distance inward (Y axis) from the sides (by mm) that captures the left sides of the item
 leftLateralCapture = 3;
 
 
 /* [Additional Customization] */
-//Thickness of item holder walls (in mm)
+//Thickness of item holder walls (by mm)
 wallThickness = 2; //.1
-//Thickness of item holder base (in mm)
+//Thickness of item holder base (by mm)
 baseThickness = 3; //.1
 
 /*[Slot Customization]*/
@@ -118,11 +118,15 @@ slotDepthMicroadjustment = 0; //[-.5:0.05:.5]
 //Enable a slot on-ramp for easy mounting of tall items
 onRampEnabled = false;
 //Frequency of slots for on-ramp. 1 = every slot; 2 = every 2 slots; etc.
-onRampEveryXSlots = 1;
+On_Ramp_Every_X_Slots = 1;
 
 /* [Hidden] */
 Wall_Type = "Solid"; //["Hex","Solid"]
 
+
+onRampEveryXSlots = 
+    onRampHalfOffset ? On_Ramp_Every_X_Slots : 
+    On_Ramp_Every_X_Slots == 1 ? 2 : On_Ramp_Every_X_Slots;
 
 //Calculated
 totalDepth = Internal_Depth+baseThickness;
