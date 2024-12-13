@@ -29,6 +29,7 @@ Snap_Holding_Tolerance = 1; //[0.5:0.05:2.0]
 //Length of the treaded portion of the snap connector. 3.6mm is standard.
 Snap_Thread_Height = 3.6;
 
+
 /*[Options: Bolts]*/
 //Length of the threaded portion of small screw. MB is 6mm thick and the recessed hole in base channels is 1mm deep.
 Thread_Length_Sm = 6.5;
@@ -36,6 +37,8 @@ Thread_Length_Sm = 6.5;
 /*[Advanced Options]*/
 //Color of part (color names found at https://en.wikipedia.org/wiki/Web_colors)
 Global_Color = "SlateBlue";
+//Octogon Scaling - Decrease if the octogon is too large for the snap connector. Increase if the octogon is too small.
+Oct_Scaling = 1; //[0.8:0.01:1.2]
 
 /*[Hidden]*/
 ///*[Small Screw Profile]*/
@@ -165,7 +168,7 @@ module snapConnectBacker(offset = 0, holdingTolerance=1, anchor=CENTER, spin=0, 
     union(){
     diff("remove")
         //base
-            oct_prism(h = 4.23, r = 11.4465, anchor=BOT) {
+            oct_prism(h = 4.23, r = 11.4465*Oct_Scaling, anchor=BOT) {
                 //first bevel
                 attach(TOP, BOT, shiftout=-0.01) oct_prism(h = 1.97, r1 = 11.4465, r2 = 12.5125, $fn =8, anchor=BOT)
                     //top - used as offset. Independen snap height is 2.2

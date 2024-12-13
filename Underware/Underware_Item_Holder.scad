@@ -19,6 +19,11 @@ Change Log:
     - Rounding added to edges
 - 2024-12-10
     - Hexagon panel option
+-2024-12-11
+    - Updated on-ramp logic to prevent on-ramps every slot when half offset is disabled
+    - Updated (in mm) to (by mm) for clarity
+-2024-12-13
+    -Ability to override slot distance from edge
 
 Notes:
 - Slot test fit - For a slot test fit, set the following parameters
@@ -119,6 +124,8 @@ slotDepthMicroadjustment = 0; //[-.5:0.05:.5]
 onRampEnabled = false;
 //Frequency of slots for on-ramp. 1 = every slot; 2 = every 2 slots; etc.
 On_Ramp_Every_X_Slots = 1;
+//Distance from the back of the item holder to where the multiconnect stops (i.e., where the dimple is) (by mm)
+Multiconnect_Stop_Distance_From_Back = 13;
 
 /* [Hidden] */
 Wall_Type = "Solid"; //["Hex","Solid"]
@@ -142,7 +149,7 @@ translate(v = [-Internal_Width/2,0,0])
     translate([0,0.02,totalDepth/2-baseThickness]) 
     rotate([0,Slot_From_Top ? 180 : 0,0])
     translate([-totalWidth/2,0,-totalDepth/2])//center
-    multiconnectBack(backWidth = totalWidth, backHeight = totalDepth, distanceBetweenSlots = distanceBetweenSlots);
+    multiconnectBack(backWidth = totalWidth, backHeight = totalDepth, distanceBetweenSlots = distanceBetweenSlots, slotStopFromBack = Multiconnect_Stop_Distance_From_Back);
 }
 
 //Create Basket
@@ -206,7 +213,7 @@ module basket() {
 
 //BEGIN MODULES
 //Slotted back Module
-module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
+module multiconnectBack(backWidth, backHeight, distanceBetweenSlots, slotStopFromBack = 13)
 {
     //slot count calculates how many slots can fit on the back. Based on internal width for buffer. 
     //slot width needs to be at least the distance between slot for at least 1 slot to generate
@@ -217,7 +224,7 @@ module multiconnectBack(backWidth, backHeight, distanceBetweenSlots)
             //Loop through slots and center on the item
             //Note: I kept doing math until it looked right. It's possible this can be simplified.
             for (slotNum = [0:1:slotCount-1]) {
-                translate(v = [distanceBetweenSlots/2+(backWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.35+slotDepthMicroadjustment,backHeight-13]) {
+                translate(v = [distanceBetweenSlots/2+(backWidth/distanceBetweenSlots-slotCount)*distanceBetweenSlots/2+slotNum*distanceBetweenSlots,-2.35+slotDepthMicroadjustment,backHeight-Multiconnect_Stop_Distance_From_Back]) {
                     slotTool(backHeight);
                 }
             }
