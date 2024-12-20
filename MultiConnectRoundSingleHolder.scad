@@ -66,7 +66,7 @@ union() {
                     circle(r = itemDiameter/2+rimThickness, $fn=50);
         }
         //itemDiameter (i.e., delete tool)
-        translate(v = [totalWidth/2,(itemDiameter/2)+offSet,baseThickness - (useCutout?+(baseThickness*2):0)]) linear_extrude(height = shelfSupportHeight+rimHeight+1+(useCutout?+(baseThickness*2):0)) circle(r = itemDiameter/2, $fn=50);
+        translate(v = [totalWidth/2,(itemDiameter/2)+offSet,baseThickness+.5 - (useCutout?+(baseThickness*2)+1:0)]) linear_extrude(height = shelfSupportHeight+rimHeight+1+(useCutout?+(baseThickness*2):0)) circle(r = itemDiameter/2, $fn=50);
     }
     //brackets
     bracketSize = min(totalHeight-baseThickness-shelfSupportHeight, itemDiameter/2);
