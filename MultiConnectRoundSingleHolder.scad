@@ -18,7 +18,7 @@ rimHeight = 10;
 additionalBackerHeight = 0;
 //Offset the holding position from the back wall
 offSet = 0;
-//use cutout
+//Use cutout for holding items that are wider at the top
 useCutout = false;
 
 /*[Slot Customization]*/
