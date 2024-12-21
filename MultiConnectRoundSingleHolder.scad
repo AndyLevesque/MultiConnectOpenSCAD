@@ -16,6 +16,10 @@ shelfSupportHeight = 3;
 rimHeight = 10;
 //Additional Backer Height (in mm) in case you prefer additional support for something heavy
 additionalBackerHeight = 0;
+//Offset the holding position from the back wall
+offSet = 0;
+//Use cutout for holding items that are wider at the top
+useCutout = false;
 
 /*[Slot Customization]*/
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
@@ -48,7 +52,7 @@ union() {
         //itemwalls
         union() {
             hull(){
-                translate(v = [totalWidth/2,itemDiameter/2,0]) 
+                translate(v = [totalWidth/2,itemDiameter/2+offSet,0]) 
                     //outer circle
                     linear_extrude(height = shelfSupportHeight+baseThickness) 
                             circle(r = itemDiameter/2+rimThickness, $fn=50);
@@ -57,12 +61,12 @@ union() {
                             square(size = [totalWidth,1]);
                 }
             //thin holding wall
-            translate(v = [totalWidth/2,itemDiameter/2,shelfSupportHeight+baseThickness]) 
+            translate(v = [totalWidth/2,itemDiameter/2+offSet,shelfSupportHeight+baseThickness]) 
                 linear_extrude(height = rimHeight) 
                     circle(r = itemDiameter/2+rimThickness, $fn=50);
         }
         //itemDiameter (i.e., delete tool)
-        translate(v = [totalWidth/2,itemDiameter/2,baseThickness]) linear_extrude(height = shelfSupportHeight+rimHeight+1) circle(r = itemDiameter/2, $fn=50);
+        translate(v = [totalWidth/2,(itemDiameter/2)+offSet,baseThickness+.5 - (useCutout?+(baseThickness*2)+1:0)]) linear_extrude(height = shelfSupportHeight+rimHeight+1+(useCutout?+(baseThickness*2):0)) circle(r = itemDiameter/2, $fn=50);
     }
     //brackets
     bracketSize = min(totalHeight-baseThickness-shelfSupportHeight, itemDiameter/2);
