@@ -112,6 +112,8 @@ onRampHalfOffset = true;
 Slot_From_Top = true;
 //Distance between Multiconnect slots on the back (25mm is standard for MultiBoard)
 distanceBetweenSlots = 25;
+//Reduce the number of slots
+subtractedSlots = 0;
 //QuickRelease removes the small indent in the top of the slots that lock the part into place
 slotQuickRelease = false;
 //Dimple scale tweaks the size of the dimple in the slot for printers that need a larger dimple to print correctly
@@ -217,7 +219,7 @@ module multiconnectBack(backWidth, backHeight, distanceBetweenSlots, slotStopFro
 {
     //slot count calculates how many slots can fit on the back. Based on internal width for buffer. 
     //slot width needs to be at least the distance between slot for at least 1 slot to generate
-    let (backWidth = max(backWidth,distanceBetweenSlots), backHeight = max(backHeight, 25),slotCount = floor(backWidth/distanceBetweenSlots), backThickness = 6.5){
+    let (backWidth = max(backWidth,distanceBetweenSlots), backHeight = max(backHeight, 25),slotCount = floor(backWidth/distanceBetweenSlots) - subtractedSlots, backThickness = 6.5){
         difference() {
             translate(v = [0,-backThickness,0]) 
             cuboid(size = [backWidth,backThickness,backHeight], rounding=edgeRounding, except_edges=BACK, anchor=FRONT+LEFT+BOT);
